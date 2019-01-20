@@ -1,21 +1,26 @@
 
 package team6072.robo2019;
 
-import java.util.logging.*;
+//import java.util.logging.*;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.command.Scheduler;
+import team6072.robo2019.commands.drive.ArcadeDriveCmd;
+import team6072.robo2019.subsystems.NavXSys;
 
-/**
- * The VM is configured to automatically run this class, and to call the
- * functions corresponding to each mode, as described in the TimedRobot
- * documentation. If you change the name of this class or the package after
- * creating this project, you must also update the build.gradle file in the
- * project.
- */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+
 public class Robot extends TimedRobot {
 
     // define the logger for this class. This should be done for every class
-    private static final Logger mLog = Logger.getLogger(Robot.class.getName());
+    private static final Logger mLog = LoggerFactory.getLogger(Robot.class);
+
+    private ControlBoard mControlBoard;
+
+
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -23,8 +28,10 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
-        mLog.log(Level.INFO, "robotInit: Logging on - level set to: {0}", mLog.getLevel());
+        mLog.info("robotInit: Logging on ---------------------------");
     }
+
+
 
     /**
      * This function is called every robot packet, no matter the mode. Use this for
@@ -38,6 +45,9 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
     }
+
+
+    // *********************** Autonomous *********************************************************
 
     /**
      * This autonomous (along with the chooser code above) shows how to select
@@ -56,6 +66,7 @@ public class Robot extends TimedRobot {
         mLog.info("autonomousInit: -----------------------------");
     }
 
+
     /**
      * This function is called periodically during autonomous.
      */
@@ -63,11 +74,20 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {
     }
 
+
+    // *********************** Teleop  *********************************************************
+
     @Override
     public void teleopInit() {
         mLog.info("teleopinit:  ---------------------------------");
         super.teleopInit();
+        NavXSys.getInstance().zeroYawHeading();
+        ArcadeDriveCmd mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+        Scheduler.getInstance().removeAll();
+        Scheduler.getInstance().add(mArcadeDriveCmd);
     }
+
+
 
     /**
      * This function is called periodically during operator control.
@@ -75,6 +95,8 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
     }
+
+    // ******************** test  ********************************************************
 
     /**
      * This function is called periodically during test mode.
