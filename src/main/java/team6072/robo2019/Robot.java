@@ -1,4 +1,3 @@
-
 package team6072.robo2019;
 
 //import java.util.logging.*;
@@ -28,7 +27,14 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
-        mLog.info("robotInit: Logging on ---------------------------");
+        try {
+            mLog.info("robotInit: ---------------------------------------------------");
+            mControlBoard = ControlBoard.getInstance();
+        } catch (Exception ex) {
+            mLog.error("******************************************************************");
+            mLog.error("Robot.robotInit:  exception: ", ex);
+            mLog.error("******************************************************************");
+        }
     }
 
 
@@ -63,7 +69,13 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-        mLog.info("autonomousInit: -----------------------------");
+        try {
+            mLog.info("autonomousInit: -----------------------------");
+        } catch (Exception ex) {
+            mLog.error("******************************************************************");
+            mLog.error("Robot.autoInit:  exception: ", ex);
+            mLog.error("******************************************************************");
+        }
     }
 
 
@@ -77,14 +89,24 @@ public class Robot extends TimedRobot {
 
     // *********************** Teleop  *********************************************************
 
+
+    ArcadeDriveCmd mArcadeDriveCmd;
+
     @Override
     public void teleopInit() {
-        mLog.info("teleopinit:  ---------------------------------");
-        super.teleopInit();
-        NavXSys.getInstance().zeroYawHeading();
-        ArcadeDriveCmd mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
-        Scheduler.getInstance().removeAll();
-        Scheduler.getInstance().add(mArcadeDriveCmd);
+        try {
+            mLog.info("teleopInit:  ---------------------------------");
+            super.teleopInit();
+            NavXSys.getInstance().zeroYawHeading();
+            mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            Scheduler.getInstance().removeAll();
+            Scheduler.getInstance().add(mArcadeDriveCmd);
+        }
+        catch (Exception ex) {
+            mLog.error("******************************************************************");
+            mLog.error("Robot.teleopInit:  exception: ", ex);
+            mLog.error("******************************************************************");
+        }
     }
 
 
@@ -94,6 +116,14 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
+        try {
+            // must call the scheduler to run
+            Scheduler.getInstance().run();
+        } catch (Exception ex) {
+            mLog.error("******************************************************************");
+            mLog.error("Robot.teleopPeriodic:  exception: ", ex);
+            mLog.error("******************************************************************");
+        }
     }
 
     // ******************** test  ********************************************************

@@ -9,8 +9,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import com.kauailabs.navx.frc.AHRS;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -58,7 +57,7 @@ public class DriveSys extends Subsystem {
      * avoid blocking main thread
      */
     private DriveSys() {
-        System.out.println("6072: DriveSys constructor");
+        mLog.info("DriveSys constructor  ----------------------------------------------");
 
         try {
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
@@ -89,7 +88,9 @@ public class DriveSys extends Subsystem {
             initYawPID();
             initDrivePID();
         } catch (Exception ex) {
-            System.out.println("Exception in DriveSys ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
+            mLog.error("******************************************************************");
+            mLog.error("DriveSys.ctor exception: ", ex);
+            mLog.error("******************************************************************");
         }
     }
 
@@ -103,8 +104,9 @@ public class DriveSys extends Subsystem {
      * the drivetrain completes the joystick command would be scheduled again.
      */
     public void initDefaultCommand() {
-        System.out.println("DriveSys: init default command");
+        mLog.info("DriveSys: init default command");
     }
+
 
     /**
      * Utility method to sleep for a period if we need to
@@ -115,6 +117,7 @@ public class DriveSys extends Subsystem {
         } catch (Exception ex) {
         }
     }
+
 
     /**
      * Set the quad posn to same as PW posn. Left motor sensor goes -ve when driving
@@ -138,20 +141,26 @@ public class DriveSys extends Subsystem {
         sleep(100);
     }
 
+
     public int getLeftSensPosn() {
         return mLeft_Master.getSensorCollection().getPulseWidthPosition();
     }
+
 
     public void arcadeDrive(double mag, double yaw) {
         yaw = yaw * 0.8; // reduce sensitivity on turn
         mRoboDrive.arcadeDrive(-mag, yaw, true);
     }
 
-    private int mTargetDist = 0; // distance to travel in ticks
-    private int mStartPosn = 0; // start position in Talon ticks
-    private int mTargPosn = 0; // mStartPosn + mTargetDist
-    private boolean mHitTarg = false; // set true when we hit target
-    private int mMoveDistLoopCnt; // used for debug output
+
+    //  ---------------------------  Drive a specified distance ------------------------------------
+
+
+    private int mTargetDist = 0;            // distance to travel in ticks
+    private int mStartPosn = 0;             // start position in Talon ticks
+    private int mTargPosn = 0;              // mStartPosn + mTargetDist
+    private boolean mHitTarg = false;       // set true when we hit target
+    private int mMoveDistLoopCnt;           // used for debug output
 
     /**
      * Tell the drive system that we want to drive N feet. Assume that the yaw PID
@@ -174,6 +183,7 @@ public class DriveSys extends Subsystem {
         mDrivePID.enable();
     }
 
+
     /**
      * While we have not completed driving, move forward Need to: check current
      * position decide if have driven far enough if not, keep driving if yes, stop
@@ -183,13 +193,14 @@ public class DriveSys extends Subsystem {
         double mag = mDrivePIDOut.getVal();
         double yaw = mYawPIDOut.getVal();
         if (mMoveDistLoopCnt++ % 5 == 0) {
-            System.out.printf("DS.driveDist: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn,
-                    curPosn, mTargPosn, mag, yaw);
+            mLog.debug(String.format("DS.driveDist: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n",
+                    mStartPosn, curPosn, mTargPosn, mag, yaw));
         }
         mRoboDrive.arcadeDrive(mag, yaw, false);
         mHitTarg = mDrivePID.onTarget();
     }
 
+    
     /**
      * Called by external system to find out if we have completed driving distance
      * 
@@ -198,6 +209,8 @@ public class DriveSys extends Subsystem {
     public boolean isDriveDistComplete() {
         return mDrivePID.onTarget();
     }
+
+
 
     // ---------------- Drive distance PID -----------------------------------------
 
@@ -220,8 +233,9 @@ public class DriveSys extends Subsystem {
     private PIDOutReceiver mDrivePIDOut;
     private PIDSourceTalonPW mTalonPIDSource;
 
+    
     private void initDrivePID() {
-        System.out.println("DS.initDrivePID:  ");
+        mLog.info("DS.initDrivePID:  ");
         mDrivePIDOut = new PIDOutReceiver();
         mTalonPIDSource = new PIDSourceTalonPW(mRight_Master);
         mDrivePID = new PIDController(kP_drive, kI_drive, kD_drive, kF_drive, mTalonPIDSource, mDrivePIDOut);
@@ -238,6 +252,9 @@ public class DriveSys extends Subsystem {
         mDrivePID.setContinuous(false);
     }
 
+
+
+
     // ------------------ NavX PID for yaw ------------------------------------
 
     static final double kF_yaw = 0.00;
@@ -253,7 +270,7 @@ public class DriveSys extends Subsystem {
     private PIDOutReceiver mYawPIDOut;
 
     private void initYawPID() {
-        System.out.println("DS.initYawPID:  AHRS.SrcType: " + mNavX.getPIDSourceType().name());
+        mLog.info("DS.initYawPID:  AHRS.SrcType: " + mNavX.getPIDSourceType().name());
         mYawPIDOut = new PIDOutReceiver();
         mYawPID = new PIDController(kP_yaw, kI_yaw, kD_yaw, kF_yaw, mNavX, mYawPIDOut);
         mYawPID.setName("DS.YawPID");
@@ -270,5 +287,7 @@ public class DriveSys extends Subsystem {
         mYawPID.setSetpoint(0);
         mYawPID.enable();
     }
+
+
 
 }

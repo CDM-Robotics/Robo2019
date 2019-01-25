@@ -4,10 +4,14 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import org.slf4j.*;
+
 /**
  * Wrap the AHRS in a singleton class to ensure that it is only created once
  */
 public class NavXSys {
+
+    private static final Logger mLog = LoggerFactory.getLogger(NavXSys.class);
 
     private static NavXSys mInstance;
 
@@ -21,6 +25,7 @@ public class NavXSys {
     private AHRS mNavX;
 
     private NavXSys() {
+        mLog.info("NavxSys.ctor  -----------------------------------------");
         try {
             /* Communicate w/navX-MXP via the MXP SPI Bus. */
             /* Alternatively: I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB */
@@ -32,7 +37,9 @@ public class NavXSys {
             mNavX.reset();
             mNavX.zeroYaw();
         } catch (Exception ex) {
-            System.out.println("NavXSys.ctor:  Error instantiating navX-MXP:  " + ex.getMessage());
+            mLog.error("******************************************************************");
+            mLog.error("NavXSys.ctor:  Error instantiating navX-MXP:  ", ex);
+            mLog.error("******************************************************************");
             throw ex;
         }
         System.out.println("NavXSys.ctor:  about to calibrate");
