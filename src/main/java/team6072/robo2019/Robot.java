@@ -1,23 +1,30 @@
 package team6072.robo2019;
 
-//import java.util.logging.*;
+import java.io.*;
+import java.util.logging.*;
 
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import team6072.robo2019.commands.drive.ArcadeDriveCmd;
-import team6072.robo2019.subsystems.NavXSys;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import team6072.robo2019.logging.*;
+import team6072.robo2019.commands.drive.ArcadeDriveCmd;
+import team6072.robo2019.commands.drive.DriveDistCmd;
+import team6072.robo2019.subsystems.DriveSys;
+import team6072.robo2019.subsystems.NavXSys;
 
 
 
 public class Robot extends TimedRobot {
 
     // define the logger for this class. This should be done for every class
-    private static final Logger mLog = LoggerFactory.getLogger(Robot.class);
+    private static LogWrapper mLog;
 
     private ControlBoard mControlBoard;
+
+    private DriveSys mDriveSys;
+
+    private NavXSys mNavXsys;
 
 
 
@@ -28,16 +35,36 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         try {
+            File dir = Filesystem.getDeployDirectory();
+            String logFile = "NOTFOUND";
+            if (dir.isDirectory()) {
+                logFile = dir.getAbsolutePath() + "/logging.properties";
+            }
+            System.out.println("**********  logConfig: " + logFile + "  *********************");
+            // BufferedReader br = new BufferedReader(new FileReader(logFile));
+            // String line = null;
+            // while ((line = br.readLine()) != null) {
+            //     System.out.println(line);
+            // }
+            // br.close();
+            FileInputStream configFile = new FileInputStream(logFile);
+            LogManager.getLogManager().readConfiguration(configFile);
+        } catch (IOException ex) {
+            System.out.println("WARNING: Could not open configuration file");
+            System.out.println("WARNING: Logging not configured (console output only)");
+        }
+        mLog = new LogWrapper(Robot.class.getName());
+        try {
             mLog.info("robotInit: ---------------------------------------------------");
             mControlBoard = ControlBoard.getInstance();
+            mDriveSys = DriveSys.getInstance();
+            mNavXsys = NavXSys.getInstance();
+            mDriveDistCmd = new DriveDistCmd(5);
+            mLog.info("robotInit: Completed   ---------------------------------------");
         } catch (Exception ex) {
-            mLog.error("******************************************************************");
-            mLog.error("Robot.robotInit:  exception: ", ex);
-            mLog.error("******************************************************************");
+            mLog.severe(ex, "Robot.robotInit:  exception: " + ex.getMessage());
         }
     }
-
-
 
     /**
      * This function is called every robot packet, no matter the mode. Use this for
@@ -52,6 +79,22 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
     }
 
+    private PeriodicLogger mDSSensors;
+
+    @Override
+    public void disabledInit() {
+        mLog.info("Robot.disabledInit");
+        mDSSensors = new PeriodicLogger(mLog, 50 * 5);
+    }
+
+    /**
+     * gets called every 20 mSec when disabeld
+     */
+    @Override
+    public void disabledPeriodic() {
+        //mLog.info("Robot.disabledPeriodic");
+        //mDSSensors.debug(mDriveSys.logSensors());
+    }
 
     // *********************** Autonomous *********************************************************
 
@@ -71,26 +114,26 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         try {
             mLog.info("autonomousInit: -----------------------------");
+            mDriveDistCmd.start();
         } catch (Exception ex) {
-            mLog.error("******************************************************************");
-            mLog.error("Robot.autoInit:  exception: ", ex);
-            mLog.error("******************************************************************");
+            mLog.severe(ex, "Robot.autoInit:  exception: " + ex.toString());
         }
     }
-
 
     /**
      * This function is called periodically during autonomous.
      */
     @Override
     public void autonomousPeriodic() {
+        Scheduler.getInstance().run();
+        mDSSensors.debug(mDriveSys.logSensors());
     }
 
 
     // *********************** Teleop  *********************************************************
 
-
     ArcadeDriveCmd mArcadeDriveCmd;
+    DriveDistCmd mDriveDistCmd;
 
     @Override
     public void teleopInit() {
@@ -101,15 +144,10 @@ public class Robot extends TimedRobot {
             mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
             Scheduler.getInstance().removeAll();
             Scheduler.getInstance().add(mArcadeDriveCmd);
-        }
-        catch (Exception ex) {
-            mLog.error("******************************************************************");
-            mLog.error("Robot.teleopInit:  exception: ", ex);
-            mLog.error("******************************************************************");
+        } catch (Exception ex) {
+            mLog.severe(ex, "Robot.teleopInit:  exception: " + ex.getMessage());
         }
     }
-
-
 
     /**
      * This function is called periodically during operator control.
@@ -119,10 +157,9 @@ public class Robot extends TimedRobot {
         try {
             // must call the scheduler to run
             Scheduler.getInstance().run();
+            mDSSensors.debug(mDriveSys.logSensors());
         } catch (Exception ex) {
-            mLog.error("******************************************************************");
-            mLog.error("Robot.teleopPeriodic:  exception: ", ex);
-            mLog.error("******************************************************************");
+            mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }
     }
 

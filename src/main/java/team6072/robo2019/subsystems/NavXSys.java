@@ -4,14 +4,14 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import org.slf4j.*;
+import team6072.robo2019.logging.*;
 
 /**
  * Wrap the AHRS in a singleton class to ensure that it is only created once
  */
 public class NavXSys {
 
-    private static final Logger mLog = LoggerFactory.getLogger(NavXSys.class);
+    private static final LogWrapper mLog = new LogWrapper(NavXSys.class.getName());
 
     private static NavXSys mInstance;
 
@@ -25,7 +25,7 @@ public class NavXSys {
     private AHRS mNavX;
 
     private NavXSys() {
-        mLog.info("NavxSys.ctor  -----------------------------------------");
+        mLog.info("NavXSys.ctor  -----------------------------------------");
         try {
             /* Communicate w/navX-MXP via the MXP SPI Bus. */
             /* Alternatively: I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB */
@@ -37,16 +37,16 @@ public class NavXSys {
             mNavX.reset();
             mNavX.zeroYaw();
         } catch (Exception ex) {
-            mLog.error("******************************************************************");
-            mLog.error("NavXSys.ctor:  Error instantiating navX-MXP:  ", ex);
-            mLog.error("******************************************************************");
+            mLog.severe("******************************************************************");
+            mLog.severe(ex, "NavXSys.ctor:  Error instantiating navX-MXP:  " + ex.getMessage());
+            mLog.severe("******************************************************************");
             throw ex;
         }
-        System.out.println("NavXSys.ctor:  about to calibrate");
+        mLog.info("NavXSys.ctor:  about to calibrate");
         while (mNavX.isCalibrating()) {
             sleep(10);
         }
-        System.out.println("NavXSys.ctor: YawAxis: " + mNavX.getBoardYawAxis().board_axis.getValue() + "  firmware: "
+        mLog.info("NavXSys.ctor: YawAxis: " + mNavX.getBoardYawAxis().board_axis.getValue() + "  firmware: "
                 + mNavX.getFirmwareVersion() + "  isConnected: " + mNavX.isConnected() + "  angle: "
                 + mNavX.getAngle());
     }
