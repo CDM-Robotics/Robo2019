@@ -8,7 +8,7 @@ public class DriveDistCmd extends Command {
 
 
     private DriveSys mDriveSys;
-    private float mDistInFeet;
+    private float mDistInInches;
     private boolean reverse = false;
     private int timeout = -1;
     //private CmdWatchdog mWatchDog;
@@ -20,21 +20,21 @@ public class DriveDistCmd extends Command {
     /**
      * Specify the the command requires the DriveSys subsystem
      */
-    public DriveDistCmd(float distInFeeet) {
+    public DriveDistCmd(float distInInches) {
         requires(DriveSys.getInstance());
-        mDistInFeet = distInFeeet;
+        mDistInInches = distInInches;
     }
 
-    public DriveDistCmd(float distInFeeet, int milliSecs, String cmdName) {
+    public DriveDistCmd(float distInInches, int milliSecs, String cmdName) {
         requires(DriveSys.getInstance());
         this.setName(cmdName);
-        mDistInFeet = distInFeeet;
+        mDistInInches = distInInches;
         this.timeout = milliSecs;
     }
 
-    public DriveDistCmd(float distInFeet, DIR direction) {
+    public DriveDistCmd(float distInInches, DIR direction) {
         requires(DriveSys.getInstance());
-        mDistInFeet = distInFeet;
+        mDistInInches = distInInches;
         if (direction == DIR.REVERSE) {
             reverse = true;
         } else {
@@ -46,7 +46,7 @@ public class DriveDistCmd extends Command {
     @Override
     protected void initialize() {
         mDriveSys = DriveSys.getInstance();
-        mDriveSys.initDriveDist(mDistInFeet);
+        mDriveSys.initDriveDist(mDistInInches);
         if (timeout != -1) {
             this.setTimeout(timeout/1000);
         }

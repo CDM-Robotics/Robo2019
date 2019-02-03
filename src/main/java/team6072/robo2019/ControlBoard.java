@@ -5,6 +5,9 @@ import java.util.*;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.command.Command;
+import team6072.robo2019.commands.drive.*;
+import team6072.robo2019.commands.elevator.*;
+
 
 /**
  * ControlBoard holds the code for interacting with the
@@ -63,7 +66,9 @@ public class ControlBoard {
         mDriveStick = new Joystick(DRIVE_USB_PORT);
         // mControlStick = new Joystick(CONTROL_USB_PORT);
 
-        // MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(4), null);
+        //MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(60), null);
+
+        MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
     }
 
     /**

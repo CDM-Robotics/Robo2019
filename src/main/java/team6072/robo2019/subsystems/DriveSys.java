@@ -1,6 +1,8 @@
 package team6072.robo2019.subsystems;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -12,6 +14,7 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PIDController;
 
 import team6072.robo2019.RobotConfig;
@@ -41,7 +44,7 @@ public class DriveSys extends Subsystem {
 
     public static DriveSys getInstance() {
         if (mInstance == null) {
-            mInstance = new DriveSys();
+            //mInstance = new DriveSys();
         }
         return mInstance;
     }
@@ -126,13 +129,18 @@ public class DriveSys extends Subsystem {
 
             mNavX = NavXSys.getInstance().getNavX();
             initYawPID();
-            initDrivePID();
+            createDrivePID();
+            SmartDashboard.putNumber("DS_kf", kF_drive);
+            SmartDashboard.putNumber("DS_kP", kP_drive);
+            SmartDashboard.putNumber("DS_kI", kI_drive);
+            SmartDashboard.putNumber("DS_kD", kD_drive);
             mLog.info("DriveSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
             mLog.severe(ex, "DriveSys.ctor exception: " + ex.getMessage());
             throw ex;
         }
     }
+
 
     /**
      * Each subsystem may, but is not required to, have a default command which is
@@ -157,6 +165,27 @@ public class DriveSys extends Subsystem {
         } catch (Exception ex) {
         }
     }
+
+    private static String TAL_LEFT = "DSTalLeft";
+    private static String TAL_RIGHT = "DSTalRight";
+
+    public String logMotor() {
+        double leftPercent = mLeft_Master.getMotorOutputPercent();
+        double leftOutVolts = mLeft_Master.getMotorOutputVoltage();
+        double leftCurrent = mLeft_Master.getOutputCurrent();
+        double rightPercent = mRight_Master.getMotorOutputPercent();
+        double rightOutVolts = mRight_Master.getMotorOutputVoltage();
+        double rightCurrent = mRight_Master.getOutputCurrent();
+        SmartDashboard.putNumber(TAL_LEFT + "_%", leftPercent);
+        SmartDashboard.putNumber(TAL_LEFT + "_V", leftOutVolts);
+        SmartDashboard.putNumber(TAL_LEFT + "_C", leftCurrent);
+        SmartDashboard.putNumber(TAL_RIGHT + "_%", rightPercent);
+        SmartDashboard.putNumber(TAL_RIGHT + "_V", rightOutVolts);
+        SmartDashboard.putNumber(TAL_RIGHT + "_C", rightCurrent);
+        return String.format("DS.motors  LEFT  pc: %.3f  v: %.3f  c: %.3f    RIGHT  c: %.3f  v: %.3f  c: %.3f",
+            leftPercent, leftOutVolts, leftCurrent, rightPercent, rightOutVolts, rightCurrent);
+    }
+
 
     public String logSensors() {
         int leftPW = mLeft_Master.getSensorCollection().getPulseWidthPosition();
@@ -234,22 +263,25 @@ public class DriveSys extends Subsystem {
      * has been initialized already - we may need to set up here later Need to: log
      * our start position calculate how many ticks we need to travel
      * 
-     * @param distInFeet
+     * @param distInInches
      */
-    public void initDriveDist(double distInFeet) {
-        double circumferenceInFeet = Math.PI * 0.5;
-        mTargetDist = (int) ((distInFeet / (circumferenceInFeet)) * 4096);
+    public void initDriveDist(double distInInches) {
+        double circumferenceInInches = Math.PI * 6;
+        double revsToTarg = distInInches / circumferenceInInches;
+        mTargetDist = (int) (revsToTarg * 4096);
         mStartPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
         mTargPosn = mStartPosn + mTargetDist;
-        //System.out.println("InitDd:  " + distInFeet + "  " + mTargetDist + "  " + mStartPosn + "  " + mTargPosn);
         mLog.debug(
-                "DS.initDriveDist:  distInFeet: %.3f   mTargdist:  %d    mStartPos: %d  mTargPosn: %d\n",
-                distInFeet, mTargetDist, mStartPosn, mTargPosn);
+                "-------------------------  initDriveDist  ----------------------------------------\n"
+                        + "DS.initDriveDist:  distInInches: %.3f   mTargDist:  %d    mStartPos: %d  mTargPosn: %d\n",
+                distInInches, mTargetDist, mStartPosn, mTargPosn);
         mLog.debug("DS.initDriveDist: current yaw: %.3f", NavXSys.getInstance().getYawHeading());
         mHitTarg = false;
         mMoveDistLoopCnt = 0;
+        mYawPID.reset();
         mYawPID.setSetpoint(NavXSys.getInstance().getYawHeading());
         mYawPID.enable();
+        initDrivePID();
         mDrivePID.setSetpoint(mTargPosn);
         mDrivePID.enable();
     }
@@ -263,10 +295,15 @@ public class DriveSys extends Subsystem {
         int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
         double mag = mDrivePIDOut.getVal();
         double yaw = mYawPIDOut.getVal();
-        if (mMoveDistLoopCnt++ % 5 == 0) {
-            mLog.debug("DS.driveDist: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n",
-                    mStartPosn, curPosn, mTargPosn, mag, yaw);
+        int error = mTargPosn - curPosn;
+        double pidErr = mDrivePID.getError();
+        SmartDashboard.putNumber("DS_PID_Err", error);
+        SmartDashboard.putNumber("DS_PID_PidErr", pidErr);
+        if (mMoveDistLoopCnt++ % 2 == 0) {
+            mLog.debug("DS.driveDist:   mag: %.3f  yaw: %.3f   cur: %d   err: %d    pidErr: %.3f \r\n", mag, yaw,
+                    curPosn, error, pidErr);
         }
+        mag = mag / PID_SCALE;
         mRoboDrive.arcadeDrive(mag, yaw, false);
         mHitTarg = mDrivePID.onTarget();
     }
@@ -280,8 +317,13 @@ public class DriveSys extends Subsystem {
     public boolean isDriveDistComplete() {
         if (mDrivePID.onTarget()) {
             int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
-            mLog.debug("DS.driveDist complete: targ: %d   cur: %d  ---------------------------------", mTargPosn,
-                    curPosn);
+            int err = mTargPosn - curPosn;
+            double pidErr = mDrivePID.getError();
+            SmartDashboard.putNumber("DS_PID_Err", err);
+            SmartDashboard.putNumber("DS_PID_PidErr", pidErr);
+            mLog.debug("DS.driveDist complete: targ: %d   cur: %d   err: %d   pidErr: %.3f \n" + 
+                "--------------------------------------------------------", 
+                mTargPosn, curPosn, err, pidErr);
             mLog.debug(logSensors());
             sleep(100);
             mLog.debug(logSensors());
@@ -295,42 +337,62 @@ public class DriveSys extends Subsystem {
     // ---------------- Drive distance PID -----------------------------------------
 
     // resources for understanding PID
+    // https://www.youtube.com/watch?v=wkfEZmsQqiA
     // http://blog.opticontrols.com/archives/344 -- good intro to PID
     // https://www.controleng.com/articles/feed-forwards-augment-pid-control/ --
     // what the feed forward term does
 
     // magic values used to initialize the PID controller
-    static final double kF_drive = 2.0; // feed forward - tries to estimate target and set motor to correct value
-    static final double kP_drive = 1.0; // specify the proportional (fixed) response to error
-    static final double kI_drive = 1.0; // specify response based on how big error is - larger error means bigger
-                                        // response
-    static final double kD_drive = 0.00; // rarely used - specify response based on how fast error is changing
+    // From the source code for the PIDController:
+    //  https://github.com/wpilibsuite/allwpilib/blob/master/wpilibj/src/main/java/edu/wpi/first/wpilibj/PIDBase.java
+    //  If a velocity PID controller is being used, the F term should be set to 1
+    //  over the maximum setpoint for the output. If a position PID controller is being used, the
+    //  F term should be set*to 1 over the maximum speed for the output measured in setpoint units per this controller's*
+    //  update period (see the default period in this class's constructor)
+    double kF_drive = 1.0; //3.0; // feed forward - tries to estimate target and set motor to correct value
+    double kP_drive = 4.0; //0.5; // specify the proportional (fixed) response to error
+    double kI_drive = 0.1; //0.2; // specify response based on how big error is - larger error means bigger response
+    double kD_drive = 0.4; //0.1; // rarely used - specify response based on how fast error is changing
 
-    // calculate allowed dist error in inches
-    private static final int ALLOWED_DISTERR = (int) (6 / (Math.PI * 6) * 4096);
+    double PID_SCALE = 1000;
+
+    // calculate allowed dist error in encoder ticks
+    private static final int ALLOWED_DISTERR = (int) (3 / (Math.PI * 6) * 4096);
 
     private PIDController mDrivePID;
     private PIDOutReceiver mDrivePIDOut;
     private PIDSourceTalonPW mTalonPIDSource;
 
-    
-    private void initDrivePID() {
-        mLog.info("DS.initDrivePID:  ");
+    /**
+     * Create the drive PID controller. Should only be done once
+     */
+    private void createDrivePID() {
         mDrivePIDOut = new PIDOutReceiver();
         mTalonPIDSource = new PIDSourceTalonPW(mRight_Master);
         mDrivePID = new PIDController(kP_drive, kI_drive, kD_drive, kF_drive, mTalonPIDSource, mDrivePIDOut);
         mDrivePID.setName("DS.DrivePID");
-        // mDrivePID.setInputRange(-180.0f, 180.0f);
-        mDrivePID.setOutputRange(-0.8, 0.8);
+
+        mDrivePID.setOutputRange(0-PID_SCALE, PID_SCALE);
         // Makes PIDController.onTarget() return True when PIDInput is within the
         // Setpoint +/- the absolute tolerance.
         mDrivePID.setAbsoluteTolerance(ALLOWED_DISTERR);
-        // Treats the input ranges as the same, continuous point rather than two
-        // boundaries, so it can calculate shorter routes.
-        // For example, in a Drive, 0 and 360 are the same point, and should be
-        // continuous. Needs setInputRanges.
         mDrivePID.setContinuous(false);
     }
+    
+    /**
+     * Initialize the drive PID for a new distance run
+     */
+    private void initDrivePID() {
+        kF_drive = SmartDashboard.getNumber("DS_kf", 0.0);
+        kP_drive = SmartDashboard.getNumber("DS_kP", 0.0);
+        kI_drive = SmartDashboard.getNumber("DS_kI", 0.0);
+        kD_drive = SmartDashboard.getNumber("DS_kD", 0.00);
+        mDrivePID.reset();
+        mDrivePID.setPID(kP_drive, kI_drive, kD_drive, kF_drive);
+        mLog.info("DS.initDrivePID:  kf: %.3f  kP: %.3f  kI: %.3f  kD: %.3f", kF_drive, kP_drive, kI_drive, kD_drive);
+    }
+
+
 
 
 

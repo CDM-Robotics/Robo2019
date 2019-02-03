@@ -10,7 +10,9 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import team6072.robo2019.logging.*;
 import team6072.robo2019.commands.drive.ArcadeDriveCmd;
 import team6072.robo2019.commands.drive.DriveDistCmd;
+import team6072.robo2019.commands.elevator.ElvMoveUpSlow;
 import team6072.robo2019.subsystems.DriveSys;
+import team6072.robo2019.subsystems.ElevatorSys;
 import team6072.robo2019.subsystems.NavXSys;
 
 
@@ -23,6 +25,7 @@ public class Robot extends TimedRobot {
     private ControlBoard mControlBoard;
 
     private DriveSys mDriveSys;
+    private ElevatorSys mElvSys;
 
     private NavXSys mNavXsys;
 
@@ -55,11 +58,11 @@ public class Robot extends TimedRobot {
         }
         mLog = new LogWrapper(Robot.class.getName());
         try {
-            mLog.info("robotInit: ---------------------------------------------------");
+            mLog.info("robotInit2: ---------------------------------------------------");
             mControlBoard = ControlBoard.getInstance();
-            mDriveSys = DriveSys.getInstance();
+            //mDriveSys = DriveSys.getInstance();
+            mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
-            mDriveDistCmd = new DriveDistCmd(5);
             mLog.info("robotInit: Completed   ---------------------------------------");
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.robotInit:  exception: " + ex.getMessage());
@@ -79,16 +82,17 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
     }
 
-    private PeriodicLogger mDSSensors;
+    private PeriodicLogger mLogPeriodic;
 
     @Override
     public void disabledInit() {
         mLog.info("Robot.disabledInit");
-        mDSSensors = new PeriodicLogger(mLog, 50 * 5);
+        mLogPeriodic = new PeriodicLogger(mLog, 50);
+        Scheduler.getInstance().removeAll();
     }
 
     /**
-     * gets called every 20 mSec when disabeld
+     * gets called every 20 mSec when disabled
      */
     @Override
     public void disabledPeriodic() {
@@ -112,12 +116,13 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-        try {
-            mLog.info("autonomousInit: -----------------------------");
-            mDriveDistCmd.start();
-        } catch (Exception ex) {
-            mLog.severe(ex, "Robot.autoInit:  exception: " + ex.toString());
-        }
+        // try {
+        //     mLog.info("autonomousInit: -----------------------------");
+        //     mDriveDistCmd = new DriveDistCmd(60);
+        //     mDriveDistCmd.start();
+        // } catch (Exception ex) {
+        //     mLog.severe(ex, "Robot.autoInit:  exception: " + ex.toString());
+        // }
     }
 
     /**
@@ -126,14 +131,16 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         Scheduler.getInstance().run();
-        mDSSensors.debug(mDriveSys.logSensors());
+        //mLogPeriodic.debug(mDriveSys.logSensors());
     }
+
 
 
     // *********************** Teleop  *********************************************************
 
     ArcadeDriveCmd mArcadeDriveCmd;
     DriveDistCmd mDriveDistCmd;
+    ElvMoveUpSlow mElvSlowCmd;
 
     @Override
     public void teleopInit() {
@@ -141,13 +148,15 @@ public class Robot extends TimedRobot {
             mLog.info("teleopInit:  ---------------------------------");
             super.teleopInit();
             NavXSys.getInstance().zeroYawHeading();
-            mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            //mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            mElvSlowCmd = new ElvMoveUpSlow();
             Scheduler.getInstance().removeAll();
-            Scheduler.getInstance().add(mArcadeDriveCmd);
+            Scheduler.getInstance().add(mElvSlowCmd);      //mArcadeDriveCmd);
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopInit:  exception: " + ex.getMessage());
         }
     }
+
 
     /**
      * This function is called periodically during operator control.
@@ -157,7 +166,7 @@ public class Robot extends TimedRobot {
         try {
             // must call the scheduler to run
             Scheduler.getInstance().run();
-            mDSSensors.debug(mDriveSys.logSensors());
+            //mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }
