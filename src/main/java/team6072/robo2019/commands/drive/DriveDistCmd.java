@@ -64,6 +64,7 @@ public class DriveDistCmd extends Command {
     @Override
     // command group timeout should call this method
     protected void interrupted() {
+        System.out.println("DriveDistCmd.interrupted   ----------------------------");
         mDriveSys.arcadeDrive(0, 0); // stop the wheels from continuing to spin
         super.interrupted();
     }
@@ -71,6 +72,7 @@ public class DriveDistCmd extends Command {
     @Override
     protected synchronized boolean isTimedOut() {
         if (super.isTimedOut()) {
+            System.out.println("DriveDistCmd.isTimedOut -- isTimedOut is true  ----------------------------");
             mDriveSys.arcadeDrive(0, 0);
         }
         return super.isTimedOut();
@@ -89,4 +91,6 @@ public class DriveDistCmd extends Command {
         }
         return mDriveSys.isDriveDistComplete();
     }
+
+    
 }

@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.kauailabs.navx.frc.AHRS;
@@ -44,7 +45,7 @@ public class DriveSys extends Subsystem {
 
     public static DriveSys getInstance() {
         if (mInstance == null) {
-            //mInstance = new DriveSys();
+            mInstance = new DriveSys();
         }
         return mInstance;
     }
@@ -69,7 +70,6 @@ public class DriveSys extends Subsystem {
 
         try {
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
-            mLeft_Master.setSafetyEnabled(false);
             // SetInverted is added to decide if motor should spin clockwise or counter
             // clockwise when told to move positive/forward (green LEDs)
             // This will invert the hbridge output but NOT the LEDs.
@@ -82,8 +82,10 @@ public class DriveSys extends Subsystem {
             // output gets promoted to a minimum output. For example, if the nominal forward
             // is set to +0.10 (+10%), then any motor request within (0%, +10%) will be
             // promoted to +10% assuming request is beyond the neutral dead band.
-            mLeft_Master.configNominalOutputForward(0.1, 10);
-            mLeft_Master.configNominalOutputReverse(-0.1, 10);
+            mLeft_Master.configNominalOutputForward(0.0, 10);
+            mLeft_Master.configNominalOutputReverse(-0.0, 10);
+            mLeft_Master.configPeakOutputForward(1.0, 10);
+            mLeft_Master.configPeakOutputReverse(-1.0, 10);
 
             // Current Limiting: If enabled, Talon SRX will monitor the supply-current
             // looking for a conditions where current has exceeded the Peak Current for at
@@ -102,9 +104,13 @@ public class DriveSys extends Subsystem {
             mRight_Master.setInverted(RIGHT_INVERT);
             mRight_Master.setSensorPhase(RIGHT_SENSPHASE);
 
-            mRight_Master.setSafetyEnabled(false);
             mRight_Master.configOpenloopRamp(0.1, 10);
             mRight_Master.setNeutralMode(NeutralMode.Brake);
+
+            mRight_Master.configNominalOutputForward(0.0, 10);
+            mRight_Master.configNominalOutputReverse(-0.0, 10);
+            mRight_Master.configPeakOutputForward(1.0, 10);
+            mRight_Master.configPeakOutputReverse(-1.0, 10);
 
             mRight_Master.configPeakCurrentLimit(100, 10);
             mRight_Master.configPeakCurrentDuration(100);
@@ -115,9 +121,21 @@ public class DriveSys extends Subsystem {
             mRight_Slave0.follow(mRight_Master, FollowerType.PercentOutput);
             mRight_Slave0.setInverted(InvertType.FollowMaster);
 
+            // // Set the quadrature encoders to be the source feedback device for the talons
+            // mLeft_Master.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+            // mRight_Master.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+            // // config cruise velocity, acceleration
+            // mLeft_Master.configMotionCruiseVelocity(1512, kTimeoutMs); // determined with PhoenixTuner, for motor output 99.22%
+            // mLeft_Master.configMotionAcceleration(756, kTimeoutMs); // cruise velocity / 2, so it will take 2 econds to reach cruise velocity
+            // mRight_Master.configMotionCruiseVelocity(1512, kTimeoutMs); // determined with PhoenixTuner, for motor output 99.22%
+            // mRight_Master.configMotionAcceleration(756, kTimeoutMs); // cruise velocity / 2, so it will take 2 seconds to reach cruise velocity
+
             mRoboDrive = new DifferentialDrive(mLeft_Master, mRight_Master);
+            // get rid of nagging message
+            mRoboDrive.setSafetyEnabled(true);
+            mRoboDrive.setExpiration(2);
             /*
-             * WPI drivetrain classes assume left and right are opposite by default. 
+             * From CTRE - WPI drivetrain classes assume left and right are opposite by default. 
              * Call this so we can apply + to both sides when moving forward. DO NOT CHANGE
              */
             mRoboDrive.setRightSideInverted(false);
@@ -152,7 +170,7 @@ public class DriveSys extends Subsystem {
      * the drivetrain completes the joystick command would be scheduled again.
      */
     public void initDefaultCommand() {
-        mLog.info("DriveSys: init default command");
+        mLog.info("DriveSys: init default command empty");
     }
 
 
@@ -188,11 +206,15 @@ public class DriveSys extends Subsystem {
 
 
     public String logSensors() {
+        int leftSelSens = mLeft_Master.getSelectedSensorPosition();
+        int rightSelSens = mRight_Master.getSelectedSensorPosition();
         int leftPW = mLeft_Master.getSensorCollection().getPulseWidthPosition();
         int rightPW = mRight_Master.getSensorCollection().getPulseWidthPosition();
         int leftQuad = mLeft_Master.getSensorCollection().getQuadraturePosition();
         int rightQuad = mRight_Master.getSensorCollection().getQuadraturePosition();
-        return String.format("DS.sensors:  leftPW: %5d  leftQuad: %5d   rightPW: %5d   rightQuad: %5d", leftPW, leftQuad, rightPW, rightQuad);
+        return String.format(
+                "DS.sensors:  leftSel: %5d  leftPW: %5d  leftQuad: %5d   rightSel: %5d  rightPW: %5d   rightQuad: %5d", 
+                leftSelSens, leftPW, leftQuad, rightSelSens, rightPW, rightQuad);
     }
 
 
@@ -296,11 +318,15 @@ public class DriveSys extends Subsystem {
         double mag = mDrivePIDOut.getVal();
         double yaw = mYawPIDOut.getVal();
         int error = mTargPosn - curPosn;
+        if (Math.abs(error) < (4096 + 2048)) {
+            // if within one revolution, lower the speed
+            mag = mag / 2;
+        }
         double pidErr = mDrivePID.getError();
         SmartDashboard.putNumber("DS_PID_Err", error);
         SmartDashboard.putNumber("DS_PID_PidErr", pidErr);
-        if (mMoveDistLoopCnt++ % 2 == 0) {
-            mLog.debug("DS.driveDist:   mag: %.3f  yaw: %.3f   cur: %d   err: %d    pidErr: %.3f \r\n", mag, yaw,
+        if (mMoveDistLoopCnt++ % 5 == 0) {
+            mLog.debug("DS.driveDist:   mag: %.3f  yaw: %.3f   cur: %d   err: %d    pidErr: %.3f \n", mag, yaw,
                     curPosn, error, pidErr);
         }
         mag = mag / PID_SCALE;
@@ -316,6 +342,7 @@ public class DriveSys extends Subsystem {
      */
     public boolean isDriveDistComplete() {
         if (mDrivePID.onTarget()) {
+            arcadeDrive(0, 0);
             int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
             int err = mTargPosn - curPosn;
             double pidErr = mDrivePID.getError();
@@ -351,7 +378,7 @@ public class DriveSys extends Subsystem {
     //  update period (see the default period in this class's constructor)
     double kF_drive = 1.0; //3.0; // feed forward - tries to estimate target and set motor to correct value
     double kP_drive = 4.0; //0.5; // specify the proportional (fixed) response to error
-    double kI_drive = 0.1; //0.2; // specify response based on how big error is - larger error means bigger response
+    double kI_drive = 0.0; //0.2; // specify response based on how big error is - larger error means bigger response
     double kD_drive = 0.4; //0.1; // rarely used - specify response based on how fast error is changing
 
     double PID_SCALE = 1000;
@@ -431,5 +458,65 @@ public class DriveSys extends Subsystem {
     }
 
 
+    // ------------------  Magic motion drive distance  -------------------------------------------
+
+    // Motion Magic values
+    /*
+     * kF calculation:
+     *  = full forward value * duty-cycle (%) / runtime calculated target (ticks, velocity units/100 ms) 
+     *  = 1023 * 100% / 1525 
+     *  = 0.67081967213114754098360655737705 (1525 determined through PhoenixTuner self-test)
+     */
+    private static final double kF = 0.67081967213114754098360655737705;
+    private static final double kP = 1;
+    private static final double kI = 0;
+    private static final double kD = 0;
+
+    private static final int kPIDLoopIdx = 0;
+    private static final int kTimeoutMs = 5;
+    private static final int kSlotIdx = 0;
+
+
+    private double mMMTarget;       // target in encoder ticks
+
+    public void initMagicMotion(double distInInches) {
+        double circumferenceInInches = Math.PI * 6;
+        double revsToTarg = distInInches / circumferenceInInches;
+        mTargetDist = (int) (revsToTarg * 4096);
+        mStartPosn = mRight_Master.getSelectedSensorPosition();
+        mMMTarget = mStartPosn + mTargetDist;
+
+        // select profile slot
+        mLeft_Master.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
+        mRight_Master.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
+        // config pidf values
+        mLeft_Master.config_kF(kSlotIdx, kF, kTimeoutMs);
+        mLeft_Master.config_kP(kSlotIdx, kP, kTimeoutMs);
+        mLeft_Master.config_kI(kSlotIdx, kI, kTimeoutMs);
+        mLeft_Master.config_kD(kSlotIdx, kD, kTimeoutMs);
+
+        mRight_Master.config_kF(kSlotIdx, kF, kTimeoutMs);
+        mRight_Master.config_kP(kSlotIdx, kP, kTimeoutMs);
+        mRight_Master.config_kI(kSlotIdx, kI, kTimeoutMs);
+        mRight_Master.config_kD(kSlotIdx, kD, kTimeoutMs);
+
+        mLeft_Master.setSelectedSensorPosition(0);
+        mRight_Master.setSelectedSensorPosition(0);
+
+        mLeft_Master.set(ControlMode.MotionMagic, mMMTarget);
+        mRight_Master.set(ControlMode.MotionMagic, mMMTarget);
+    }
+
+
+    /**
+     * Called by the command exec - test if in target tolerance and return true
+     * @param target
+     * @return
+     */
+    public boolean motionMagicOnTarget() {
+        double tolerance = 50;
+        double currentPos = mLeft_Master.getSelectedSensorPosition();
+        return Math.abs(currentPos - mMMTarget) < tolerance;
+    }
 
 }

@@ -60,8 +60,8 @@ public class Robot extends TimedRobot {
         try {
             mLog.info("robotInit2: ---------------------------------------------------");
             mControlBoard = ControlBoard.getInstance();
-            //mDriveSys = DriveSys.getInstance();
-            mElvSys = ElevatorSys.getInstance();
+            mDriveSys = DriveSys.getInstance();
+            //mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
             mLog.info("robotInit: Completed   ---------------------------------------");
         } catch (Exception ex) {
@@ -116,13 +116,13 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-        // try {
-        //     mLog.info("autonomousInit: -----------------------------");
-        //     mDriveDistCmd = new DriveDistCmd(60);
-        //     mDriveDistCmd.start();
-        // } catch (Exception ex) {
-        //     mLog.severe(ex, "Robot.autoInit:  exception: " + ex.toString());
-        // }
+        try {
+            mLog.info("autonomousInit: -----------------------------");
+            mDriveDistCmd = new DriveDistCmd(60);
+            mDriveDistCmd.start();
+        } catch (Exception ex) {
+            mLog.severe(ex, "Robot.autoInit:  exception: " + ex.toString());
+        }
     }
 
     /**
@@ -145,13 +145,13 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         try {
-            mLog.info("teleopInit:  ---------------------------------");
+            mLog.info("teleopInit2:  ---------------------------------");
             super.teleopInit();
             NavXSys.getInstance().zeroYawHeading();
-            //mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
-            mElvSlowCmd = new ElvMoveUpSlow();
             Scheduler.getInstance().removeAll();
-            Scheduler.getInstance().add(mElvSlowCmd);      //mArcadeDriveCmd);
+            mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            //mElvSlowCmd = new ElvMoveUpSlow();
+            Scheduler.getInstance().add(mArcadeDriveCmd);      //mArcadeDriveCmd);
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopInit:  exception: " + ex.getMessage());
         }
@@ -166,7 +166,7 @@ public class Robot extends TimedRobot {
         try {
             // must call the scheduler to run
             Scheduler.getInstance().run();
-            //mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }

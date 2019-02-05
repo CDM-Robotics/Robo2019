@@ -66,9 +66,9 @@ public class ControlBoard {
         mDriveStick = new Joystick(DRIVE_USB_PORT);
         // mControlStick = new Joystick(CONTROL_USB_PORT);
 
-        //MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(60), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(60), null);
 
-        MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
+        //MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
     }
 
     /**
