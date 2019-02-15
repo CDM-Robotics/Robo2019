@@ -8,7 +8,7 @@ import team6072.robo2019.subsystems.ElevatorSys;
 
 /**
  * Move the elevator up very slowly until irt has moved 500 ticks from start
- * Designed for testing the 
+ * Designed for testing the current needed to move elevator
  */
 public class ElvMoveUpSlow extends Command {
 
