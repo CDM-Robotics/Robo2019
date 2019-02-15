@@ -304,16 +304,16 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
                     mLog.debug("%s.calc.first: start: %.3f  EoS: %.3f  SoE: %.3f  set: %.3f  -------------------------",
                                 m_name, m_startPoint, m_rampStartofEnd, m_rampEndofStart, m_setpoint);
                 }
-                if (m_dirnPositive) {
-                    if (input < m_rampEndofStart) {
-                        rampScaleFactor = Math.abs(input - m_startPoint) / m_rampStartUnits;
-                    } else if (input > m_rampStartofEnd) {
+                if (m_dirnPositive) {                       // going up
+                    if (input < m_rampEndofStart) {         // inside start ramp
+                        rampScaleFactor = Math.max(0.19,Math.abs(input - m_startPoint) / m_rampStartUnits);
+                    } else if (input > m_rampStartofEnd) {  // inside end ramp
                         rampScaleFactor = Math.abs(m_setpoint - input) / m_rampEndUnits;
                     }
                 }
-                else {
+                else {                                      // going down
                     if (input > m_rampEndofStart) {
-                        rampScaleFactor = Math.abs(input - m_startPoint) / m_rampStartUnits;
+                        rampScaleFactor =  Math.abs(input - m_startPoint) / m_rampStartUnits;
                     } else if (input < m_rampStartofEnd) {
                         rampScaleFactor = Math.abs(m_setpoint - input) / m_rampEndUnits;
                     }
@@ -362,7 +362,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
                     // Don't block other PIDController operations on pidWrite()
                     m_thisMutex.unlock();
 
-                    //m_pidOutput.pidWrite(result);
+                    m_pidOutput.pidWrite(result);
                 }
             } finally {
                 if (m_thisMutex.isHeldByCurrentThread()) {

@@ -485,7 +485,7 @@ public class ElevatorSys extends Subsystem {
     private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * TICKS_PER_INCH);
 
     private static final double ROCKET_HATCH_MID_INCHES = (ROCKET_HATCH_LO_INCHES + 24 + 4);
-    private static final int ROCKET_HATCH_MID = 5000; //(int) (ROCKET_HATCH_MID_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_HATCH_MID = (int) (ROCKET_HATCH_MID_INCHES * TICKS_PER_INCH);
 
     private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
     private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * TICKS_PER_INCH);
@@ -525,7 +525,7 @@ public class ElevatorSys extends Subsystem {
         double kF = 0.0;
         double periodInSecs = 0.05; // for hold, check every 50 mS is fine
         m_movePID = new TTPIDController("elvTarg", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-        m_movePID.setAbsoluteTolerance(4096); // allow +- full revolution for on target - then hand over to posn hold to lock in
+        m_movePID.setAbsoluteTolerance(TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock in
         int curPosn = mTalon.getSelectedSensorPosition(0);
         int calcTarg = targ.getTicks();
         mLog.debug("initMoveToTarget: curPos: %d    targ: %s(%d)  calcTarg: %d  ---------------------", 
