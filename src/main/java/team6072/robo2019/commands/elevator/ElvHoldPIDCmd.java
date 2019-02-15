@@ -3,16 +3,20 @@
 package team6072.robo2019.commands.elevator;
 
 import edu.wpi.first.wpilibj.command.Command;
+
+import team6072.robo2019.logging.LogWrapper;
 import team6072.robo2019.subsystems.ElevatorSys;
 
 
 
-public class ElvHold extends Command {
+public class ElvHoldPIDCmd extends Command {
+
+    private static final LogWrapper mLog = new LogWrapper(ElvHoldPIDCmd.class.getName());
 
     private ElevatorSys mSys;
 
 
-    public ElvHold() {
+    public ElvHoldPIDCmd() {
         mSys = ElevatorSys.getInstance();
         requires(mSys);
     }
@@ -21,19 +25,22 @@ public class ElvHold extends Command {
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
+        mLog.debug("ElvHoldPIDCmd.init:  ----------------");
+        mSys.enableHoldPosnTTPID();
     }
 
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
+        return;
     }
 
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished() {
-        return false;
+        return true;
     }
     
 
@@ -47,6 +54,8 @@ public class ElvHold extends Command {
     // subsystems is scheduled to run
     @Override
     protected void interrupted() {
+        mLog.debug("ElvHoldPIDCmd.interrupt:  <<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>");
+        mSys.disableHoldPosnTTPID();
     }
 
 }

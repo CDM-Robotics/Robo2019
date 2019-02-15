@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.commands.drive.*;
 import team6072.robo2019.commands.elevator.*;
+import team6072.robo2019.subsystems.ElevatorSys.Target;
 
 
 /**
@@ -64,9 +65,17 @@ public class ControlBoard {
         mButtonList = new ArrayList<JoystickButton>();
 
         mDriveStick = new Joystick(DRIVE_USB_PORT);
-        // mControlStick = new Joystick(CONTROL_USB_PORT);
+        mControlStick = new Joystick(CONTROL_USB_PORT);
 
-        MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(60), null);
+        //MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(60), null);
+
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd());
+
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd());
+
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new ElvHoldPIDCmd(), null);
+        
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new ElvMoveToCmd(Target.RocketHatchMid), null);
 
         //MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
     }

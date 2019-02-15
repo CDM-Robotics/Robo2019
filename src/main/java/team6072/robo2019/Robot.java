@@ -60,8 +60,8 @@ public class Robot extends TimedRobot {
         try {
             mLog.info("robotInit2: ---------------------------------------------------");
             mControlBoard = ControlBoard.getInstance();
-            mDriveSys = DriveSys.getInstance();
-            //mElvSys = ElevatorSys.getInstance();
+            //mDriveSys = DriveSys.getInstance();
+            mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
             mLog.info("robotInit: Completed   ---------------------------------------");
         } catch (Exception ex) {
@@ -89,6 +89,8 @@ public class Robot extends TimedRobot {
         mLog.info("Robot.disabledInit");
         mLogPeriodic = new PeriodicLogger(mLog, 50);
         Scheduler.getInstance().removeAll();
+        mElvSys.disableHoldPosnTTPID();
+        mElvSys.disableMoveToPID();
     }
 
     /**
@@ -149,9 +151,9 @@ public class Robot extends TimedRobot {
             super.teleopInit();
             NavXSys.getInstance().zeroYawHeading();
             Scheduler.getInstance().removeAll();
-            mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
-            //mElvSlowCmd = new ElvMoveUpSlow();
-            Scheduler.getInstance().add(mArcadeDriveCmd);      //mArcadeDriveCmd);
+            //mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            // mElvSlowCmd = new ElvMoveUpSlow();
+            // Scheduler.getInstance().add(mElvSlowCmd);      //mArcadeDriveCmd);
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopInit:  exception: " + ex.getMessage());
         }
@@ -166,7 +168,7 @@ public class Robot extends TimedRobot {
         try {
             // must call the scheduler to run
             Scheduler.getInstance().run();
-            mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            mLogPeriodic.debug(mElvSys.printPosn("teleopInit"));  //(caller).logMotor()); //mDriveSys.logSensors());
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }

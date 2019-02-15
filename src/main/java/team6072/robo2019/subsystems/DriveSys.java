@@ -388,14 +388,14 @@ public class DriveSys extends Subsystem {
 
     private PIDController mDrivePID;
     private PIDOutReceiver mDrivePIDOut;
-    private PIDSourceTalonPW mTalonPIDSource;
+    private WPIPIDSourceTalon mTalonPIDSource;
 
     /**
      * Create the drive PID controller. Should only be done once
      */
     private void createDrivePID() {
         mDrivePIDOut = new PIDOutReceiver();
-        mTalonPIDSource = new PIDSourceTalonPW(mRight_Master);
+        mTalonPIDSource = new WPIPIDSourceTalon(mRight_Master);
         mDrivePID = new PIDController(kP_drive, kI_drive, kD_drive, kF_drive, mTalonPIDSource, mDrivePIDOut);
         mDrivePID.setName("DS.DrivePID");
 

@@ -1,25 +1,35 @@
 package team6072.robo2019.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.PIDSource;
-import edu.wpi.first.wpilibj.PIDSourceType;
 
-public class PIDSourceTalonPW implements PIDSource {
+import team6072.robo2019.pid.IPIDSource;
 
+
+
+public class PIDSourceTalonPW implements IPIDSource {
+
+    
     private WPI_TalonSRX mTalon;
+    private IPIDSource.PIDSourceType m_sourceType;
 
-    public PIDSourceTalonPW(WPI_TalonSRX talon) {
+    private int m_sensIdx;
+
+
+    public PIDSourceTalonPW(WPI_TalonSRX talon, int sensIdx) {
         mTalon = talon;
+        m_sourceType = IPIDSource.PIDSourceType.kDisplacement;
+        m_sensIdx = sensIdx;
     }
 
-    @Override
-    public void setPIDSourceType(PIDSourceType pidSource) {
 
+    @Override
+    public void setPIDSourceType(IPIDSource.PIDSourceType srcType) {
+        m_sourceType = srcType;
     }
 
     @Override
     public PIDSourceType getPIDSourceType() {
-        return PIDSourceType.kDisplacement;
+        return m_sourceType;
     }
 
     /**
@@ -29,7 +39,7 @@ public class PIDSourceTalonPW implements PIDSource {
      */
     @Override
     public double pidGet() {
-        return mTalon.getSensorCollection().getPulseWidthPosition();
+        return mTalon.getSelectedSensorPosition(m_sensIdx);
     }
 
 }

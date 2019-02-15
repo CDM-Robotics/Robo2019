@@ -10,6 +10,8 @@ public class PeriodicLogger {
 
     private int mCallCount;
 
+    private boolean m_enabled;
+
 
     /**
      * Only log every Nth call to the logger
@@ -20,46 +22,55 @@ public class PeriodicLogger {
         mLog = logger;
         mPeriod = period;
         mCallCount = 0;
+        m_enabled = true;
+    }
+
+    public void enable() {
+        m_enabled = true;
+    }
+
+    public void disable() {
+        m_enabled = false;
     }
 
 
     public void info(String msg) {
-        if (++mCallCount >= mPeriod) {
+        if (m_enabled && ++mCallCount >= mPeriod) {
             mLog.info(msg);
             mCallCount = 0;
         }
     }
 
     public void infomf(String msg, Object... params) {
-        if (++mCallCount >= mPeriod) {
+        if (m_enabled && ++mCallCount >= mPeriod) {
             mLog.infomf(msg, params);
             mCallCount = 0;
         }
     }
 
     public void info(String msg, Object... params) {
-        if (++mCallCount >= mPeriod) {
+        if (m_enabled && ++mCallCount >= mPeriod) {
             mLog.info(msg, params);
             mCallCount = 0;
         }
     }
 
     public void debug(String msg) {
-        if (++mCallCount >= mPeriod) {
+        if (m_enabled && ++mCallCount >= mPeriod) {
             mLog.debug(msg);
             mCallCount = 0;
         }
     }
 
     public void debugmf(String msg, Object... params) {
-        if (++mCallCount >= mPeriod) {
+        if (m_enabled && ++mCallCount >= mPeriod) {
             mLog.debugmf(msg, params);
             mCallCount = 0;
         }
     }
 
     public void debug(String msg, Object... params) {
-        if (++mCallCount >= mPeriod) {
+        if (m_enabled && ++mCallCount >= mPeriod) {
             mLog.debug(msg, params);
             mCallCount = 0;
         }
