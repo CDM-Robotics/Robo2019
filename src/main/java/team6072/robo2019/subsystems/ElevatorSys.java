@@ -22,6 +22,75 @@ public class ElevatorSys extends Subsystem {
         Up, Down
     }
 
+    private static final double GEAR_DIA_INCHES = 1.5;
+
+    // MEASURE the ticks per inch on physical mechanism
+    private static final int TICKS_PER_INCH = 370; // MEASURED
+    private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
+
+    private static final double ELEVATOR_FLOOR_INCHES = 13.0; // inches from ground when elevator at zero
+
+    // --------------------------------------Rocket
+    // Hatch----------------------------------------------
+
+    private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
+    private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * TICKS_PER_INCH);
+
+    private static final double ROCKET_HATCH_MID_INCHES = (ROCKET_HATCH_LO_INCHES + 24 + 4);
+    private static final int ROCKET_HATCH_MID = (int) (ROCKET_HATCH_MID_INCHES * TICKS_PER_INCH);
+
+    private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
+    private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * TICKS_PER_INCH);
+
+    // -------------------------------------Rocket
+    // Cargo----------------------------------------------
+
+    private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - ELEVATOR_FLOOR_INCHES);
+    private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * TICKS_PER_INCH);
+
+    private static final double ROCKET_CARGO_MID_INCHES = (ROCKET_CARGO_LO_INCHES + 24 + 4);
+    private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_INCHES * TICKS_PER_INCH);
+
+    private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
+    private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * TICKS_PER_INCH);
+
+    // --------------------------------------Cargoship
+    // Hatch----------------------------------------
+
+    private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
+    private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * TICKS_PER_INCH);
+
+    // --------------------------------------CARGOSHIP
+    // CARGO----------------------------------------
+
+    private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - ELEVATOR_FLOOR_INCHES);
+    // extra 2 inches for safety^^^
+    private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_INCHES * TICKS_PER_INCH);
+
+    public enum ElvTarget {
+        RocketHatchHi(ROCKET_HATCH_HI), RocketHatchMid(ROCKET_HATCH_MID), RocketHatchLo(ROCKET_HATCH_LO),
+        RocketCargoHi(ROCKET_CARGO_HI), RocketCargoMid(ROCKET_CARGO_MID), RocketCargoLo(ROCKET_CARGO_LO),
+        CargoshipHatch(CARGOSHIP_HATCH), CargoshipCargo(CARGOSHIP_CARGO);
+
+        private int mTicks;
+
+        ElvTarget(int ticks) {
+            mTicks = ticks;
+        }
+
+        public int getTicks() {
+            return mTicks;
+        }
+    }
+
+    private ElvTarget m_targ;
+    private TTPIDController m_movePID;
+    private TTPIDController m_holdPID;
+    private PIDSourceTalonPW m_PidSourceTalonPW;
+    private PIDOutTalon m_PidOutTalon;
+
+    private boolean m_usingHoldPID;
+
 
     /**
      * How many sensor units per rotation.
@@ -220,29 +289,19 @@ public class ElevatorSys extends Subsystem {
         double voltOut = mTalon.getMotorOutputVoltage();
         double curOut = mTalon.getOutputCurrent();
         mLastSensPosn = absSensPosn;
-        double closedLoopErr = mTalon.getClosedLoopError(0);
 
         mLastQuadPosn = quadPosn;
         return String.format("ES.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
                 caller, mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
-        // System.out.println("ArmSys." + caller + ": topSwitch: " + mTopCounter.get() +
-        // " botSwitch: " + mBotCounter.get());
-        // System.out.println("ArmSys." + caller + ": Vel: " + vel + " pwVel: " + pwVel
-        // + " MotorOut: " + mout + " voltOut: " + voltOut+ " clErr: " + closedLoopErr);
-        // System.out.println("ES." + caller + ":  base: " + mBasePosn + "  sens: " + sensPosnSign + absSensPosn
-        //         + "  rDelta: " + relDelta + "  quad: " + quadPosn + "  qDelta: " + quadDelta + "  pw: " + pwPosn
-        //         + "  clErr: " + closedLoopErr);
-
-        // System.out.println(" out%: " + mout + " volt: " + voltOut + " curOut: " + curOut);
-        // shuffleBd();
     }
     
 
     // MovSlowUpCmd  --------------------------------------------------------
 
-    private int mStartPosn = 0;
+    // move up very slowly unitl we have moved 2 inches. Idea is to find minimum power
+    // need to move the elevator up, because it is very negatively weighted
 
-    private int mCurPosn = 0;
+    private int mStartPosn = 0;
 
     private double mPercentOut;
 
@@ -261,17 +320,17 @@ public class ElevatorSys extends Subsystem {
     public void execMovSlowUp() {
         mPercentOut += 0.001;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog.debug(printPosn("initMovSlowUp"));
+        mPLog.debug(printPosn("execMovSlowUp"));
     }
 
 
     public boolean isCompleteMovSlowUp() {
         int curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        boolean isFin = (curPosn - mStartPosn) >= 500;
+        boolean isFin = (curPosn - mStartPosn) >= TICKS_PER_INCH * 2;
         if (isFin) {
             mLog.debug(printPosn("isComp") + "\n------------------------------------------------------");
-            mLog.debug("Holding at output 0.18");
-            mPercentOut = 0.19;
+            mLog.debug("Holding at output %.3f", BASE_PERCENT_OUT);
+            mPercentOut = BASE_PERCENT_OUT;
             mTalon.set(ControlMode.PercentOutput, mPercentOut);
         }
         return isFin;
@@ -293,16 +352,19 @@ public class ElevatorSys extends Subsystem {
 
     // ------------------ Move Up  -------------------------------------------------------------
 
+    /**
+     * Move up at 0.3 power more than hold
+     */
     public void initMoveUp() {
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        mPercentOut = 0.0;
+        mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initMoveUp") + "--------------------------------------------------------");
     }
 
     public void execMoveUp() {
-        mPercentOut = 0.4;
+        mPercentOut = BASE_PERCENT_OUT + 0.3;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveUp"));
     }
@@ -310,9 +372,12 @@ public class ElevatorSys extends Subsystem {
 
     // ------------------ Move Down  -------------------------------------------------------------
 
+    /**
+     * Moe down at -0.1 power
+     */
     public void initMoveDown() {
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        mPercentOut = 0.0;
+        mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initMoveDown"));
@@ -328,15 +393,12 @@ public class ElevatorSys extends Subsystem {
 
     // ---------- hold posn PID using the TritonTech PID  ----------------------------------
 
-    private TTPIDController m_holdPID;
-    private PIDSourceTalonPW m_PidSourceTalonPW;
-    private PIDOutTalon m_PidOutTalon;
 
     /**
      * Sensor is on output of gearing (not on motor)
      * Set the tolerance to +- 0.5 inches
      */
-    public void initHoldPosnTTPID() {
+    public void initHoldPosnPID() {
 
         m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
         double kP = 0.2/500;              // want 20% power when hit tolerance band of 500 units (was 0.001)
@@ -349,21 +411,24 @@ public class ElevatorSys extends Subsystem {
     }
 
 
-    public void enableHoldPosnTTPID() {
+    /**
+     * Hold at the current position
+     */
+    public void enableHoldPosnPID() {
         int curPosn = mTalon.getSelectedSensorPosition(0);
-        enableHoldPosnTTPID(curPosn);
+        enableHoldPosnPID(curPosn);
     }
 
     /**
      * Do a PID hold at the specified sensor position
      */
-    public void enableHoldPosnTTPID(int posn) {
+    public void enableHoldPosnPID(int posn) {
         if (m_holdPID == null) {
-            initHoldPosnTTPID();
+            initHoldPosnPID();
         }
         m_holdPID.reset();
-        mLog.debug("enableHoldPosnTTPID: posn: %d    ---------------------", posn);
-        mLog.debug(printPosn("enableHoldPosnTTPID"));
+        mLog.debug("enableHoldPosnPID: posn: %d    ---------------------", posn);
+        mLog.debug(printPosn("enableHoldPosnPID"));
         m_holdPID.setSetpoint(posn);
         m_holdPID.enable();
     }
@@ -372,84 +437,16 @@ public class ElevatorSys extends Subsystem {
     /**
      * Disable the hold PID. This will send 0 to the PID out, which writes to the talon
      */
-    public void disableHoldPosnTTPID() {
+    public void disableHoldPosnPID() {
         if (m_holdPID != null) {
             m_holdPID.disable();
         }
         mTalon.set(ControlMode.PercentOutput, 0.0);
-        mLog.debug(printPosn("disableHoldPosnTTPID"));
+        mLog.debug(printPosn("disableHoldPosnPID"));
     }
 
 
     // move to target using PID  ---------------------------------------------
-
-
-    private static final double GEAR_DIA_INCHES = 1.5;
-    
-    // MEASURE the ticks per inch on physical mechanism
-    private static final int TICKS_PER_INCH = 370;      // MEASURED
-    private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
-
-    private static final double ELEVATOR_FLOOR_INCHES = 13.0; // inches from ground when elevator at zero
-
-    //--------------------------------------Rocket Hatch----------------------------------------------
-
-    private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
-    private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * TICKS_PER_INCH);
-
-    private static final double ROCKET_HATCH_MID_INCHES = (ROCKET_HATCH_LO_INCHES + 24 + 4);
-    private static final int ROCKET_HATCH_MID = (int) (ROCKET_HATCH_MID_INCHES * TICKS_PER_INCH);
-
-    private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
-    private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * TICKS_PER_INCH);
-
-    //-------------------------------------Rocket Cargo----------------------------------------------
-
-    private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - ELEVATOR_FLOOR_INCHES);
-    private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * TICKS_PER_INCH);
-
-    private static final double ROCKET_CARGO_MID_INCHES = (ROCKET_CARGO_LO_INCHES + 24 + 4);
-    private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_INCHES * TICKS_PER_INCH);
-
-    private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
-    private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * TICKS_PER_INCH);
-
-    //--------------------------------------Cargoship Hatch----------------------------------------
-
-    private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
-    private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * TICKS_PER_INCH);
-
-    //--------------------------------------CARGOSHIP CARGO----------------------------------------
-
-    private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - ELEVATOR_FLOOR_INCHES);
-                                                //extra 2 inches for safety^^^
-    private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_INCHES * TICKS_PER_INCH);
-
-    public enum ElvTarget {
-        RocketHatchHi(ROCKET_HATCH_HI), 
-        RocketHatchMid(ROCKET_HATCH_MID), 
-        RocketHatchLo(ROCKET_HATCH_LO),
-        RocketCargoHi(ROCKET_CARGO_HI), 
-        RocketCargoMid(ROCKET_CARGO_MID),
-        RocketCargoLo(ROCKET_CARGO_LO),
-        CargoshipHatch(CARGOSHIP_HATCH),
-        CargoshipCargo(CARGOSHIP_CARGO);     
-
-        private int mTicks;
-
-        ElvTarget(int ticks) {
-            mTicks = ticks;
-        }
-
-        public int getTicks() {
-            return mTicks;
-        }
-    }
-    
-    private ElvTarget m_targ;
-    private TTPIDController m_movePID;
-
-    private boolean m_usingHoldPID;
 
 
     /**
@@ -469,15 +466,16 @@ public class ElevatorSys extends Subsystem {
         m_movePID.setAbsoluteTolerance(TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock in
         int curPosn = mTalon.getSelectedSensorPosition(0);
         int calcTarg = targ.getTicks();
-        mLog.debug("initMoveToTarget: curPos: %d    targ: %s(%d)  calcTarg: %d  ---------------------", 
-                        curPosn, m_targ.toString(),m_targ.getTicks(), calcTarg);
+        mLog.debug("initMoveToTarget: curPos: %d    targ: %s(%d)  calcTarg: %d  ---------------------", curPosn,
+                m_targ.toString(), m_targ.getTicks(), calcTarg);
         mLog.debug(printPosn("initMoveToTarget"));
         m_usingHoldPID = false;
         m_movePID.setSetpoint(calcTarg);
-        m_movePID.setRamp(3 * TICKS_PER_INCH, 3 * TICKS_PER_INCH);      // set ramps to 3 inches
+        m_movePID.setRamp(3 * TICKS_PER_INCH, 3 * TICKS_PER_INCH); // set ramps to 3 inches
         m_movePID.enable();
     }
 
+    
     /**
      * Dont need to actually do anything here, because the PI if writign to the Talon
      * What we want to do is wait until the PID is close, then use the holdPID to lock in
@@ -487,7 +485,7 @@ public class ElevatorSys extends Subsystem {
             mLog.debug("ES.execMoveToTarget: on target");
             mLog.debug(printPosn("ES.execMoveToTarget:"));
             m_movePID.disable();
-            enableHoldPosnTTPID(m_targ.getTicks());
+            enableHoldPosnPID(m_targ.getTicks());
             m_usingHoldPID = true;
         }
     }
@@ -503,6 +501,7 @@ public class ElevatorSys extends Subsystem {
         return false;
     }
 
+    
     public void disableMoveToPID() {
         if (m_movePID != null) {
             m_movePID.disable();

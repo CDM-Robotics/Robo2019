@@ -26,7 +26,7 @@ public class ElvHoldPIDCmd extends Command {
     @Override
     protected void initialize() {
         mLog.debug("ElvHoldPIDCmd.init:  ----------------");
-        mSys.enableHoldPosnTTPID();
+        mSys.enableHoldPosnPID();
     }
 
 
@@ -55,7 +55,7 @@ public class ElvHoldPIDCmd extends Command {
     @Override
     protected void interrupted() {
         mLog.debug("ElvHoldPIDCmd.interrupt:  <<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>");
-        mSys.disableHoldPosnTTPID();
+        mSys.disableHoldPosnPID();
     }
 
 }
