@@ -151,7 +151,8 @@ public class Robot extends TimedRobot {
             super.teleopInit();
             NavXSys.getInstance().zeroYawHeading();
             Scheduler.getInstance().removeAll();
-            //mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            Scheduler.getInstance().add(mArcadeDriveCmd);
             // mElvSlowCmd = new ElvMoveUpSlow();
             // Scheduler.getInstance().add(mElvSlowCmd);      //mArcadeDriveCmd);
         } catch (Exception ex) {
