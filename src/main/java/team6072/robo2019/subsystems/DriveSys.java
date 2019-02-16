@@ -32,10 +32,23 @@ public class DriveSys extends Subsystem {
 
     private static final LogWrapper mLog = new LogWrapper(DriveSys.class.getName());
 
+    // Objective is to have the Talon LEDs flashing green when driving forward, and
+    // sensor phase in sync with velocity - use the graphing in the Phoenix Tuner
+    // plot to check
+    private static boolean LEFT_INVERT = RobotConfig.LEFT_INVERT;
+    private static boolean LEFT_SENSPHASE = RobotConfig.LEFT_SENSPHASE;
+
+    private static boolean RIGHT_INVERT = RobotConfig.RIGHT_INVERT;
+    private static boolean RIGHT_SENSPHASE = RobotConfig.RIGHT_SENSPHASE;
+
+
+
     private WPI_TalonSRX mLeft_Master;
-    private WPI_TalonSRX mLeft_Slave0;
+    private WPI_TalonSRX mLeft_Slave0; 
+    private WPI_TalonSRX mLeft_Slave1;      // only in 2019
     private WPI_TalonSRX mRight_Master;
     private WPI_TalonSRX mRight_Slave0;
+    private WPI_TalonSRX mRight_Slave1;     // only in 2019
 
     ArrayList<TalonSRX> mMasterTalons = new ArrayList<TalonSRX>();
 
@@ -51,13 +64,6 @@ public class DriveSys extends Subsystem {
     }
 
 
-    // Objective is to have the Talon LEDs flashing green when driving forward, and
-    // sensor phase in sync with velocity - use the graphing in the Phoenix Tuner plot to check
-    private static boolean LEFT_INVERT = false;
-    private static boolean LEFT_SENSPHASE = true;
-
-    private static boolean RIGHT_INVERT = true;
-    private static boolean RIGHT_SENSPHASE = true;
 
     /**
      * When configuring talon, the configXXX() methods have a timeout param.
@@ -100,6 +106,12 @@ public class DriveSys extends Subsystem {
             mLeft_Slave0.follow(mLeft_Master, FollowerType.PercentOutput);
             mLeft_Slave0.setInverted(InvertType.FollowMaster);
 
+            if (RobotConfig.IS_ROBO_2019) {
+                mLeft_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
+                mLeft_Slave1.follow(mLeft_Master, FollowerType.PercentOutput);
+                mLeft_Slave1.setInverted(InvertType.FollowMaster);
+            }
+
             mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
             mRight_Master.setInverted(RIGHT_INVERT);
             mRight_Master.setSensorPhase(RIGHT_SENSPHASE);
@@ -120,6 +132,12 @@ public class DriveSys extends Subsystem {
             mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
             mRight_Slave0.follow(mRight_Master, FollowerType.PercentOutput);
             mRight_Slave0.setInverted(InvertType.FollowMaster);
+
+            if (RobotConfig.IS_ROBO_2019) {
+                mRight_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
+                mRight_Slave1.follow(mLeft_Master, FollowerType.PercentOutput);
+                mRight_Slave1.setInverted(InvertType.FollowMaster);
+            }
 
             // // Set the quadrature encoders to be the source feedback device for the talons
             // mLeft_Master.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);

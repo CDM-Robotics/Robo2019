@@ -59,7 +59,13 @@ public class Robot extends TimedRobot {
         }
         mLog = new LogWrapper(Robot.class.getName());
         try {
-            mLog.info("robotInit2: ---------------------------------------------------");
+            if (RobotConfig.IS_ROBO_2019) {
+                mLog.info("robotInit: -----------------    2019    -----------------------     2019    2019    2019");
+            }
+            else {
+                mLog.info("robotInit: -----------------    2018    -----------------------     2018    2018    2018");
+            }
+
             mControlBoard = ControlBoard.getInstance();
             mDriveSys = DriveSys.getInstance();
             //mElvSys = ElevatorSys.getInstance();

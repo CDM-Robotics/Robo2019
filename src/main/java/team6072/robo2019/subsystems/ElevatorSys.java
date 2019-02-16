@@ -25,13 +25,12 @@ public class ElevatorSys extends Subsystem {
     private static final double GEAR_DIA_INCHES = 1.5;
 
     // MEASURE the ticks per inch on physical mechanism
-    private static final int TICKS_PER_INCH = 370; // MEASURED
+    private static final int TICKS_PER_INCH = RobotConfig.ELV_TICKS_PER_INCH; // MEASURED
     private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
 
     private static final double ELEVATOR_FLOOR_INCHES = 13.0; // inches from ground when elevator at zero
 
-    // --------------------------------------Rocket
-    // Hatch----------------------------------------------
+    // --------------------------------------Rocket  Hatch----------------------------------------------
 
     private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
     private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * TICKS_PER_INCH);
@@ -42,8 +41,7 @@ public class ElevatorSys extends Subsystem {
     private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
     private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * TICKS_PER_INCH);
 
-    // -------------------------------------Rocket
-    // Cargo----------------------------------------------
+    // -------------------------------------Rocket Cargo----------------------------------------------
 
     private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - ELEVATOR_FLOOR_INCHES);
     private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * TICKS_PER_INCH);
@@ -54,14 +52,12 @@ public class ElevatorSys extends Subsystem {
     private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
     private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * TICKS_PER_INCH);
 
-    // --------------------------------------Cargoship
-    // Hatch----------------------------------------
+    // --------------------------------------Cargoship Hatch----------------------------------------
 
     private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
     private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * TICKS_PER_INCH);
 
-    // --------------------------------------CARGOSHIP
-    // CARGO----------------------------------------
+    // --------------------------------------CARGOSHIP CARGO----------------------------------------
 
     private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - ELEVATOR_FLOOR_INCHES);
     // extra 2 inches for safety^^^
@@ -109,12 +105,10 @@ public class ElevatorSys extends Subsystem {
     // -------------------------------------------------------------------------------
 
     private WPI_TalonSRX mTalon;
+    private WPI_TalonSRX mTalon_Slave0;
 
-    private static final boolean TALON_INVERT = false;
-    // The sensor position must move in a positive direction as the motor controller
-    // drives positive output (and LEDs are green)
-    // true inverts the sensor
-    private static final boolean TALON_SENSOR_PHASE = false;
+    private static final boolean TALON_INVERT = RobotConfig.ELV_INVERT;
+    private static final boolean TALON_SENSOR_PHASE = RobotConfig.ELV_SENSOR_PHASE;
 
     private static final int TALON_FORWARD_LIMIT = -1;
 
@@ -179,10 +173,10 @@ public class ElevatorSys extends Subsystem {
     public ElevatorSys() {
         mLog.info("ElevatorSys ctor  ----------------------------------------------");
         try {
-            mTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
+            mTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_MASTER);
             mTalon.setSafetyEnabled(false);
             mTalon.configFactoryDefault();
-            mTalon.setName(String.format("%d: Elevator", RobotConfig.ELEVATOR_TALON));
+            mTalon.setName(String.format("%d: Elevator", RobotConfig.ELEVATOR_MASTER));
             // in case we are in magic motion or position hold mode
             mTalon.set(ControlMode.PercentOutput, 0);
 
@@ -190,6 +184,12 @@ public class ElevatorSys extends Subsystem {
             mTalon.setInverted(TALON_INVERT);
             mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
+
+            if (RobotConfig.IS_ROBO_2019) {
+                mTalon_Slave0 = new WPI_TalonSRX(RobotConfig.ELEVATOR_SLAVE0);
+                mTalon_Slave0.follow(mTalon, FollowerType.PercentOutput);
+                mTalon_Slave0.setInverted(InvertType.FollowMaster);
+            }
 
             // mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
             // mTalon.configForwardSoftLimitEnable(false, kTimeoutMs);
@@ -501,7 +501,7 @@ public class ElevatorSys extends Subsystem {
         return false;
     }
 
-    
+
     public void disableMoveToPID() {
         if (m_movePID != null) {
             m_movePID.disable();
