@@ -107,7 +107,7 @@ public class DriveSys extends Subsystem {
             mLeft_Slave0.setInverted(InvertType.FollowMaster);
 
             if (RobotConfig.IS_ROBO_2019) {
-                mLeft_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
+                mLeft_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE1);
                 mLeft_Slave1.follow(mLeft_Master, FollowerType.PercentOutput);
                 mLeft_Slave1.setInverted(InvertType.FollowMaster);
             }
@@ -134,7 +134,7 @@ public class DriveSys extends Subsystem {
             mRight_Slave0.setInverted(InvertType.FollowMaster);
 
             if (RobotConfig.IS_ROBO_2019) {
-                mRight_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
+                mRight_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE1);
                 mRight_Slave1.follow(mLeft_Master, FollowerType.PercentOutput);
                 mRight_Slave1.setInverted(InvertType.FollowMaster);
             }
