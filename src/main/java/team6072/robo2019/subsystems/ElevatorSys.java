@@ -481,6 +481,8 @@ public class ElevatorSys extends Subsystem {
 
     private static final double ELEVATOR_FLOOR_INCHES = 13.0; // inches from ground when elevator at zero
 
+    //--------------------------------------Rocket Hatch----------------------------------------------
+
     private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
     private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * TICKS_PER_INCH);
 
@@ -490,10 +492,25 @@ public class ElevatorSys extends Subsystem {
     private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
     private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * TICKS_PER_INCH);
 
+    //-------------------------------------Rocket Cargo----------------------------------------------
+
+    private static final double ROCKET_CARGO_LO_INCHES = ((12 + 3.5) - ELEVATOR_FLOOR_INCHES);
+    private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * TICKS_PER_INCH);
+
+    private static final double ROCKET_CARGO_MID_INCHES = (ROCKET_CARGO_LO_INCHES + 24 + 4);
+    private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_INCHES * TICKS_PER_INCH);
+
+    private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
+    private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * TICKS_PER_INCH);
+
     public enum Target {
         RocketHatchHi(ROCKET_HATCH_HI), 
         RocketHatchMid(ROCKET_HATCH_MID), 
-        RocketHatchLo(ROCKET_HATCH_LO);
+        RocketHatchLo(ROCKET_HATCH_LO),
+        RocketCARGOHi(ROCKET_CARGO_HI), 
+        RocketCARGOMid(ROCKET_CARGO_MID), 
+        RocketCARGOLo(ROCKET_CARGO_LO);
+
         private int mTicks;
 
         Target(int ticks) {
