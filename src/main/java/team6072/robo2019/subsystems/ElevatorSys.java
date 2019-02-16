@@ -57,6 +57,8 @@ public class ElevatorSys extends Subsystem {
      */
     private static final int TALON_ALLOWED_CLOSELOOP_ERROR = 0;
 
+    public static final int kTimeoutMs = 10;
+
     // Motor deadband, set to 1%.
     public static final double kNeutralDeadband = 0.01;
     /**
@@ -67,6 +69,8 @@ public class ElevatorSys extends Subsystem {
     public static final int kPIDSlot_Hold = 0;
     public static final int kPIDSlot_2 = 2;
     public static final int kPIDSlot_3 = 3;
+
+    public static final int kPIDLoopIdx = 0;
 
     // Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops.
     // public static final int kPIDLoopIdx = 0;
@@ -322,97 +326,7 @@ public class ElevatorSys extends Subsystem {
 
 
 
-
-    // ------------------ Magic motion drive distance   -------------------------------------------
-
-    // Motion Magic values
-    /*
-     * kF calculation: = full forward value * duty-cycle (%) / runtime calculated
-     * target (ticks, velocity units/100 ms) = 1023 * 100% / 1525 =
-     * 0.67081967213114754098360655737705 (1525 determined through PhoenixTuner
-     * self-test)
-     */
-    private static final double kF = 0.67081967213114754098360655737705;
-    private static final double kP = 1;
-    private static final double kI = 0;
-    private static final double kD = 0;
-
-    private static final int kPIDLoopIdx = 0;
-    private static final int kTimeoutMs = 5;
-    private static final int kSlotIdx = 0;
-
-    private double mMMTarget; // target in encoder ticks
-
-    private int mTargetDist;
-
-    public void initMagicMotion(double distInInches) {
-        double circumferenceInInches = Math.PI * 6;
-        double revsToTarg = distInInches / circumferenceInInches;
-        mTargetDist = (int) (revsToTarg * 4096);
-        mStartPosn = mTalon.getSelectedSensorPosition();
-        mMMTarget = mStartPosn + mTargetDist;
-
-        // select profile slot
-        mTalon.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
-        // config pidf values
-        mTalon.config_kF(kSlotIdx, kF, kTimeoutMs);
-        mTalon.config_kP(kSlotIdx, kP, kTimeoutMs);
-        mTalon.config_kI(kSlotIdx, kI, kTimeoutMs);
-        mTalon.config_kD(kSlotIdx, kD, kTimeoutMs);
-
-        mTalon.setSelectedSensorPosition(0);
-        mTalon.setSelectedSensorPosition(0);;
-    }
-
-    /**
-     * Called by the command exec - test if in target tolerance and return true
-     * 
-     * @param target
-     * @return
-     */
-    public boolean motionMagicOnTarget() {
-        double tolerance = 50;
-        double currentPos = mTalon.getSelectedSensorPosition();
-        return Math.abs(currentPos - mMMTarget) < tolerance;
-    }
-
-
-    // -----------------------------  hold position  ---------------------------------------
-
-
-
-    public void initHoldPosnPID() {
-
-    }
-
-    /**
-     * Switch to using closed loop position hold at current position
-     */
-    public void holdPosnPID() {
-        // select the hold PID slot
-        mTalon.selectProfileSlot(kPIDSlot_Hold, 0);
-        // init PID for hold
-        mTalon.configAllowableClosedloopError(kPIDSlot_Hold, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
-        // a motor output of BASE_POWER holds the motor in place when not disturbed
-        double kF = BASE_PERCENT_OUT * 1023 / 4096;
-        mTalon.config_kF(kPIDSlot_Hold, kF, kTimeoutMs); // normally 0 for position hold but putting in small 0.1 dampsoscillation
-        double kP = 0.4 * 1023 / 4096;
-        mTalon.config_kP(kPIDSlot_Hold, kP, kTimeoutMs); // kP 1.0 used on elevator 2018-02-17
-        mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
-        mTalon.config_kD(kPIDSlot_Hold, 0.0, kTimeoutMs);
-
-        double curPosn = mTalon.getSelectedSensorPosition(0);
-        // double curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        // double curPosn = holdPos;
-        mLog.debug(printPosn("holdPosnPID") + "------------------------------------------");
-        int loopCnt = 0;
-        // In Position mode, output value is in encoder ticks or an analog value,
-        // depending on the sensor.
-        mTalon.set(ControlMode.Position, curPosn);
-    }
-
-
-    // ----------  PID using the local WPI PID  ----------------------------------
+    // ---------- hold posn PID using the TritonTech PID  ----------------------------------
 
     private TTPIDController m_holdPID;
     private PIDSourceTalonPW m_PidSourceTalonPW;
@@ -420,10 +334,7 @@ public class ElevatorSys extends Subsystem {
 
     /**
      * Sensor is on output of gearing (not on motor)
-     * gear dia = 1.5" so  1 rev = 1.5 * 3.14159 = 4.712" (theoretical)
-     * but the elevator has gearing for the carriage
-     * MEASURED ticks per inch is 535
-     * an error of 100 ticks = 0.19 inches
+     * Set the tolerance to +- 0.5 inches
      */
     public void initHoldPosnTTPID() {
 
@@ -434,7 +345,7 @@ public class ElevatorSys extends Subsystem {
         double kF = 0.0;
         double periodInSecs = 0.05;     // for hold, check every 50 mS is fine
         m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-        m_holdPID.setAbsoluteTolerance(200);       // allow +- 200 units (0.4 inches) on error 
+        m_holdPID.setAbsoluteTolerance(0.5 * TICKS_PER_INCH);       // allow +- 200 units (0.4 inches) on error 
     }
 
 
