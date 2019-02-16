@@ -18,10 +18,10 @@ public class ElvMoveToCmd extends Command {
 
     private ElevatorSys mSys;
 
-    private ElevatorSys.Target m_target;
+    private ElevatorSys.ElvTarget m_target;
 
 
-    public ElvMoveToCmd(ElevatorSys.Target target) {
+    public ElvMoveToCmd(ElevatorSys.ElvTarget target) {
         mSys = ElevatorSys.getInstance();
         requires(mSys);
         m_target = target;
