@@ -494,7 +494,7 @@ public class ElevatorSys extends Subsystem {
 
     //-------------------------------------Rocket Cargo----------------------------------------------
 
-    private static final double ROCKET_CARGO_LO_INCHES = ((12 + 3.5) - ELEVATOR_FLOOR_INCHES);
+    private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - ELEVATOR_FLOOR_INCHES);
     private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * TICKS_PER_INCH);
 
     private static final double ROCKET_CARGO_MID_INCHES = (ROCKET_CARGO_LO_INCHES + 24 + 4);
@@ -503,17 +503,30 @@ public class ElevatorSys extends Subsystem {
     private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
     private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * TICKS_PER_INCH);
 
-    public enum Target {
+    //--------------------------------------Cargoship Hatch----------------------------------------
+
+    private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
+    private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * TICKS_PER_INCH);
+
+    //--------------------------------------CARGOSHIP CARGO----------------------------------------
+
+    private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - ELEVATOR_FLOOR_INCHES);
+                                                //extra 2 inches for safety^^^
+    private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_INCHES * TICKS_PER_INCH);
+
+    public enum ElvTarget {
         RocketHatchHi(ROCKET_HATCH_HI), 
         RocketHatchMid(ROCKET_HATCH_MID), 
         RocketHatchLo(ROCKET_HATCH_LO),
-        RocketCARGOHi(ROCKET_CARGO_HI), 
-        RocketCARGOMid(ROCKET_CARGO_MID), 
-        RocketCARGOLo(ROCKET_CARGO_LO);
+        RocketCargoHi(ROCKET_CARGO_HI), 
+        RocketCargoMid(ROCKET_CARGO_MID),
+        RocketCargoLo(ROCKET_CARGO_LO),
+        CargoshipHatch(CARGOSHIP_HATCH),
+        CargoshipCargo(CARGOSHIP_CARGO);     
 
         private int mTicks;
 
-        Target(int ticks) {
+        ElvTarget(int ticks) {
             mTicks = ticks;
         }
 
@@ -522,7 +535,7 @@ public class ElevatorSys extends Subsystem {
         }
     }
     
-    private Target m_targ;
+    private ElvTarget m_targ;
     private TTPIDController m_movePID;
 
     private boolean m_usingHoldPID;
@@ -533,7 +546,7 @@ public class ElevatorSys extends Subsystem {
      * Need to adjust for the actual sensor start position
      * @param targ
      */
-    public void initMoveToTarget(Target targ) {
+    public void initMoveToTarget(ElvTarget targ) {
         m_targ = targ;
         m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
         double kP = 0.2 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
