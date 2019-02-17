@@ -186,6 +186,18 @@ public class DriveSys extends Subsystem {
         mRight_Master.set(ControlMode.PercentOutput, 0);
     }
 
+    
+    public void feedTalons() {
+        mLeft_Master.feed();
+        mLeft_Slave0.feed();
+        mRight_Master.feed();
+        mRight_Slave0.feed();
+        if (RobotConfig.IS_ROBO_2019) {
+            mLeft_Slave1.feed();
+            mRight_Master.feed();
+        }
+    }
+
 
     /**
      * Each subsystem may, but is not required to, have a default command which is

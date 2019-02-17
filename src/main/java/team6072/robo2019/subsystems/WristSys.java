@@ -177,9 +177,8 @@ public class WristSys extends Subsystem {
         mLog.info("WristSys ctor  ----------------------------------------------");
         try {
             mTalon = new WPI_TalonSRX(RobotConfig.WRIST_MASTER);
-            mTalon.setSafetyEnabled(false);
             mTalon.configFactoryDefault();
-            mTalon.setName(String.format("%d: Elevator", RobotConfig.WRIST_MASTER));
+            mTalon.setName(String.format("Wrist: %d", RobotConfig.WRIST_MASTER));
             // in case we are in magic motion or position hold mode
             mTalon.set(ControlMode.PercentOutput, 0);
 
@@ -202,32 +201,11 @@ public class WristSys extends Subsystem {
             mTalon.configOpenloopRamp(0.1, kTimeoutMs);
             mTalon.setNeutralMode(NeutralMode.Brake);
 
-            // see setup for motion magic in s/w manual 12.6
-            mTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, kTimeoutMs);
-            mTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
-
             // set up current limits
             mTalon.configContinuousCurrentLimit(30, kTimeoutMs);
             mTalon.configPeakCurrentLimit(40, kTimeoutMs);
             mTalon.configPeakCurrentDuration(200, kTimeoutMs);
             mTalon.enableCurrentLimit(true);
-
-            // nominal values are used in closed loop when in deadband
-            mTalon.configNominalOutputForward(0, kTimeoutMs);
-            mTalon.configNominalOutputReverse(0, kTimeoutMs);
-            mTalon.configPeakOutputForward(1.0, kTimeoutMs);
-            mTalon.configPeakOutputReverse(-1.0, kTimeoutMs);
-
-            // PID settings
-
-            // ramping can interfere with the PID:
-            // https://www.chiefdelphi.com/forums/showthread.php?p=1748993#post1748993
-            // mTalon.configClosedloopRamp(0.1, kTimeoutMs);
-
-            // bot to top 29000 in 1 sec = 2900 ticks per 100 ms
-            mTalon.configMotionCruiseVelocity(3500, kTimeoutMs); // 2900
-            mTalon.configMotionAcceleration(2500, kTimeoutMs); // 2000
-            mTalon.configAllowableClosedloopError(kPIDSlot_Move, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
 
             m_PidSourceTalonPW = new PIDSourceTalonPW(mTalon, 0);
 
@@ -239,6 +217,7 @@ public class WristSys extends Subsystem {
             throw ex;
         }
     }
+
 
     /**
      * Disable the elevator system - make sure all talongs and PID loops are not driving anything
@@ -252,6 +231,13 @@ public class WristSys extends Subsystem {
             m_holdPID.disable();
         }
         mTalon.set(ControlMode.PercentOutput, 0);
+    }
+
+    public void feedTalons() {
+        mTalon.feed();
+        if (RobotConfig.IS_ROBO_2019) {
+            mTalon_Slave0.feed();
+        }
     }
 
 
