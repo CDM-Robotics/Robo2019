@@ -4,6 +4,8 @@ package team6072.robo2019;
 import java.io.*;
 import java.util.logging.*;
 
+import edu.wpi.first.wpilibj.Counter;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -15,6 +17,7 @@ import team6072.robo2019.commands.elevator.ElvMoveUpSlow;
 import team6072.robo2019.subsystems.DriveSys;
 import team6072.robo2019.subsystems.ElevatorSys;
 import team6072.robo2019.subsystems.NavXSys;
+import team6072.robo2019.subsystems.PneumaticSys;
 
 
 
@@ -22,15 +25,16 @@ public class Robot extends TimedRobot {
 
     // define the logger for this class. This should be done for every class
     private static LogWrapper mLog;
+    private PeriodicLogger mLogPeriodic;
 
     private ControlBoard mControlBoard;
 
     private DriveSys mDriveSys;
     private ElevatorSys mElvSys;
-
+    private PneumaticSys mPneuSys;
     private NavXSys mNavXsys;
 
-    private PeriodicLogger mLogPeriodic;
+  
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -62,8 +66,7 @@ public class Robot extends TimedRobot {
         try {
             if (RobotConfig.IS_ROBO_2019) {
                 mLog.info("robotInit: -----------------    2019    -----------------------     2019    2019    2019");
-            }
-            else {
+            } else {
                 mLog.info("robotInit: -----------------    2018    -----------------------     2018    2018    2018");
             }
 
@@ -71,18 +74,19 @@ public class Robot extends TimedRobot {
             mDriveSys = DriveSys.getInstance();
             mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
+            mPneuSys = PneumaticSys.getInstance();
             mLog.info("robotInit: Completed   ---------------------------------------");
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.robotInit:  exception: " + ex.getMessage());
         }
     }
 
+    
     /**
      * This function is called every robot packet, no matter the mode. Use this for
      * items like diagnostics that you want ran during disabled, autonomous,
      * teleoperated and test.
      *
-     * <p>
      * This runs after the mode specific periodic functions, but before LiveWindow
      * and SmartDashboard integrated updating.
      */
@@ -103,6 +107,7 @@ public class Robot extends TimedRobot {
         }
     }
 
+
     /**
      * gets called every 20 mSec when disabled
      */
@@ -111,6 +116,7 @@ public class Robot extends TimedRobot {
         //mDSSensors.debug(mDriveSys.logSensors());
         //mLogPeriodic.debug(mElvSys.printPosn("disPer:"));
     }
+
 
     // *********************** Autonomous *********************************************************
 
@@ -137,6 +143,7 @@ public class Robot extends TimedRobot {
         }
     }
 
+
     /**
      * This function is called periodically during autonomous.
      */
@@ -154,6 +161,10 @@ public class Robot extends TimedRobot {
     DriveDistCmd mDriveDistCmd;
     ElvMoveUpSlow mElvSlowCmd;
 
+    DigitalInput mHallSwitch;
+    Counter mHallCtr;
+
+
     @Override
     public void teleopInit() {
         try {
@@ -163,6 +174,9 @@ public class Robot extends TimedRobot {
             Scheduler.getInstance().removeAll();
             mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
             Scheduler.getInstance().add(mArcadeDriveCmd);
+            // mHallSwitch = new DigitalInput(0);
+            // mHallCtr = new Counter(mHallSwitch);
+            // mHallCtr.reset();
             // mElvSlowCmd = new ElvMoveUpSlow();
             // Scheduler.getInstance().add(mElvSlowCmd);      //mArcadeDriveCmd);
         } catch (Exception ex) {
@@ -179,6 +193,7 @@ public class Robot extends TimedRobot {
         try {
             // must call the scheduler to run
             Scheduler.getInstance().run();
+            //mLogPeriodic.debug("telPer: Hall Switch: %b   Counter: %d    period: %.3f ", mHallSwitch.get(), mHallCtr.get(), mHallCtr.getPeriod());
             //mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
             //mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
         } catch (Exception ex) {

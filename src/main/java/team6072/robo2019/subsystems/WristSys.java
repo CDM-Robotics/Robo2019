@@ -12,11 +12,11 @@ import team6072.robo2019.pid.TTPIDController;
 /**
  * Add your docs here.
  */
-public class ElevatorSys extends Subsystem {
+public class WristSys extends Subsystem {
 
-    private static final LogWrapper mLog = new LogWrapper(ElevatorSys.class.getName());
+    private static final LogWrapper mLog = new LogWrapper(WristSys.class.getName());
 
-    private static ElevatorSys mInstance;
+    private static WristSys mInstance;
 
     public static enum Direction {
         Up, Down
@@ -25,17 +25,17 @@ public class ElevatorSys extends Subsystem {
     private static final double GEAR_DIA_INCHES = 1.5;
 
     // a motor output of BASE_POWER holds the motor in place when not disturbed
-    private static final double BASE_PERCENT_OUT = RobotConfig.ELV_BASE_PERCENT_OUT;
+    private static final double BASE_PERCENT_OUT = RobotConfig.WRIST_BASE_PERCENT_OUT;
 
     // MEASURE the ticks per inch on physical mechanism
-    private static final int TICKS_PER_INCH = RobotConfig.ELV_TICKS_PER_INCH; // MEASURED
+    private static final int TICKS_PER_INCH = RobotConfig.WRIST_TICKS_PER_DEG; // MEASURED
     private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
 
-    private static final double ELEVATOR_FLOOR_INCHES = 13.0; // inches from ground when elevator at zero
+    private static final double WRIST_FLOOR_INCHES = 13.0; // inches from ground when elevator at zero
 
     // --------------------------------------Rocket  Hatch----------------------------------------------
 
-    private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
+    private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - WRIST_FLOOR_INCHES);
     private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * TICKS_PER_INCH);
 
     private static final double ROCKET_HATCH_MID_INCHES = (ROCKET_HATCH_LO_INCHES + 24 + 4);
@@ -46,7 +46,7 @@ public class ElevatorSys extends Subsystem {
 
     // -------------------------------------Rocket Cargo----------------------------------------------
 
-    private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - ELEVATOR_FLOOR_INCHES);
+    private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - WRIST_FLOOR_INCHES);
     private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * TICKS_PER_INCH);
 
     private static final double ROCKET_CARGO_MID_INCHES = (ROCKET_CARGO_LO_INCHES + 24 + 4);
@@ -57,23 +57,23 @@ public class ElevatorSys extends Subsystem {
 
     // --------------------------------------Cargoship Hatch----------------------------------------
 
-    private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
+    private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - WRIST_FLOOR_INCHES);
     private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * TICKS_PER_INCH);
 
     // --------------------------------------CARGOSHIP CARGO----------------------------------------
 
-    private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - ELEVATOR_FLOOR_INCHES);
+    private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - WRIST_FLOOR_INCHES);
     // extra 2 inches for safety^^^
     private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_INCHES * TICKS_PER_INCH);
 
-    public enum ElvTarget {
+    public enum WristTarget {
         RocketHatchHi(ROCKET_HATCH_HI), RocketHatchMid(ROCKET_HATCH_MID), RocketHatchLo(ROCKET_HATCH_LO),
         RocketCargoHi(ROCKET_CARGO_HI), RocketCargoMid(ROCKET_CARGO_MID), RocketCargoLo(ROCKET_CARGO_LO),
         CargoshipHatch(CARGOSHIP_HATCH), CargoshipCargo(CARGOSHIP_CARGO);
 
         private int mTicks;
 
-        ElvTarget(int ticks) {
+        WristTarget(int ticks) {
             mTicks = ticks;
         }
 
@@ -82,7 +82,7 @@ public class ElevatorSys extends Subsystem {
         }
     }
 
-    private ElvTarget m_targ;
+    private WristTarget m_targ;
     private TTPIDController m_movePID;
     private TTPIDController m_holdPID;
     private PIDSourceTalonPW m_PidSourceTalonPW;
@@ -110,8 +110,8 @@ public class ElevatorSys extends Subsystem {
     private WPI_TalonSRX mTalon;
     private WPI_TalonSRX mTalon_Slave0;
 
-    private static final boolean TALON_INVERT = RobotConfig.ELV_INVERT;
-    private static final boolean TALON_SENSOR_PHASE = RobotConfig.ELV_SENSOR_PHASE;
+    private static final boolean TALON_INVERT = RobotConfig.WRIST_INVERT;
+    private static final boolean TALON_SENSOR_PHASE = RobotConfig.WRIST_SENSOR_PHASE;
 
     private static final int TALON_FORWARD_LIMIT = -1;
 
@@ -158,9 +158,9 @@ public class ElevatorSys extends Subsystem {
 
     
     
-    public static ElevatorSys getInstance() {
+    public static WristSys getInstance() {
         if (mInstance == null) {
-            mInstance = new ElevatorSys();
+            mInstance = new WristSys();
         }
         return mInstance;
     }
@@ -169,17 +169,17 @@ public class ElevatorSys extends Subsystem {
 
     @Override
     public void initDefaultCommand() {
-        //setDefaultCommand(new ElvMoveUpSlow());
+        //setDefaultCommand(new WristMoveUpSlow());
     }
 
 
-    public ElevatorSys() {
-        mLog.info("ElevatorSys ctor  ----------------------------------------------");
+    public WristSys() {
+        mLog.info("WristSys ctor  ----------------------------------------------");
         try {
-            mTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_MASTER);
+            mTalon = new WPI_TalonSRX(RobotConfig.WRIST_MASTER);
             mTalon.setSafetyEnabled(false);
             mTalon.configFactoryDefault();
-            mTalon.setName(String.format("%d: Elevator", RobotConfig.ELEVATOR_MASTER));
+            mTalon.setName(String.format("%d: Elevator", RobotConfig.WRIST_MASTER));
             // in case we are in magic motion or position hold mode
             mTalon.set(ControlMode.PercentOutput, 0);
 
@@ -189,7 +189,7 @@ public class ElevatorSys extends Subsystem {
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
             if (RobotConfig.IS_ROBO_2019) {
-                mTalon_Slave0 = new WPI_TalonSRX(RobotConfig.ELEVATOR_SLAVE0);
+                mTalon_Slave0 = new WPI_TalonSRX(RobotConfig.WRIST_SLAVE0);
                 mTalon_Slave0.follow(mTalon, FollowerType.PercentOutput);
                 mTalon_Slave0.setInverted(InvertType.FollowMaster);
             }
@@ -233,9 +233,9 @@ public class ElevatorSys extends Subsystem {
 
             setSensorStartPosn();
 
-            mLog.info("ElevatorSys ctor  complete -------------------------------------");
+            mLog.info("WristSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
-            mLog.severe(ex, "ElevatorSys.ctor exception: " + ex.getMessage());
+            mLog.severe(ex, "WristSys.ctor exception: " + ex.getMessage());
             throw ex;
         }
     }
@@ -244,7 +244,7 @@ public class ElevatorSys extends Subsystem {
      * Disable the elevator system - make sure all talongs and PID loops are not driving anything
      */
     public void disable() {
-        mLog.debug("ElvSys DISABLED  <<<<<<<<<<<<<<<<<<<<");
+        mLog.debug("WristSys DISABLED  <<<<<<<<<<<<<<<<<<<<");
         if (m_movePID != null) {
             m_movePID.disable();
         }
@@ -469,7 +469,7 @@ public class ElevatorSys extends Subsystem {
      * Need to adjust for the actual sensor start position
      * @param targ
      */
-    public void initMoveToTarget(ElvTarget targ) {
+    public void initMoveToTarget(WristTarget targ) {
         m_targ = targ;
         if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);

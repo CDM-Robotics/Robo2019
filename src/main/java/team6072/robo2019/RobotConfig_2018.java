@@ -53,11 +53,14 @@ public class RobotConfig_2018 {
     public static final int INTAKE_MASTER = 8; // 2019
     public static final int INTAKE_SLAVE0 = 9; // 2019
 
-    // PNEUMATICS
-    public static final int PCM_ID = 61;
+
 
     // Power Distribution Panel - NOTE FRC says needs to be 0 for 2018 WPILib
     public static final int PDP_ID = 0;
+
+
+    // PNEUMATICS
+    public static final int PCM_ID = 61;
 
     /**
      * There are two double solenoids controlled by the PCM solenoid 1 select open
