@@ -27,6 +27,7 @@ public class RobotConfig_2018 {
 
     // ELEVATOR
     public static final int ELV_TICKS_PER_INCH = 370; // MEASURED
+    public static final double ELV_BASE_PERCENT_OUT = 0.19;
 
     public static final boolean ELV_INVERT = false; // 2018 - false
     public static final boolean ELV_SENSOR_PHASE = false; // 2018 false

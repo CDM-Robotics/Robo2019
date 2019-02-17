@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
 
     private NavXSys mNavXsys;
 
-
+    private PeriodicLogger mLogPeriodic;
 
     /**
      * This function is run when the robot is first started up and should be used
@@ -58,6 +58,7 @@ public class Robot extends TimedRobot {
             System.out.println("WARNING: Logging not configured (console output only)");
         }
         mLog = new LogWrapper(Robot.class.getName());
+        mLogPeriodic = new PeriodicLogger(mLog, 50);
         try {
             if (RobotConfig.IS_ROBO_2019) {
                 mLog.info("robotInit: -----------------    2019    -----------------------     2019    2019    2019");
@@ -68,7 +69,7 @@ public class Robot extends TimedRobot {
 
             mControlBoard = ControlBoard.getInstance();
             mDriveSys = DriveSys.getInstance();
-            //mElvSys = ElevatorSys.getInstance();
+            mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
             mLog.info("robotInit: Completed   ---------------------------------------");
         } catch (Exception ex) {
@@ -89,13 +90,17 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
     }
 
-    private PeriodicLogger mLogPeriodic;
 
     @Override
     public void disabledInit() {
-        mLog.info("Robot.disabledInit");
-        mLogPeriodic = new PeriodicLogger(mLog, 50);
+        mLog.info("Robot.disabledInit  ----------------------------");
         Scheduler.getInstance().removeAll();
+        if (mDriveSys != null) {
+            mDriveSys.disable();
+        }
+        if (mElvSys != null) {
+            mElvSys.disable();
+        }
     }
 
     /**
@@ -103,8 +108,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void disabledPeriodic() {
-        //mLog.info("Robot.disabledPeriodic");
         //mDSSensors.debug(mDriveSys.logSensors());
+        //mLogPeriodic.debug(mElvSys.printPosn("disPer:"));
     }
 
     // *********************** Autonomous *********************************************************
@@ -152,7 +157,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         try {
-            mLog.info("teleopInit2:  ---------------------------------");
+            mLog.info("teleopInit:  ---------------------------------");
             super.teleopInit();
             NavXSys.getInstance().zeroYawHeading();
             Scheduler.getInstance().removeAll();
@@ -174,7 +179,8 @@ public class Robot extends TimedRobot {
         try {
             // must call the scheduler to run
             Scheduler.getInstance().run();
-            mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            //mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            //mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }

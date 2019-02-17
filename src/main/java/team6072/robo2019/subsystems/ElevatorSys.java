@@ -24,6 +24,9 @@ public class ElevatorSys extends Subsystem {
 
     private static final double GEAR_DIA_INCHES = 1.5;
 
+    // a motor output of BASE_POWER holds the motor in place when not disturbed
+    private static final double BASE_PERCENT_OUT = RobotConfig.ELV_BASE_PERCENT_OUT;
+
     // MEASURE the ticks per inch on physical mechanism
     private static final int TICKS_PER_INCH = RobotConfig.ELV_TICKS_PER_INCH; // MEASURED
     private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
@@ -237,13 +240,21 @@ public class ElevatorSys extends Subsystem {
         }
     }
 
-
     /**
-     * Ensure we are not in MotionMagic or PositionHold mode
+     * Disable the elevator system - make sure all talongs and PID loops are not driving anything
      */
-    public void resetTalon() {
+    public void disable() {
+        mLog.debug("ElvSys DISABLED  <<<<<<<<<<<<<<<<<<<<");
+        if (m_movePID != null) {
+            m_movePID.disable();
+        }
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
         mTalon.set(ControlMode.PercentOutput, 0);
     }
+
+
 
     // grab the 360 degree position of the MagEncoder's absolute position, and set
     // the relative sensor to match.
@@ -339,8 +350,7 @@ public class ElevatorSys extends Subsystem {
 
     // -------------------------  basic hold  -------------------------------------
 
-    // a motor output of BASE_POWER holds the motor in place when not disturbed
-    private static final double BASE_PERCENT_OUT = 0.2;
+
 
     public void holdPosnPower() {
         mLog.debug(printPosn("holdPosnPower") + "\n------------------------------------------------------");
@@ -400,14 +410,19 @@ public class ElevatorSys extends Subsystem {
      */
     public void initHoldPosnPID() {
 
-        m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
-        double kP = 0.2/500;              // want 20% power when hit tolerance band of 500 units (was 0.001)
-        double kI = 0.0;
-        double kD = 0.0;
-        double kF = 0.0;
-        double periodInSecs = 0.05;     // for hold, check every 50 mS is fine
-        m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-        m_holdPID.setAbsoluteTolerance(0.5 * TICKS_PER_INCH);       // allow +- 200 units (0.4 inches) on error 
+        if (m_holdPID == null) {
+            m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
+            double kP = 0.2 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
+            double kI = 0.0;
+            double kD = 0.0;
+            double kF = 0.0;
+            double periodInSecs = 0.05; // for hold, check every 50 mS is fine
+            m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
+            m_holdPID.setAbsoluteTolerance(0.3 * TICKS_PER_INCH); // allow +- 200 units (0.4 inches) on error
+        }
+        else {
+            m_holdPID.reset();
+        }
     }
 
 
@@ -422,14 +437,14 @@ public class ElevatorSys extends Subsystem {
     /**
      * Do a PID hold at the specified sensor position
      */
-    public void enableHoldPosnPID(int posn) {
+    public void enableHoldPosnPID(int targetPosn) {
         if (m_holdPID == null) {
             initHoldPosnPID();
         }
         m_holdPID.reset();
-        mLog.debug("enableHoldPosnPID: posn: %d    ---------------------", posn);
+        mLog.debug("enableHoldPosnPID: target: %d    ---------------------", targetPosn);
         mLog.debug(printPosn("enableHoldPosnPID"));
-        m_holdPID.setSetpoint(posn);
+        m_holdPID.setSetpoint(targetPosn);
         m_holdPID.enable();
     }
 
@@ -456,14 +471,20 @@ public class ElevatorSys extends Subsystem {
      */
     public void initMoveToTarget(ElvTarget targ) {
         m_targ = targ;
-        m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
-        double kP = 0.2 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
-        double kI = 0.0;
-        double kD = 0.0;
-        double kF = 0.0;
-        double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-        m_movePID = new TTPIDController("elvTarg", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-        m_movePID.setAbsoluteTolerance(TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock in
+        if (m_movePID == null) {
+            m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
+            double kP = 0.2 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
+            double kI = 0.0;
+            double kD = 0.0;
+            double kF = 0.0;
+            double periodInSecs = 0.05; // for hold, check every 50 mS is fine
+            m_movePID = new TTPIDController("PID.elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
+            m_movePID.setAbsoluteTolerance(TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock                                                       // in
+        }
+        else {
+            m_movePID.reset();
+        }
+
         int curPosn = mTalon.getSelectedSensorPosition(0);
         int calcTarg = targ.getTicks();
         mLog.debug("initMoveToTarget: curPos: %d    targ: %s(%d)  calcTarg: %d  ---------------------", curPosn,
@@ -471,18 +492,19 @@ public class ElevatorSys extends Subsystem {
         mLog.debug(printPosn("initMoveToTarget"));
         m_usingHoldPID = false;
         m_movePID.setSetpoint(calcTarg);
-        m_movePID.setRamp(3 * TICKS_PER_INCH, 3 * TICKS_PER_INCH); // set ramps to 3 inches
+        m_movePID.setRamp(3 * TICKS_PER_INCH, 5 * TICKS_PER_INCH); // set ramps to 3 inches
+        m_movePID.setBasePower(BASE_PERCENT_OUT, 0.05);
         m_movePID.enable();
     }
 
     
     /**
-     * Dont need to actually do anything here, because the PI if writign to the Talon
+     * Dont need to actually do anything here, because the PID if writing to the Talon
      * What we want to do is wait until the PID is close, then use the holdPID to lock in
      */
     public void execMoveToTarget() {
-        if (m_movePID.onTarget()) {
-            mLog.debug("ES.execMoveToTarget: on target");
+        if (m_movePID.onTarget() && !m_usingHoldPID) {
+            mLog.debug("ES.execMoveToTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
             mLog.debug(printPosn("ES.execMoveToTarget:"));
             m_movePID.disable();
             enableHoldPosnPID(m_targ.getTicks());

@@ -160,7 +160,8 @@ public class TTPIDController extends PIDBase implements Controller {
      */
     @Override
     public void disable() {
-        // Ensures m_enabled check and pidWrite() call occur atomically
+        // Ensures m_enabled check and pidWrite() call occur 
+        mLog.debug("%s disable called  ------------------", m_name);
         m_pidWriteMutex.lock();
         try {
             m_thisMutex.lock();

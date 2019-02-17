@@ -165,7 +165,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
     // -------------------------  end Tolerance  ----------------------------------------
 
 
-    private String m_name;
+    protected String m_name;
 
 
     // set in setRamping()
@@ -180,6 +180,9 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
     private double m_rampEndofStart;
     private double m_rampStartofEnd;
 
+    // se in setBasePower()
+    private double m_basePowerUp = 0.0;     // set the base power required to move system
+    private double m_basePowerDown = 0.0;
 
 
     /**
@@ -264,6 +267,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
             m_thisMutex.unlock();
         }
         if (!enabled) {
+            //mLog.debug("%s.calc disabled", m_name);
             return;
         }
 
@@ -299,22 +303,24 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
                         m_rampStartofEnd = m_setpoint - m_rampEndUnits;
                     } else {
                         m_rampEndofStart = input - m_rampStartUnits;
-                        m_rampStartofEnd = m_setpoint - m_rampEndUnits;
+                        m_rampStartofEnd = m_setpoint + m_rampEndUnits;
                     }
                     mLog.debug("%s.calc.first: start: %.3f  EoS: %.3f  SoE: %.3f  set: %.3f  -------------------------",
-                                m_name, m_startPoint, m_rampStartofEnd, m_rampEndofStart, m_setpoint);
+                                m_name, m_startPoint, m_rampEndofStart, m_rampStartofEnd, m_setpoint);
                 }
                 if (m_dirnPositive) {                       // going up
-                    if (input < m_rampEndofStart) {         // inside start ramp
-                        rampScaleFactor = Math.max(0.19,Math.abs(input - m_startPoint) / m_rampStartUnits);
-                    } else if (input > m_rampStartofEnd) {  // inside end ramp
+                    if (input < m_rampEndofStart) { // inside start ramp
+                        rampScaleFactor = Math.max(m_basePowerUp, Math.abs(input - m_startPoint) / m_rampStartUnits);
+                    }
+                    if (input > m_rampStartofEnd) {  // inside end ramp
                         rampScaleFactor = Math.abs(m_setpoint - input) / m_rampEndUnits;
                     }
                 }
                 else {                                      // going down
                     if (input > m_rampEndofStart) {
-                        rampScaleFactor =  Math.abs(input - m_startPoint) / m_rampStartUnits;
-                    } else if (input < m_rampStartofEnd) {
+                        rampScaleFactor = Math.max(m_basePowerDown, Math.abs(input - m_startPoint) / m_rampStartUnits);
+                    }
+                    if (input < m_rampStartofEnd) {
                         rampScaleFactor = Math.abs(m_setpoint - input) / m_rampEndUnits;
                     }
                 }
@@ -361,7 +367,6 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
                 if (m_enabled) {
                     // Don't block other PIDController operations on pidWrite()
                     m_thisMutex.unlock();
-
                     m_pidOutput.pidWrite(result);
                 }
             } finally {
@@ -487,6 +492,22 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
         } finally {
             m_thisMutex.unlock();
         }
+    }
+
+
+
+    /**
+     * set teh base poer required to move the system up/down forward/backward
+     */
+    public void setBasePower(double powerUp, double powerDown) {
+         m_thisMutex.lock();
+        try {
+            m_basePowerUp = powerUp;
+            m_basePowerDown = powerDown;
+            mLog.debug("setBasePower: up: %.3f   down: %.3f", powerUp, powerDown);
+        } finally {
+            m_thisMutex.unlock();
+        } 
     }
 
 
