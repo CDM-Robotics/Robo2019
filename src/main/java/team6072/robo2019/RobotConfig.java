@@ -33,7 +33,7 @@ public class RobotConfig {
     public static final boolean ELV_SENSOR_PHASE = false; // 2018 false
 
     public static final int ELV_TICKS_PER_INCH = 400; // NOT MEASURED
-    public static final double ELV_BASE_PERCENT_OUT = 0.05;
+    public static final double ELV_BASE_PERCENT_OUT = 0.00;
 
     public static final int ELEVATOR_MASTER = 4;
     public static final int ELEVATOR_SLAVE0 = 5; // only in 2019
