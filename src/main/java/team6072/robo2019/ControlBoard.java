@@ -92,16 +92,16 @@ public class ControlBoard {
 
         mButtonList = new ArrayList<JoystickButton>();
 
-        mDriveStick = new Joystick(DRIVE_USB_PORT);
-        // mControlStick = new Joystick(CONTROL_USB_PORT);
+        //mDriveStick = new Joystick(DRIVE_USB_PORT);
+        mControlStick = new Joystick(CONTROL_USB_PORT);
         // mLeftPanel = new Joystick(LPANEL_USB_PORT);
         // mRightPanel = new Joystick(RPANEL_USB_PORT);
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(60), null);
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd());
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd());
 
         // MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new ElvHoldPIDCmd(), null);
         
