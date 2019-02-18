@@ -188,19 +188,14 @@ public class ElevatorSys extends Subsystem {
             mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
-            if (RobotConfig.IS_ROBO_2019) {
-                mTalon_Slave0 = new WPI_TalonSRX(RobotConfig.ELEVATOR_SLAVE0);
-                mTalon_Slave0.follow(mTalon, FollowerType.PercentOutput);
-                mTalon_Slave0.setInverted(InvertType.FollowMaster);
-            }
+            mTalon.configOpenloopRamp(0.1, kTimeoutMs);
+            mTalon.setNeutralMode(NeutralMode.Brake);
 
             // mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
             // mTalon.configForwardSoftLimitEnable(false, kTimeoutMs);
             // mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
             // mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
 
-            mTalon.configOpenloopRamp(0.1, kTimeoutMs);
-            mTalon.setNeutralMode(NeutralMode.Brake);
 
             // see setup for motion magic in s/w manual 12.6
             mTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, kTimeoutMs);
@@ -229,6 +224,12 @@ public class ElevatorSys extends Subsystem {
             mTalon.configMotionAcceleration(2500, kTimeoutMs); // 2000
             mTalon.configAllowableClosedloopError(kPIDSlot_Move, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
 
+            if (RobotConfig.IS_ROBO_2019) {
+                mTalon_Slave0 = new WPI_TalonSRX(RobotConfig.ELEVATOR_SLAVE0);
+                mTalon_Slave0.follow(mTalon, FollowerType.PercentOutput);
+                mTalon_Slave0.setInverted(InvertType.FollowMaster);
+            }
+            
             m_PidSourceTalonPW = new PIDSourceTalonPW(mTalon, 0);
 
             setSensorStartPosn();
