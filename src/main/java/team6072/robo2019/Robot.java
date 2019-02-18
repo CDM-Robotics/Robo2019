@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
             mDriveSys = DriveSys.getInstance();
             mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
-            //mPneuSys = PneumaticSys.getInstance();
+            mPneuSys = PneumaticSys.getInstance();
             mLog.info("robotInit: Completed   ---------------------------------------");
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.robotInit:  exception: " + ex.getMessage());
