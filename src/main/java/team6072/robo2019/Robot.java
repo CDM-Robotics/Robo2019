@@ -174,9 +174,9 @@ public class Robot extends TimedRobot {
             Scheduler.getInstance().removeAll();
             // mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
             // Scheduler.getInstance().add(mArcadeDriveCmd);
-            // mHallSwitch = new DigitalInput(0);
-            // mHallCtr = new Counter(mHallSwitch);
-            // mHallCtr.reset();
+            mHallSwitch = new DigitalInput(0);
+            mHallCtr = new Counter(mHallSwitch);
+            mHallCtr.reset();
             // mElvSlowCmd = new ElvMoveUpSlow();
             // Scheduler.getInstance().add(mElvSlowCmd);      //mArcadeDriveCmd);
         } catch (Exception ex) {
