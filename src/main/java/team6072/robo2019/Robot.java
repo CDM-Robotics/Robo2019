@@ -193,9 +193,9 @@ public class Robot extends TimedRobot {
         try {
             // must call the scheduler to run
             Scheduler.getInstance().run();
-            //mLogPeriodic.debug("telPer: Hall Switch: %b   Counter: %d    period: %.3f ", mHallSwitch.get(), mHallCtr.get(), mHallCtr.getPeriod());
-            mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
-            //mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
+            mLogPeriodic.debug("telPer: Hall Switch: %b   Counter: %d    period: %.3f ", mHallSwitch.get(), mHallCtr.get(), mHallCtr.getPeriod());
+            //mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }
