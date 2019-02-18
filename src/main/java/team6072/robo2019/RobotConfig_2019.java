@@ -33,7 +33,8 @@ public class RobotConfig_2019 {
     public static final boolean ELV_INVERT = false; // 2018 - false
     public static final boolean ELV_SENSOR_PHASE = false; // 2018 false
 
-    public static final int ELV_TICKS_PER_INCH = 0; //     NOT MEASURED
+    public static final int ELV_TICKS_PER_INCH = 400; //     NOT MEASURED
+    public static final double ELV_BASE_PERCENT_OUT = 0.00;
 
     public static final int ELEVATOR_MASTER = 4;
     public static final int ELEVATOR_SLAVE0 = 5; // only in 2019
@@ -43,7 +44,10 @@ public class RobotConfig_2019 {
 
     // WRIST
     public static final int WRIST_TICKS_PER_DEG = 0; // NOT MEASURED
-
+    public static final int WRIST_BASE_PERCENT_OUT = 0;
+    public static final boolean WRIST_INVERT = false;
+    public static final boolean WRIST_SENSOR_PHASE = false;
+    
     public static final int WRIST_MASTER = 11;
     public static final int WRIST_SLAVE0 = 10; // only in 2019
 
