@@ -172,8 +172,8 @@ public class Robot extends TimedRobot {
             super.teleopInit();
             NavXSys.getInstance().zeroYawHeading();
             Scheduler.getInstance().removeAll();
-            mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
-            Scheduler.getInstance().add(mArcadeDriveCmd);
+            // mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            // Scheduler.getInstance().add(mArcadeDriveCmd);
             // mHallSwitch = new DigitalInput(0);
             // mHallCtr = new Counter(mHallSwitch);
             // mHallCtr.reset();
