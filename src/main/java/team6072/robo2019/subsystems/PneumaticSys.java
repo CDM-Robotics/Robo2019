@@ -3,6 +3,9 @@ package team6072.robo2019.subsystems;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import team6072.robo2019.RobotConfig;
+
+import java.awt.Robot;
+
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
@@ -46,6 +49,12 @@ public class PneumaticSys extends Subsystem {
         mLog.debug("PneumaticSys.ctor: -----------------------------");
         mCompressor = new Compressor(RobotConfig.PCM_ID);
         mCompressor.start();
+        mDriveTrainSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_DRIVE_HIGH,
+                RobotConfig.PCM_DRIVE_LOW);
+        mHatchWristSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_HATCH_EXTEND,
+                RobotConfig.PCM_HATCH_RETRACT);
+        mDriveTrainSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_INTAKE_OPEN,
+                RobotConfig.PCM_INTAKE_CLOSED);
         mLog.debug("PneumaticSys.ctor: exit    ---------------------");
     }
 
@@ -55,50 +64,34 @@ public class PneumaticSys extends Subsystem {
     }
     
     public void setDriveLo() {
-
         mLog.debug("PneumaticSys.setDriveLo  <<<<<");
-
         mDriveTrainSolenoid.set(DoubleSolenoid.Value.kForward);
-
     }
 
     public void setDriveHi() {
-
         mLog.debug("PneumaticSys.setDriveHi  >>>>>");
-
         mDriveTrainSolenoid.set(DoubleSolenoid.Value.kReverse);
-
     }
 
     public void setWristExtend() {
-
         mLog.debug("PneumaticSys.setWristExtend  >>>>>");
-
         mHatchWristSolenoid.set(DoubleSolenoid.Value.kForward);
-
     }
 
     public void setWristRetract() {
-
         mLog.debug("PneumaticSys.setWristRetract  <<<<<");
-
         mHatchWristSolenoid.set(DoubleSolenoid.Value.kReverse);
-
     }
     
     public void setIntakeClosed() {
-
         mLog.debug("PneumaticSys.setIntakeClosed  <<<<<");
-
         mIntakeSolenoid.set(DoubleSolenoid.Value.kForward);
-
     }
 
     public void setIntakeOpen() {
-
         mLog.debug("PneumaticSys.setIntakeOpen  >>>>>");
-
         mIntakeSolenoid.set(DoubleSolenoid.Value.kReverse);
-
     }
+
+
 }

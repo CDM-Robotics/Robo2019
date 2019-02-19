@@ -4,16 +4,19 @@ package team6072.robo2019;
 import java.io.*;
 import java.util.logging.*;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import team6072.robo2019.logging.*;
 import team6072.robo2019.commands.drive.ArcadeDriveCmd;
 import team6072.robo2019.commands.drive.DriveDistCmd;
 import team6072.robo2019.commands.elevator.ElvMoveUpSlow;
+import team6072.robo2019.device.DistanceSensor;
 import team6072.robo2019.subsystems.DriveSys;
 import team6072.robo2019.subsystems.ElevatorSys;
 import team6072.robo2019.subsystems.NavXSys;
@@ -75,6 +78,15 @@ public class Robot extends TimedRobot {
             mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
             //mPneuSys = PneumaticSys.getInstance();
+
+            CameraServer.getInstance().startAutomaticCapture();
+
+            NetworkTableInstance tblInst = NetworkTableInstance.getDefault();
+            tblInst.setUpdateRate(0.01);        // tell network tables to update every 10 mSec
+            NetworkTable tbl = tblInst.getTable("Vision_Drive");
+            NetworkTableEntry ent = tbl.getEntry("CamName");
+            ent.setString("Initial test from robo");
+
             mLog.info("robotInit: Completed   ---------------------------------------");
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.robotInit:  exception: " + ex.getMessage());
@@ -105,8 +117,10 @@ public class Robot extends TimedRobot {
         if (mElvSys != null) {
             mElvSys.disable();
         }
+        if (mDistSens != null) {
+            mDistSens.disable();  
+        }
     }
-
 
     /**
      * gets called every 20 mSec when disabled
@@ -164,16 +178,22 @@ public class Robot extends TimedRobot {
     DigitalInput mHallSwitch;
     Counter mHallCtr;
 
+    DistanceSensor mDistSens;
+
+    private int m_teleopCount = 0;
 
     @Override
     public void teleopInit() {
         try {
+            SmartDashboard.putString("teleopInit", "teleopInit  count: " + m_teleopCount++);
             mLog.info("teleopInit:  ---------------------------------");
             super.teleopInit();
             NavXSys.getInstance().zeroYawHeading();
             Scheduler.getInstance().removeAll();
             mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
             Scheduler.getInstance().add(mArcadeDriveCmd);
+            mDistSens = DistanceSensor.getInstance();
+            mDistSens.enable();
             // mHallSwitch = new DigitalInput(0);
             // mHallCtr = new Counter(mHallSwitch);
             // mHallCtr.reset();

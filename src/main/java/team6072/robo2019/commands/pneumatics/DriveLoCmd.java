@@ -10,14 +10,13 @@ package team6072.robo2019.commands.pneumatics;
 import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.subsystems.PneumaticSys;
 
-public class HatchWristExtendCmd extends Command {
+public class DriveLoCmd extends Command {
 
     private PneumaticSys mPneuSys;
 
-    public HatchWristExtendCmd() {
+    public DriveLoCmd() {
         mPneuSys = PneumaticSys.getInstance();
         requires(mPneuSys);
-        // eg. requires(chassis);
     }
 
     // Called just before this Command runs the first time
@@ -28,7 +27,7 @@ public class HatchWristExtendCmd extends Command {
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mPneuSys.setWristExtend();
+        mPneuSys.setDriveLo();
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -47,5 +46,6 @@ public class HatchWristExtendCmd extends Command {
     @Override
     protected void interrupted() {
     }
+
 
 }

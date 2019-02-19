@@ -9,6 +9,12 @@ import team6072.robo2019.commands.drive.*;
 import team6072.robo2019.commands.elevator.*;
 import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.commands.objectives.ObjectiveCmd;
+import team6072.robo2019.commands.pneumatics.DriveHiCmd;
+import team6072.robo2019.commands.pneumatics.DriveLoCmd;
+import team6072.robo2019.commands.pneumatics.HatchWristExtendCmd;
+import team6072.robo2019.commands.pneumatics.HatchWristRetractCmd;
+import team6072.robo2019.commands.pneumatics.IntakeCloseCmd;
+import team6072.robo2019.commands.pneumatics.IntakeOpenCmd;
 import team6072.robo2019.subsystems.ElevatorSys.ElvTarget;
 import team6072.robo2019.subsystems.ElevatorSys.ElvTarget;
 
@@ -95,7 +101,19 @@ public class ControlBoard {
         mDriveStick = new Joystick(DRIVE_USB_PORT);
         // mControlStick = new Joystick(CONTROL_USB_PORT);
         // mLeftPanel = new Joystick(LPANEL_USB_PORT);
-        // mRightPanel = new Joystick(RPANEL_USB_PORT);
+        mRightPanel = new Joystick(RPANEL_USB_PORT);
+
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new HatchWristExtendCmd(), null);
+
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new IntakeOpenCmd(), null);
+
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new DriveHiCmd(), null);
+
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new HatchWristRetractCmd(), null);
+
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new IntakeCloseCmd(), null);
+
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new DriveLoCmd(), null);
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(60), null);
 
