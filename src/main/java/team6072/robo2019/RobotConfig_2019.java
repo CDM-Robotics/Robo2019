@@ -12,11 +12,11 @@ public class RobotConfig_2019 {
     // Objective is to have the Talon LEDs flashing green when driving forward, and
     // sensor phase in sync with velocity - use the graphing in the Phoenix Tuner
     // plot to check
-    public static final boolean LEFT_INVERT = true; // 2018 - false
-    public static final boolean LEFT_SENSPHASE = true; // 2018 - true
+    public static final boolean DRIVE_LEFT_INVERT = true; // 2018 - false   2019 - true tested 2-19
+    public static final boolean DRIVE_LEFT_SENSPHASE = false; // 2018 - true   2019 - false tested 2-19
 
-    public static final boolean RIGHT_INVERT = true; // 2018 - true
-    public static final boolean RIGHT_SENSPHASE = true; // 2018 - true
+    public static final boolean DRIVE_RIGHT_INVERT = false; // 2018 - true    2019 - false  tested 2-19
+    public static final boolean DRIVE_RIGHT_SENSPHASE = false; // 2018 - true   2019 - false  tested 2-19
 
     public static final int DRIVE_LEFT_MASTER = 15;
     public static final int DRIVE_LEFT_SLAVE0 = 14;

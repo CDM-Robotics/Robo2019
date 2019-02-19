@@ -35,12 +35,11 @@ public class DriveSys extends Subsystem {
     // Objective is to have the Talon LEDs flashing green when driving forward, and
     // sensor phase in sync with velocity - use the graphing in the Phoenix Tuner
     // plot to check
-    private static boolean LEFT_INVERT = RobotConfig.LEFT_INVERT;
-    private static boolean LEFT_SENSPHASE = RobotConfig.LEFT_SENSPHASE;
+    private static boolean LEFT_INVERT = RobotConfig.DRIVE_LEFT_INVERT;
+    private static boolean LEFT_SENSPHASE = RobotConfig.DRIVE_LEFT_SENSPHASE;
 
-    private static boolean RIGHT_INVERT = RobotConfig.RIGHT_INVERT;
-    private static boolean RIGHT_SENSPHASE = RobotConfig.RIGHT_SENSPHASE;
-
+    private static boolean RIGHT_INVERT = RobotConfig.DRIVE_RIGHT_INVERT;
+    private static boolean RIGHT_SENSPHASE = RobotConfig.DRIVE_RIGHT_SENSPHASE;
 
 
     private WPI_TalonSRX mLeft_Master;
@@ -79,17 +78,31 @@ public class DriveSys extends Subsystem {
             // SetInverted is added to decide if motor should spin clockwise or counter
             // clockwise when told to move positive/forward (green LEDs)
             // This will invert the hbridge output but NOT the LEDs.
-            mLeft_Master.setInverted(true);//LEFT_INVERT);
-            mLeft_Master.setSensorPhase(false);//LEFT_SENSPHASE);
+            mLeft_Master.setInverted(RobotConfig.DRIVE_LEFT_INVERT);            //true);
+            mLeft_Master.setSensorPhase(RobotConfig.DRIVE_LEFT_SENSPHASE);      //false);
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
             mLeft_Slave0.follow(mLeft_Master, FollowerType.PercentOutput);
-            mLeft_Slave0.setInverted(InvertType.FollowMaster  );
+            mLeft_Slave0.setInverted(InvertType.FollowMaster);                  // follow tested 2-19
 
             if (RobotConfig.IS_ROBO_2019) {
                 mLeft_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE1);
                 mLeft_Slave1.follow(mLeft_Master, FollowerType.PercentOutput);
-                mLeft_Slave1.setInverted(InvertType.OpposeMaster);
+                mLeft_Slave1.setInverted(InvertType.OpposeMaster);              // oppose tested 2-19
+            }
+            
+            mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
+            mRight_Master.setInverted(RobotConfig.DRIVE_RIGHT_INVERT);          //false); // not inverted
+            mRight_Master.setSensorPhase(RobotConfig.DRIVE_RIGHT_SENSPHASE);    //false);
+
+            mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
+            mRight_Slave0.follow(mRight_Master, FollowerType.PercentOutput);
+            mRight_Slave0.setInverted(InvertType.FollowMaster);                 // follow tested 2-19
+
+            if (RobotConfig.IS_ROBO_2019) {
+                mRight_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE1);
+                mRight_Slave1.follow(mRight_Master, FollowerType.PercentOutput);
+                mRight_Slave1.setInverted(InvertType.FollowMaster);             // follow tested 2-19
             }
 
             mLeft_Master.configOpenloopRamp(0.1, 10);
@@ -112,11 +125,6 @@ public class DriveSys extends Subsystem {
             mLeft_Master.configContinuousCurrentLimit(50, 10);
             mLeft_Master.enableCurrentLimit(true);
 
-
-            mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
-            mRight_Master.setInverted(false); //not inverted
-            mRight_Master.setSensorPhase(RIGHT_SENSPHASE);
-
             mRight_Master.configOpenloopRamp(0.1, 10);
             mRight_Master.setNeutralMode(NeutralMode.Brake);
 
@@ -129,16 +137,6 @@ public class DriveSys extends Subsystem {
             mRight_Master.configPeakCurrentDuration(100);
             mRight_Master.configContinuousCurrentLimit(50, 10);
             mRight_Master.enableCurrentLimit(true);
-
-            mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
-            mRight_Slave0.follow(mRight_Master, FollowerType.PercentOutput);
-            mRight_Slave0.setInverted(InvertType.FollowMaster);
-
-            if (RobotConfig.IS_ROBO_2019) {
-                mRight_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE1);
-                mRight_Slave1.follow(mRight_Master, FollowerType.PercentOutput);
-                mRight_Slave1.setInverted(InvertType.FollowMaster);
-            }
 
             // // Set the quadrature encoders to be the source feedback device for the talons
             // mLeft_Master.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);

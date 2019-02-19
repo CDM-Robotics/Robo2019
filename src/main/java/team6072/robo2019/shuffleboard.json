@@ -820,15 +820,37 @@
               "imageWidth": -1,
               "imageHeight": -1
             }
+          },
+          "6,4": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Toggle Button",
+              "_source0": "network_table:///Vision_Drive/UseLeftCam",
+              "_title": "Vision_Drive/UseLeftCam"
+            }
+          },
+          "3,4": {
+            "size": [
+              2,
+              1
+            ],
+            "content": {
+              "_type": "Toggle Button",
+              "_source0": "network_table:///Vision_Drive/UseCam0",
+              "_title": "Vision_Drive/UseCam0"
+            }
           }
         }
       }
     }
   ],
   "windowGeometry": {
-    "x": -14.0,
-    "y": -985.0,
-    "width": 1651.0,
-    "height": 849.0
+    "x": 297.0,
+    "y": -1141.0,
+    "width": 1655.0,
+    "height": 859.0
   }
 }
