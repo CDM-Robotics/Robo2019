@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
             mNavXsys = NavXSys.getInstance();
             //mPneuSys = PneumaticSys.getInstance();
 
-            CameraServer.getInstance().startAutomaticCapture();
+            //CameraServer.getInstance().startAutomaticCapture();
 
             NetworkTableInstance tblInst = NetworkTableInstance.getDefault();
             tblInst.setUpdateRate(0.01);        // tell network tables to update every 10 mSec
@@ -192,8 +192,8 @@ public class Robot extends TimedRobot {
             Scheduler.getInstance().removeAll();
             mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
             Scheduler.getInstance().add(mArcadeDriveCmd);
-            mDistSens = DistanceSensor.getInstance();
-            mDistSens.enable();
+            // mDistSens = DistanceSensor.getInstance();
+            // mDistSens.enable();
             // mHallSwitch = new DigitalInput(0);
             // mHallCtr = new Counter(mHallSwitch);
             // mHallCtr.reset();

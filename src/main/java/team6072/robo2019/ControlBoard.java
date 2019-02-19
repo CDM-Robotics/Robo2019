@@ -115,7 +115,7 @@ public class ControlBoard {
 
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new DriveLoCmd(), null);
 
-        // MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(60), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(60), null);
 
         // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd());
 

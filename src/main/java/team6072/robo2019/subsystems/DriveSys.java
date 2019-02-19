@@ -79,8 +79,18 @@ public class DriveSys extends Subsystem {
             // SetInverted is added to decide if motor should spin clockwise or counter
             // clockwise when told to move positive/forward (green LEDs)
             // This will invert the hbridge output but NOT the LEDs.
-            mLeft_Master.setInverted(LEFT_INVERT);
-            mLeft_Master.setSensorPhase(LEFT_SENSPHASE);
+            mLeft_Master.setInverted(true);//LEFT_INVERT);
+            mLeft_Master.setSensorPhase(false);//LEFT_SENSPHASE);
+
+            mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
+            mLeft_Slave0.follow(mLeft_Master, FollowerType.PercentOutput);
+            mLeft_Slave0.setInverted(InvertType.FollowMaster  );
+
+            if (RobotConfig.IS_ROBO_2019) {
+                mLeft_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE1);
+                mLeft_Slave1.follow(mLeft_Master, FollowerType.PercentOutput);
+                mLeft_Slave1.setInverted(InvertType.OpposeMaster);
+            }
 
             mLeft_Master.configOpenloopRamp(0.1, 10);
             mLeft_Master.setNeutralMode(NeutralMode.Brake);
@@ -102,18 +112,9 @@ public class DriveSys extends Subsystem {
             mLeft_Master.configContinuousCurrentLimit(50, 10);
             mLeft_Master.enableCurrentLimit(true);
 
-            mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
-            mLeft_Slave0.follow(mLeft_Master, FollowerType.PercentOutput);
-            mLeft_Slave0.setInverted(InvertType.FollowMaster);
-
-            if (RobotConfig.IS_ROBO_2019) {
-                mLeft_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE1);
-                mLeft_Slave1.follow(mLeft_Master, FollowerType.PercentOutput);
-                mLeft_Slave1.setInverted(InvertType.FollowMaster);
-            }
 
             mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
-            mRight_Master.setInverted(RIGHT_INVERT);
+            mRight_Master.setInverted(false); //not inverted
             mRight_Master.setSensorPhase(RIGHT_SENSPHASE);
 
             mRight_Master.configOpenloopRamp(0.1, 10);
@@ -135,7 +136,7 @@ public class DriveSys extends Subsystem {
 
             if (RobotConfig.IS_ROBO_2019) {
                 mRight_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE1);
-                mRight_Slave1.follow(mLeft_Master, FollowerType.PercentOutput);
+                mRight_Slave1.follow(mRight_Master, FollowerType.PercentOutput);
                 mRight_Slave1.setInverted(InvertType.FollowMaster);
             }
 
