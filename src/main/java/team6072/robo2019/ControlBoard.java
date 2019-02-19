@@ -99,27 +99,27 @@ public class ControlBoard {
         mButtonList = new ArrayList<JoystickButton>();
 
         mDriveStick = new Joystick(DRIVE_USB_PORT);
-        // mControlStick = new Joystick(CONTROL_USB_PORT);
+        mControlStick = new Joystick(CONTROL_USB_PORT);
         // mLeftPanel = new Joystick(LPANEL_USB_PORT);
-        mRightPanel = new Joystick(RPANEL_USB_PORT);
+        // mRightPanel = new Joystick(RPANEL_USB_PORT);
 
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new HatchWristExtendCmd(), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new HatchWristExtendCmd(), null);
 
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new IntakeOpenCmd(), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new IntakeOpenCmd(), null);
 
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new DriveHiCmd(), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new DriveHiCmd(), null);
 
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new HatchWristRetractCmd(), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new HatchWristRetractCmd(), null);
 
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new IntakeCloseCmd(), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new IntakeCloseCmd(), null);
 
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new DriveLoCmd(), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new DriveLoCmd(), null);
 
         MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveDistCmd(60), null);
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd());
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd());
 
         // MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new ElvHoldPIDCmd(), null);
         

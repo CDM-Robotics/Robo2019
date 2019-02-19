@@ -4,6 +4,9 @@ package team6072.robo2019.subsystems;
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.Counter;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import team6072.robo2019.RobotConfig;
 import team6072.robo2019.logging.*;
@@ -156,6 +159,11 @@ public class ElevatorSys extends Subsystem {
      */
     private int mBasePosn;
 
+    private DigitalInput m_BottomLimit;
+    private Counter m_BottomLimitCtr;
+    private Notifier m_BotLimitWatcher;
+    private boolean m_botLimitSwitchActive = false;
+
     
     
     public static ElevatorSys getInstance() {
@@ -177,30 +185,32 @@ public class ElevatorSys extends Subsystem {
         mLog.info("ElevatorSys ctor  ----------------------------------------------");
         try {
             mTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_MASTER);
-            mTalon.setSafetyEnabled(false);
             mTalon.configFactoryDefault();
+            mTalon.setSafetyEnabled(false);
             mTalon.setName(String.format("%d: Elevator", RobotConfig.ELEVATOR_MASTER));
             // in case we are in magic motion or position hold mode
             mTalon.set(ControlMode.PercentOutput, 0);
 
             mTalon.setSensorPhase(TALON_SENSOR_PHASE);
             mTalon.setInverted(TALON_INVERT);
+
+            if (RobotConfig.IS_ROBO_2019) {
+                mTalon.configFactoryDefault();
+                mTalon_Slave0 = new WPI_TalonSRX(RobotConfig.ELEVATOR_SLAVE0);
+                mTalon_Slave0.follow(mTalon, FollowerType.PercentOutput);
+                mTalon_Slave0.setInverted(InvertType.FollowMaster); // follow tested 2-19
+            }
+
             mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
-            if (RobotConfig.IS_ROBO_2019) {
-                mTalon_Slave0 = new WPI_TalonSRX(RobotConfig.ELEVATOR_SLAVE0);
-                mTalon_Slave0.follow(mTalon, FollowerType.PercentOutput);
-                mTalon_Slave0.setInverted(InvertType.FollowMaster);
-            }
+            mTalon.configOpenloopRamp(0.2, kTimeoutMs);
+            mTalon.setNeutralMode(NeutralMode.Brake);
 
             // mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
             // mTalon.configForwardSoftLimitEnable(false, kTimeoutMs);
             // mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
             // mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
-
-            mTalon.configOpenloopRamp(0.1, kTimeoutMs);
-            mTalon.setNeutralMode(NeutralMode.Brake);
 
             // see setup for motion magic in s/w manual 12.6
             mTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, kTimeoutMs);
@@ -229,6 +239,13 @@ public class ElevatorSys extends Subsystem {
             mTalon.configMotionAcceleration(2500, kTimeoutMs); // 2000
             mTalon.configAllowableClosedloopError(kPIDSlot_Move, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
 
+            m_BottomLimit = new DigitalInput(1);
+            m_BottomLimit.setName("ElevatorSys", "BotLimit");
+            m_BottomLimitCtr = new Counter(m_BottomLimit);
+            m_BottomLimitCtr.reset();
+            m_BotLimitWatcher = new Notifier(this::botLimitWatcher);
+            m_BotLimitWatcher.startPeriodic(0.01); // check the limit switch every 10 milliSec
+
             m_PidSourceTalonPW = new PIDSourceTalonPW(mTalon, 0);
 
             setSensorStartPosn();
@@ -239,9 +256,10 @@ public class ElevatorSys extends Subsystem {
             throw ex;
         }
     }
+    
 
     /**
-     * Disable the elevator system - make sure all talongs and PID loops are not driving anything
+     * Disable the elevator system - make sure all talons and PID loops are not driving anything
      */
     public void disable() {
         mLog.debug("ElvSys DISABLED  <<<<<<<<<<<<<<<<<<<<");
@@ -251,7 +269,20 @@ public class ElevatorSys extends Subsystem {
         if (m_holdPID != null) {
             m_holdPID.disable();
         }
+        if (m_BotLimitWatcher != null) {
+            m_BotLimitWatcher.stop();
+        }
         mTalon.set(ControlMode.PercentOutput, 0);
+    }
+
+
+    /**
+     * Called every N milliSeconds by Notifier to check the state of the limit switch
+     * Limit switch will be set when elevator at bottom - we do not move through and keep going,
+     * so no need to watch a counter
+     */
+    private void botLimitWatcher() {
+        m_botLimitSwitchActive = m_BottomLimit.get();
     }
 
 
@@ -260,6 +291,9 @@ public class ElevatorSys extends Subsystem {
     // the relative sensor to match.
     // should only be called on robot.init
     public void setSensorStartPosn() {
+        if (!m_botLimitSwitchActive) {
+            mLog.severe("Elevator is not at BOTTOM  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        }
         mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
         //mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
         int absolutePosition = mBasePosn;
@@ -302,8 +336,8 @@ public class ElevatorSys extends Subsystem {
         mLastSensPosn = absSensPosn;
 
         mLastQuadPosn = quadPosn;
-        return String.format("ES.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
-                caller, mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
+        return String.format("ES.%s  AtBase: %b  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
+                caller, m_botLimitSwitchActive,  mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
     }
     
 
@@ -394,7 +428,7 @@ public class ElevatorSys extends Subsystem {
     }
 
     public void execMoveDown() {
-        mPercentOut = -0.1;
+        mPercentOut = -0.3;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveDown"));
     }

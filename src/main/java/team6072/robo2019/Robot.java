@@ -192,6 +192,7 @@ public class Robot extends TimedRobot {
             Scheduler.getInstance().removeAll();
             mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
             Scheduler.getInstance().add(mArcadeDriveCmd);
+            mLogPeriodic.debug(mElvSys.printPosn("teleop"));
             // mDistSens = DistanceSensor.getInstance();
             // mDistSens.enable();
             // mHallSwitch = new DigitalInput(0);

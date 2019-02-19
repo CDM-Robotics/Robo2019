@@ -30,8 +30,8 @@ public class RobotConfig_2019 {
     public static final int DRIVE_GEAR_REV_HI = 5;
 
     // ELEVATOR
-    public static final boolean ELV_INVERT = false; // 2018 - false
-    public static final boolean ELV_SENSOR_PHASE = false; // 2018 false
+    public static final boolean ELV_INVERT = false; // 2018 - false  2019- false tested 2-19
+    public static final boolean ELV_SENSOR_PHASE = false; // 2018 false    2019 false  tested 2019
 
     public static final int ELV_TICKS_PER_INCH = 400; //     NOT MEASURED
     public static final double ELV_BASE_PERCENT_OUT = 0.0;
