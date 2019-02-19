@@ -66,16 +66,11 @@ public class RobotConfig {
     // PNEUMATICS
     public static final int PCM_ID = 61;
 
-    /**
-     * There are two double solenoids controlled by the PCM solenoid 1 select open
-     * or close if open, set sol 2 off
-     *
-     * solenoid 2 select close lo pressure or close high pressure
-     */
-    public static final int INTAKE_SOL_1_FWD_OPEN = 0;
-    public static final int INTAKE_SOL_1_REV_CLOSE = 1;
-    public static final int INTAKE_SOL_2_FWD_LO = 2;
-    public static final int INTAKE_SOL_2_REV_HI = 3;
-
+    public static final int PCM_HATCH_EXTEND = 0;
+    public static final int PCM_HATCH_RETRACT = 1;
+    public static final int PCM_INTAKE_OPEN = 2;
+    public static final int PCM_INTAKE_CLOSED = 3;
+    public static final int PCM_DRIVE_HIGH = 4;
+    public static final int PCM_DRIVE_LOW = 5;
 
 }

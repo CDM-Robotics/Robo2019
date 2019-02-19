@@ -19,6 +19,14 @@ public class PneumaticSys extends Subsystem {
 
     private Compressor mCompressor;
 
+    private DoubleSolenoid mDriveTrainSolenoid;
+
+    private DoubleSolenoid mHatchWristSolenoid; 
+
+    private DoubleSolenoid mIntakeSolenoid;
+
+    
+
     private static PneumaticSys mInstance;
 
     public static PneumaticSys getInstance() {
@@ -45,7 +53,52 @@ public class PneumaticSys extends Subsystem {
     @Override
     public void initDefaultCommand() {
     }
-  
+    
+    private void setDriveLo() {
 
+        mLog.debug("PneumaticSys.setDriveLo  <<<<<");
 
+        mDriveTrainSolenoid.set(DoubleSolenoid.Value.kForward);
+
+    }
+
+    private void setDriveHi() {
+
+        mLog.debug("PneumaticSys.setDriveHi  >>>>>");
+
+        mDriveTrainSolenoid.set(DoubleSolenoid.Value.kReverse);
+
+    }
+
+    private void setWristExtend() {
+
+        mLog.debug("PneumaticSys.setWristExtend  >>>>>");
+
+        mHatchWristSolenoid.set(DoubleSolenoid.Value.kForward);
+
+    }
+
+    private void setWristRetract() {
+
+        mLog.debug("PneumaticSys.setWristRetract  <<<<<");
+
+        mHatchWristSolenoid.set(DoubleSolenoid.Value.kReverse);
+
+    }
+    
+    private void setIntakeClosed() {
+
+        mLog.debug("PneumaticSys.setIntakeClosed  <<<<<");
+
+        mIntakeSolenoid.set(DoubleSolenoid.Value.kForward);
+
+    }
+
+    private void setIntakeOpen() {
+
+        mLog.debug("PneumaticSys.setIntakeOpen  >>>>>");
+
+        mIntakeSolenoid.set(DoubleSolenoid.Value.kReverse);
+
+    }
 }
