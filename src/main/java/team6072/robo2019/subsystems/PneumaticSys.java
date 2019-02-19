@@ -54,7 +54,7 @@ public class PneumaticSys extends Subsystem {
     public void initDefaultCommand() {
     }
     
-    private void setDriveLo() {
+    public void setDriveLo() {
 
         mLog.debug("PneumaticSys.setDriveLo  <<<<<");
 
@@ -62,7 +62,7 @@ public class PneumaticSys extends Subsystem {
 
     }
 
-    private void setDriveHi() {
+    public void setDriveHi() {
 
         mLog.debug("PneumaticSys.setDriveHi  >>>>>");
 
@@ -70,7 +70,7 @@ public class PneumaticSys extends Subsystem {
 
     }
 
-    private void setWristExtend() {
+    public void setWristExtend() {
 
         mLog.debug("PneumaticSys.setWristExtend  >>>>>");
 
@@ -78,7 +78,7 @@ public class PneumaticSys extends Subsystem {
 
     }
 
-    private void setWristRetract() {
+    public void setWristRetract() {
 
         mLog.debug("PneumaticSys.setWristRetract  <<<<<");
 
@@ -86,7 +86,7 @@ public class PneumaticSys extends Subsystem {
 
     }
     
-    private void setIntakeClosed() {
+    public void setIntakeClosed() {
 
         mLog.debug("PneumaticSys.setIntakeClosed  <<<<<");
 
@@ -94,7 +94,7 @@ public class PneumaticSys extends Subsystem {
 
     }
 
-    private void setIntakeOpen() {
+    public void setIntakeOpen() {
 
         mLog.debug("PneumaticSys.setIntakeOpen  >>>>>");
 
