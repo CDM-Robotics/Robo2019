@@ -22,7 +22,7 @@ import team6072.robo2019.logging.*;
  * with a 1-mm resolution. If TTL output is desired, solder the TTL jumper pads
  * on the back side of the PCB as shown in the photo to the right. For volume
  * orders, the TTL option is available as no-cost factory installed jumper. The
- * output is an ASCII capital “R”, followed by four ASCII character digits
+ * output is an ASCII capital "R", followed by four ASCII character digits
  * representing the range in millimeters, followed by a carriage return (ASCII
  * 13). The maximum distance reported is 5000. The serial output is the most
  * accurate of the range outputs. Serial data sent is 9600 baud, 8 data bits, no

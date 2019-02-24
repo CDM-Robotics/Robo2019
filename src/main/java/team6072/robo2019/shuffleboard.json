@@ -484,6 +484,24 @@
                   "_title": "DigitalInput[1]/Value",
                   "Colors/Color when true": "#7CFC00FF",
                   "Colors/Color when false": "#8B0000FF"
+                },
+                {
+                  "_type": "Speed Controller",
+                  "_source0": "network_table:///LiveWindow/Ungrouped/Talon SRX [13]",
+                  "_title": "LiveWindow/Ungrouped/Talon SRX [13]",
+                  "Visuals/Orientation": "HORIZONTAL"
+                },
+                {
+                  "_type": "Speed Controller",
+                  "_source0": "network_table:///LiveWindow/Ungrouped/Talon SRX [5]",
+                  "_title": "LiveWindow/Ungrouped/Talon SRX [5]",
+                  "Visuals/Orientation": "HORIZONTAL"
+                },
+                {
+                  "_type": "Speed Controller",
+                  "_source0": "network_table:///LiveWindow/Ungrouped/4: Elevator",
+                  "_title": "LiveWindow/Ungrouped/4: Elevator",
+                  "Visuals/Orientation": "HORIZONTAL"
                 }
               ]
             }
@@ -511,7 +529,15 @@
               "_source0": "network_table:///LiveWindow/ElevatorSys",
               "_title": "ElevatorSys",
               "Layout/Label position": "BOTTOM",
-              "_children": []
+              "_children": [
+                {
+                  "_type": "Boolean Box",
+                  "_source0": "network_table:///LiveWindow/ElevatorSys/BotLimit/Value",
+                  "_title": "LiveWindow/ElevatorSys/BotLimit/Value",
+                  "Colors/Color when true": "#7CFC00FF",
+                  "Colors/Color when false": "#8B0000FF"
+                }
+              ]
             }
           },
           "6,0": {
@@ -848,9 +874,9 @@
     }
   ],
   "windowGeometry": {
-    "x": 297.0,
-    "y": -1141.0,
-    "width": 1655.0,
-    "height": 859.0
+    "x": -5.599999904632568,
+    "y": 0.800000011920929,
+    "width": 1547.199951171875,
+    "height": 828.7999877929688
   }
 }

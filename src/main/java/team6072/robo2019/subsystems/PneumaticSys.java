@@ -8,7 +8,7 @@ import java.awt.Robot;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import team6072.robo2019.logging.*;
 
 
@@ -17,6 +17,7 @@ public class PneumaticSys extends Subsystem {
 
     // define the logger for this class. This should be done for every class
     private static final LogWrapper mLog = new LogWrapper(PneumaticSys.class.getName());
+
     private PeriodicLogger mLogPeriodic;
 
 
@@ -48,13 +49,15 @@ public class PneumaticSys extends Subsystem {
     private PneumaticSys() {
         mLog.debug("PneumaticSys.ctor: -----------------------------");
         mCompressor = new Compressor(RobotConfig.PCM_ID);
-        mCompressor.start();
-        mDriveTrainSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_DRIVE_HIGH,
-                RobotConfig.PCM_DRIVE_LOW);
-        mHatchWristSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_HATCH_EXTEND,
-                RobotConfig.PCM_HATCH_RETRACT);
-        mDriveTrainSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_INTAKE_OPEN,
-                RobotConfig.PCM_INTAKE_CLOSED);
+        if (RobotConfig.IS_ROBO_2019) {
+            mCompressor.start();
+            mDriveTrainSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_DRIVE_HIGH,
+                    RobotConfig.PCM_DRIVE_LOW);
+            mHatchWristSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_HATCH_EXTEND,
+                    RobotConfig.PCM_HATCH_RETRACT);
+            mIntakeSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_INTAKE_OPEN,
+                    RobotConfig.PCM_INTAKE_CLOSED);
+        }
         mLog.debug("PneumaticSys.ctor: exit    ---------------------");
     }
 

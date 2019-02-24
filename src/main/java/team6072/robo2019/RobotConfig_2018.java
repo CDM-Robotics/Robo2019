@@ -8,15 +8,15 @@ public class RobotConfig_2018 {
     public static double DRIVE_WHEEL_DIAMETER = 6.0;
 
     // Drive Talons
-    public static final boolean LEFT_INVERT = false; // 2018 - false
-    public static final boolean LEFT_SENSPHASE = true; // 2018 - true
+    public static final boolean DRIVE_LEFT_INVERT = false; // 2018 - false
+    public static final boolean DRIVE_LEFT_SENSPHASE = true; // 2018 - true
 
-    public static final boolean RIGHT_INVERT = true; // 2018 - true
-    public static final boolean RIGHT_SENSPHASE = true; // 2018 - true
+    public static final boolean DRIVE_RIGHT_INVERT = true; // 2018 - true
+    public static final boolean DRIVE_RIGHT_SENSPHASE = true; // 2018 - true
 
     public static final int DRIVE_LEFT_MASTER = 15;
     public static final int DRIVE_LEFT_SLAVE0 = 14;
-    public static final int DRIVELEFT_SLAVE1 = -1; // only in 2019
+    public static final int DRIVE_LEFT_SLAVE1 = -1; // only in 2019
 
     public static final int DRIVE_RIGHT_MASTER = 30;
     public static final int DRIVE_RIGHT_SLAVE0 = 1;
@@ -40,6 +40,9 @@ public class RobotConfig_2018 {
 
     // WRIST
     public static final int WRIST_TICKS_PER_DEG = 0; // NOT MEASURED
+    public static final boolean WRIST_SENSOR_PHASE = true;
+    public static final boolean WRIST_INVERT = true;
+    public static final double WRIST_BASE_PERCENT_OUT = 0.0;
 
     public static final int WRIST_MASTER = 13;
     public static final int WRIST_SLAVE0 = -1; // only in 2019
@@ -72,5 +75,14 @@ public class RobotConfig_2018 {
     public static final int INTAKE_SOL_1_REV_CLOSE = 1;
     public static final int INTAKE_SOL_2_FWD_LO = 2;
     public static final int INTAKE_SOL_2_REV_HI = 3;
+
+    // PNEUMATICS for 2019 - just here to let code compile
+
+    public static final int PCM_HATCH_EXTEND = 0;
+    public static final int PCM_HATCH_RETRACT = 1;
+    public static final int PCM_INTAKE_OPEN = 2;
+    public static final int PCM_INTAKE_CLOSED = 3;
+    public static final int PCM_DRIVE_HIGH = 4;
+    public static final int PCM_DRIVE_LOW = 5;
 
 }

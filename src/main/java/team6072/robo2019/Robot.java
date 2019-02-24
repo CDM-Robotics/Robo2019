@@ -77,7 +77,7 @@ public class Robot extends TimedRobot {
             mDriveSys = DriveSys.getInstance();
             mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
-            //mPneuSys = PneumaticSys.getInstance();
+            mPneuSys = PneumaticSys.getInstance();
 
             //CameraServer.getInstance().startAutomaticCapture();
 
@@ -192,7 +192,6 @@ public class Robot extends TimedRobot {
             Scheduler.getInstance().removeAll();
             mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
             Scheduler.getInstance().add(mArcadeDriveCmd);
-            mLogPeriodic.debug(mElvSys.printPosn("teleop"));
             // mDistSens = DistanceSensor.getInstance();
             // mDistSens.enable();
             // mHallSwitch = new DigitalInput(0);
@@ -216,7 +215,7 @@ public class Robot extends TimedRobot {
             Scheduler.getInstance().run();
             //mLogPeriodic.debug("telPer: Hall Switch: %b   Counter: %d    period: %.3f ", mHallSwitch.get(), mHallCtr.get(), mHallCtr.getPeriod());
             mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
-            //mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
+            mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }

@@ -239,7 +239,7 @@ public class ElevatorSys extends Subsystem {
             mTalon.configMotionAcceleration(2500, kTimeoutMs); // 2000
             mTalon.configAllowableClosedloopError(kPIDSlot_Move, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
 
-            m_BottomLimit = new DigitalInput(1);
+            m_BottomLimit = new DigitalInput(2);
             m_BottomLimit.setName("ElevatorSys", "BotLimit");
             m_BottomLimitCtr = new Counter(m_BottomLimit);
             m_BottomLimitCtr.reset();
@@ -291,9 +291,7 @@ public class ElevatorSys extends Subsystem {
     // the relative sensor to match.
     // should only be called on robot.init
     public void setSensorStartPosn() {
-        if (!m_botLimitSwitchActive) {
-            mLog.severe("Elevator is not at BOTTOM  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-        }
+
         mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
         //mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
         int absolutePosition = mBasePosn;
@@ -336,8 +334,8 @@ public class ElevatorSys extends Subsystem {
         mLastSensPosn = absSensPosn;
 
         mLastQuadPosn = quadPosn;
-        return String.format("ES.%s  AtBase: %b  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
-                caller, m_botLimitSwitchActive,  mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
+        return String.format("ES.%s  AtBase: %b LimCnt: %d   base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
+                caller, m_botLimitSwitchActive,  m_BottomLimitCtr.get(), mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
     }
     
 
