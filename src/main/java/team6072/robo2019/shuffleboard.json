@@ -871,12 +871,63 @@
           }
         }
       }
+    },
+    {
+      "title": "Tab 7",
+      "autoPopulate": false,
+      "autoPopulatePrefix": "",
+      "widgetPane": {
+        "gridSize": 128.0,
+        "showGrid": true,
+        "hgap": 16.0,
+        "vgap": 16.0,
+        "tiles": {
+          "0,0": {
+            "size": [
+              8,
+              9
+            ],
+            "content": {
+              "_type": "Camera Stream",
+              "_source0": "camera_server://Drive_0",
+              "_title": "Drive_0",
+              "Crosshair/Show crosshair": true,
+              "Crosshair/Crosshair color": "#FFFFFFFF",
+              "Controls/Show controls": true,
+              "Controls/Rotation": "NONE",
+              "compression": -1.0,
+              "fps": -1,
+              "imageWidth": -1,
+              "imageHeight": -1
+            }
+          },
+          "8,0": {
+            "size": [
+              8,
+              9
+            ],
+            "content": {
+              "_type": "Camera Stream",
+              "_source0": "camera_server://Drive_1",
+              "_title": "Drive_1",
+              "Crosshair/Show crosshair": true,
+              "Crosshair/Crosshair color": "#FFFFFFFF",
+              "Controls/Show controls": true,
+              "Controls/Rotation": "NONE",
+              "compression": -1.0,
+              "fps": -1,
+              "imageWidth": -1,
+              "imageHeight": -1
+            }
+          }
+        }
+      }
     }
   ],
   "windowGeometry": {
-    "x": -5.599999904632568,
-    "y": 0.800000011920929,
-    "width": 1547.199951171875,
-    "height": 828.7999877929688
+    "x": 121.66668701171875,
+    "y": -6.0,
+    "width": 1294.4000244140625,
+    "height": 738.4000244140625
   }
 }
