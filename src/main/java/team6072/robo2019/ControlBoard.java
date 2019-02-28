@@ -3,7 +3,9 @@ package team6072.robo2019;
 import java.util.*;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.buttons.POVButton;
 import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.commands.drive.*;
 import team6072.robo2019.commands.elevator.*;
@@ -64,7 +66,7 @@ public class ControlBoard {
     public static int RIGHT_PANEL_BUT_5 = 9;
     public static int RIGHT_PANEL_BUT_6 = 12;
 
-    private ArrayList<JoystickButton> mButtonList;
+    private ArrayList<Button> mButtonList;
 
     // drive stick is used for driving robot
     private static int DRIVE_USB_PORT = 0;
@@ -96,7 +98,7 @@ public class ControlBoard {
 
     private ControlBoard() {
 
-        mButtonList = new ArrayList<JoystickButton>();
+        mButtonList = new ArrayList<Button>();
 
         mDriveStick = new Joystick(DRIVE_USB_PORT);
         // mControlStick = new Joystick(CONTROL_USB_PORT);
@@ -154,6 +156,47 @@ public class ControlBoard {
      */
     private void MapCmdToBut(Joystick stick, int button, Command pressCmd, Command releaseCmd) {
         JoystickButton but = new JoystickButton(stick, button);
+        if (pressCmd != null) {
+            but.whenPressed(pressCmd);
+        }
+        if (releaseCmd != null) {
+            but.whenReleased(releaseCmd);
+        }
+        mButtonList.add(but);
+    }
+
+
+
+    private enum PovAngle {
+        Deg_000(0),
+        Deg_045(45),
+        Deg_090(90),
+        Deg_135(135),
+        Deg_180(180),
+        Deg_225(225),
+        Deg_270(270),
+        Deg_315(315);
+
+        private int mAngle;
+
+        PovAngle(int angle) {
+            mAngle = angle;
+        }
+
+        public int getAngle() {
+            return mAngle;
+        }
+    }
+
+
+    /**
+     * See PovButton here:
+     * http://first.wpi.edu/FRC/roborio/release/docs/java/edu/wpi/first/wpilibj/buttons/POVButton.html
+     * 
+     * PovButton is the small rotating button on top of the joystick
+     */
+    private void MapCmdToPovBut(Joystick stick, PovAngle angle, Command pressCmd, Command releaseCmd) {
+        POVButton but = new POVButton(stick, angle.getAngle());
         if (pressCmd != null) {
             but.whenPressed(pressCmd);
         }
