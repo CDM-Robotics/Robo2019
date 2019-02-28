@@ -22,49 +22,51 @@ public class WristSys extends Subsystem {
         Up, Down
     }
 
-    private static final double GEAR_DIA_INCHES = 1.5;
 
     // a motor output of BASE_POWER holds the motor in place when not disturbed
     private static final double BASE_PERCENT_OUT = RobotConfig.WRIST_BASE_PERCENT_OUT;
 
-    // MEASURE the ticks per inch on physical mechanism
-    private static final int TICKS_PER_INCH = RobotConfig.WRIST_TICKS_PER_DEG; // MEASURED
-    private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
+    // consider 0 degreess as fully folded back onto arm
+    // 180 degrees folded out so presenting flat to target
 
-    private static final double WRIST_FLOOR_INCHES = 13.0; // inches from ground when elevator at zero
+    private static final int BASE = 0;
+    private static final int FLAT_TO_TARGET = 180;
+
+    // MEASURE the ticks per degree on physical mechanism
+    private static final int TICKS_PER_DEG = RobotConfig.WRIST_TICKS_PER_DEG; // MEASURED
 
     // --------------------------------------Rocket  Hatch----------------------------------------------
 
-    private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - WRIST_FLOOR_INCHES);
-    private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_HATCH_LO_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_DEGS * TICKS_PER_DEG);
 
-    private static final double ROCKET_HATCH_MID_INCHES = (ROCKET_HATCH_LO_INCHES + 24 + 4);
-    private static final int ROCKET_HATCH_MID = (int) (ROCKET_HATCH_MID_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_HATCH_MID_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_HATCH_MID = (int) (ROCKET_HATCH_MID_DEGS * TICKS_PER_DEG);
 
-    private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
-    private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_HATCH_HI_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_DEGS * TICKS_PER_DEG);
 
     // -------------------------------------Rocket Cargo----------------------------------------------
 
-    private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - WRIST_FLOOR_INCHES);
-    private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_CARGO_LO_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_DEGS * TICKS_PER_DEG);
 
-    private static final double ROCKET_CARGO_MID_INCHES = (ROCKET_CARGO_LO_INCHES + 24 + 4);
-    private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_CARGO_MID_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_DEGS * TICKS_PER_DEG);
 
-    private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
-    private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_CARGO_HI_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_DEGS * TICKS_PER_DEG);
 
     // --------------------------------------Cargoship Hatch----------------------------------------
 
-    private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - WRIST_FLOOR_INCHES);
-    private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * TICKS_PER_INCH);
+    private static final int CARGOSHIP_HATCH_DEGS = FLAT_TO_TARGET;
+    private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_DEGS * TICKS_PER_DEG);
 
     // --------------------------------------CARGOSHIP CARGO----------------------------------------
 
-    private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - WRIST_FLOOR_INCHES);
+    private static final int CARGOSHIP_CARGO_DEGS = FLAT_TO_TARGET;
     // extra 2 inches for safety^^^
-    private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_INCHES * TICKS_PER_INCH);
+    private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_DEGS * TICKS_PER_DEG);
 
     public enum WristTarget {
         RocketHatchHi(ROCKET_HATCH_HI), RocketHatchMid(ROCKET_HATCH_MID), RocketHatchLo(ROCKET_HATCH_LO),
@@ -288,7 +290,7 @@ public class WristSys extends Subsystem {
         mLastSensPosn = absSensPosn;
 
         mLastQuadPosn = quadPosn;
-        return String.format("ES.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
+        return String.format("IS.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
                 caller, mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
     }
     
@@ -323,7 +325,7 @@ public class WristSys extends Subsystem {
 
     public boolean isCompleteMovSlowUp() {
         int curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        boolean isFin = (curPosn - mStartPosn) >= TICKS_PER_INCH * 2;
+        boolean isFin = (curPosn - mStartPosn) >= TICKS_PER_DEG * 2;
         if (isFin) {
             mLog.debug(printPosn("isComp") + "\n------------------------------------------------------");
             mLog.debug("Holding at output %.3f", BASE_PERCENT_OUT);
@@ -333,17 +335,6 @@ public class WristSys extends Subsystem {
         return isFin;
     }
     
-
-    // -------------------------  basic hold  -------------------------------------
-
-
-
-    public void holdPosnPower() {
-        mLog.debug(printPosn("holdPosnPower") + "\n------------------------------------------------------");
-        mLog.debug("Holding at output %.3f", BASE_PERCENT_OUT);
-        mPercentOut = BASE_PERCENT_OUT;
-        mTalon.set(ControlMode.PercentOutput, mPercentOut);
-    }
 
 
     // ------------------ Move Up  -------------------------------------------------------------
@@ -369,7 +360,7 @@ public class WristSys extends Subsystem {
     // ------------------ Move Down  -------------------------------------------------------------
 
     /**
-     * Moe down at -0.1 power
+     * Move down at -0.1 power
      */
     public void initMoveDown() {
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
@@ -404,7 +395,7 @@ public class WristSys extends Subsystem {
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-            m_holdPID.setAbsoluteTolerance(0.3 * TICKS_PER_INCH); // allow +- 200 units (0.4 inches) on error
+            m_holdPID.setAbsoluteTolerance(0.3 * TICKS_PER_DEG); // allow +- 200 units (0.4 inches) on error
         }
         else {
             m_holdPID.reset();
@@ -419,6 +410,7 @@ public class WristSys extends Subsystem {
         int curPosn = mTalon.getSelectedSensorPosition(0);
         enableHoldPosnPID(curPosn);
     }
+    
 
     /**
      * Do a PID hold at the specified sensor position
@@ -465,7 +457,7 @@ public class WristSys extends Subsystem {
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_movePID = new TTPIDController("PID.elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-            m_movePID.setAbsoluteTolerance(TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock                                                       // in
+            m_movePID.setAbsoluteTolerance(TICKS_PER_DEG); // allow +- one inch - then hand over to posn hold to lock                                                       // in
         }
         else {
             m_movePID.reset();
@@ -478,7 +470,7 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("initMoveToTarget"));
         m_usingHoldPID = false;
         m_movePID.setSetpoint(calcTarg);
-        m_movePID.setRamp(3 * TICKS_PER_INCH, 5 * TICKS_PER_INCH); // set ramps to 3 inches
+        m_movePID.setRamp(3 * TICKS_PER_DEG, 5 * TICKS_PER_DEG); // set ramps to 3 inches
         m_movePID.setBasePower(BASE_PERCENT_OUT, 0.05);
         m_movePID.enable();
     }
