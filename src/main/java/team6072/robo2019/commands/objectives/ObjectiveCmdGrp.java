@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 import team6072.robo2019.commands.elevator.*;
 import team6072.robo2019.commands.wrist.*;
 import team6072.robo2019.subsystems.*;
+import team6072.robo2019.commands.pneumatics.*;
 
 
 
@@ -60,6 +61,11 @@ public class ObjectiveCmdGrp extends CommandGroup {
             addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.RocketHatchHi));
             addSequential(new WristMoveToCmd(WristSys.WristTarget.RocketHatchHi));
             break;
+        case HatchPickUp:
+            addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.CargoshipHatch));
+            addSequential(new HatchWristExtendCmd());
+            addSequential(new WristMoveToCmd(WristSys.WristTarget.CargoshipHatch));
+        break;
         }
         this.start();
     }

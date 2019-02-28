@@ -10,5 +10,6 @@ public enum Objective {
     RocketCargoMid(), 
     RocketCargoLo(),
     CargoshipHatch(), 
-    CargoshipCargo()
+    CargoshipCargo(),
+    HatchPickUp()
 }

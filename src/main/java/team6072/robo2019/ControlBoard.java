@@ -100,8 +100,8 @@ public class ControlBoard {
 
         // Drive Stick Commands --------------------------------------
 
-        // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new DriveHiCmd(), null);
-        // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new DriveLoCmd(), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new DriveHiCmd(), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new DriveLoCmd(), null);
 
         MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new WristMoveUpSlowCmd(), null);  // DEBUG
 
@@ -113,29 +113,34 @@ public class ControlBoard {
         MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristMoveUpCmd(), null);
         MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristMoveDownCmd(), null);
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), new IntakeWheelsStopCmd());
-        // MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), new IntakeWheelsStopCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), new IntakeWheelsStopCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), new IntakeWheelsStopCmd());
 
-        // MapCmdToPovBut(mControlStick, PovAngle.Deg_000, new IntakeCloseCmd(), null);
-        // MapCmdToPovBut(mControlStick, PovAngle.Deg_180, new IntakeOpenCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_000, new IntakeCloseCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_180, new IntakeOpenCmd(), null);
+
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_090, new HatchWristExtendCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_270, new HatchWristRetractCmd(), null);
+
 
         // right panel
         // ----------------------------------------------------------------------------------------
 
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmdGrp(Objective.RocketCargoHi), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ObjectiveCmdGrp(Objective.RocketCargoMid), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ObjectiveCmdGrp(Objective.RocketCargoLo), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmdGrp(Objective.RocketHatchHi), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmdGrp(Objective.RocketHatchMid), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmdGrp(Objective.RocketHatchLo), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmdGrp(Objective.RocketCargoHi), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ObjectiveCmdGrp(Objective.RocketCargoMid), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ObjectiveCmdGrp(Objective.RocketCargoLo), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmdGrp(Objective.RocketHatchHi), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmdGrp(Objective.RocketHatchMid), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmdGrp(Objective.RocketHatchLo), null);
 
-        // // left panel
+        // left panel
         // -----------------------------------------------------------------------------------------
 
-        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmdGrp(Objective.CargoshipCargo), null);
-        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmdGrp(Objective.CargoshipHatch), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new ObjectiveCmdGrp(Objective.HatchPickUp), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmdGrp(Objective.CargoshipCargo), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmdGrp(Objective.CargoshipHatch), null);
 
-        // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
 
     }
 
