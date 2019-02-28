@@ -37,8 +37,8 @@ public class ElevatorSys extends Subsystem {
     private static final int TICKS_PER_INCH = RobotConfig.ELV_TICKS_PER_INCH; // MEASURED
     private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
 
-    private static final double ELEVATOR_FLOOR_INCHES = 13.0; // inches from ground when elevator at zero
-
+    private static final double ELEVATOR_FLOOR_INCHES = 14.5; // inches from ground when elevator at zero
+                                                              // measured from wrist axel to floor but does not account for ball center
     // --------------------------------------Rocket  Hatch----------------------------------------------
 
     private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
@@ -163,9 +163,9 @@ public class ElevatorSys extends Subsystem {
     private int mBasePosn;
 
     // specify the boundaries beyond which not allowed to have power
-    private static final int MAX_TRAVEL = 123456;
+    private static final int MAX_TRAVEL = 15000;
 
-    private static final int MIN_TRAVEL = 123;
+    private static final int MIN_TRAVEL = -20000;
 
     private DigitalInput m_BottomLimit;
     private Counter m_BottomLimitCtr;
@@ -259,9 +259,9 @@ public class ElevatorSys extends Subsystem {
             setSensorStartPosn();
 
             // set the watch dog going
-            // mWatchDogTimer = new Timer("ElvSys watchdog");
+            mWatchDogTimer = new Timer("ElvSys watchdog");
             // wait for 1 second before starting, then check every 50 milliseconds
-            // mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+            mWatchDogTimer.schedule(mWatchDog, 1000, 50);
 
             mLog.info("ElevatorSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
@@ -303,18 +303,29 @@ public class ElevatorSys extends Subsystem {
 
     private Timer mWatchDogTimer = new Timer();
 
+    private boolean m_DontMoveDown = false;
+    private boolean m_DontMoveUp = false;
+
     private TimerTask mWatchDog = new TimerTask() {
         public void run() {
             int curPosn = mTalon.getSelectedSensorPosition();
             double curOutput = mTalon.getMotorOutputPercent();
             if (curPosn > MAX_TRAVEL && curOutput > 0) {
                 // past the max boundry and going forward
+                m_DontMoveDown = false;
+                m_DontMoveUp = true;
                 mTalon.set(ControlMode.PercentOutput, 0);
                 mLog.severe("WristSys: talon exceeded forward boundry");
             } else if (curPosn < MIN_TRAVEL && curOutput < 0) {
                 // past the max boundry and going forward
+                m_DontMoveDown = true;
+                m_DontMoveUp = false;
                 mTalon.set(ControlMode.PercentOutput, 0);
                 mLog.severe("WristSys: talon exceeded backward boundry");
+            }
+            else {
+                m_DontMoveDown = false;
+                m_DontMoveUp = false;
             }
         }
     };
@@ -446,6 +457,9 @@ public class ElevatorSys extends Subsystem {
     }
 
     public void execMoveUp() {
+        if (m_DontMoveUp) {
+            return;
+        }
         mPercentOut = BASE_PERCENT_OUT + 0.4;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveUp"));
@@ -472,6 +486,9 @@ public class ElevatorSys extends Subsystem {
     }
 
     public void execMoveDown() {
+        if (m_DontMoveDown) {
+            return;
+        }
         mPercentOut = -0.2;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveDown"));

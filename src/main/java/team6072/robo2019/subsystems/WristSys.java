@@ -25,7 +25,6 @@ public class WristSys extends Subsystem {
         Up, Down
     }
 
-
     // a motor output of BASE_POWER holds the motor in place when not disturbed
     private static final double BASE_PERCENT_OUT = RobotConfig.WRIST_BASE_PERCENT_OUT;
 
@@ -43,7 +42,8 @@ public class WristSys extends Subsystem {
 
     private static final int MIN_TRAVEL = 123;
 
-    // --------------------------------------Rocket  Hatch----------------------------------------------
+    // --------------------------------------Rocket
+    // Hatch----------------------------------------------
 
     private static final int ROCKET_HATCH_LO_DEGS = FLAT_TO_TARGET;
     private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_DEGS * TICKS_PER_DEG);
@@ -54,7 +54,8 @@ public class WristSys extends Subsystem {
     private static final int ROCKET_HATCH_HI_DEGS = FLAT_TO_TARGET;
     private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_DEGS * TICKS_PER_DEG);
 
-    // -------------------------------------Rocket Cargo----------------------------------------------
+    // -------------------------------------Rocket
+    // Cargo----------------------------------------------
 
     private static final int ROCKET_CARGO_LO_DEGS = FLAT_TO_TARGET;
     private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_DEGS * TICKS_PER_DEG);
@@ -65,12 +66,14 @@ public class WristSys extends Subsystem {
     private static final int ROCKET_CARGO_HI_DEGS = FLAT_TO_TARGET;
     private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_DEGS * TICKS_PER_DEG);
 
-    // --------------------------------------Cargoship Hatch----------------------------------------
+    // --------------------------------------Cargoship
+    // Hatch----------------------------------------
 
     private static final int CARGOSHIP_HATCH_DEGS = FLAT_TO_TARGET;
     private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_DEGS * TICKS_PER_DEG);
 
-    // --------------------------------------CARGOSHIP CARGO----------------------------------------
+    // --------------------------------------CARGOSHIP
+    // CARGO----------------------------------------
 
     private static final int CARGOSHIP_CARGO_DEGS = FLAT_TO_TARGET;
 
@@ -100,16 +103,17 @@ public class WristSys extends Subsystem {
 
     private boolean m_usingHoldPID;
 
-
     /**
      * How many sensor units per rotation.
+     * 
      * @link https://github.com/CrossTheRoadElec/Phoenix-Documentation#what-are-the-units-of-my-sensor
      */
     private static final int kCTREUnitsPerRotation = 4096; // 4096;
 
     private static final int kUnitsPerRotation = kCTREUnitsPerRotation;
 
-    // inches of elevator travel per complete rotation of encoder  gear is 1 inch diameter
+    // inches of elevator travel per complete rotation of encoder gear is 1 inch
+    // diameter
     private static final double kDistancePerRotation = 1.75 * Math.PI;
 
     private static final int kUnitsPerInch = (int) Math.round(kUnitsPerRotation / kDistancePerRotation);
@@ -127,7 +131,6 @@ public class WristSys extends Subsystem {
 
     private static final int TALON_REVERSE_LIMIT = -1;
 
-
     public static final int kTimeoutMs = 10;
 
     public static final int kPIDLoopIdx = 0;
@@ -135,14 +138,12 @@ public class WristSys extends Subsystem {
     // Motor deadband, set to 1%.
     public static final double kNeutralDeadband = 0.01;
 
-
     /**
-     * Log the sensor position at power up - use this as the base reference for positioning.
+     * Log the sensor position at power up - use this as the base reference for
+     * positioning.
      */
     private int mBasePosn;
 
-    
-    
     public static WristSys getInstance() {
         if (mInstance == null) {
             mInstance = new WristSys();
@@ -150,13 +151,10 @@ public class WristSys extends Subsystem {
         return mInstance;
     }
 
-
-
     @Override
     public void initDefaultCommand() {
-        //setDefaultCommand(new WristMoveUpSlow());
+        // setDefaultCommand(new WristMoveUpSlow());
     }
-
 
     public WristSys() {
         mLog.info("WristSys ctor  ----------------------------------------------");
@@ -197,9 +195,9 @@ public class WristSys extends Subsystem {
             setSensorStartPosn();
 
             // set the watch dog going
-            //mWatchDogTimer = new Timer("WristSys watchdog");
+            mWatchDogTimer = new Timer("WristSys watchdog");
             // wait for 1 second before starting, then check every 50 milliseconds
-            //mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+            mWatchDogTimer.schedule(mWatchDog, 1000, 50);
 
             mLog.info("WristSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
@@ -208,9 +206,9 @@ public class WristSys extends Subsystem {
         }
     }
 
-
     /**
-     * Disable the elevator system - make sure all talongs and PID loops are not driving anything
+     * Disable the elevator system - make sure all talongs and PID loops are not
+     * driving anything
      */
     public void disable() {
         mLog.debug("WristSys DISABLED  <<<<<<<<<<<<<<<<<<<<");
@@ -230,10 +228,13 @@ public class WristSys extends Subsystem {
         }
     }
 
-
-    // ------------  set up watch on talon position and disable if out of bounds  -----------------------
+    // ------------ set up watch on talon position and disable if out of bounds
+    // -----------------------
 
     private Timer mWatchDogTimer = new Timer();
+
+    private boolean mDontExtend = false;
+    private boolean mDontRetract = false;
 
     private TimerTask mWatchDog = new TimerTask() {
         public void run() {
@@ -241,26 +242,31 @@ public class WristSys extends Subsystem {
             double curOutput = mTalon.getMotorOutputPercent();
             if (curPosn > MAX_TRAVEL && curOutput > 0) {
                 // past the max boundry and going forward
+                mDontExtend = true;
+                mDontRetract = false;
                 mTalon.set(ControlMode.PercentOutput, 0);
                 mLog.severe("WristSys: talon exceeded forward boundry");
-            }
-            else if (curPosn < MIN_TRAVEL && curOutput < 0) {
+            } else if (curPosn < MIN_TRAVEL && curOutput < 0) {
+                mDontExtend = false;
+                mDontRetract = false;
                 // past the max boundry and going forward
                 mTalon.set(ControlMode.PercentOutput, 0);
                 mLog.severe("WristSys: talon exceeded backward boundry");
+            } else {
+                mDontExtend = false;
+                mDontRetract = false;
             }
         }
     };
 
     // --------------------------------------------------------------------------------------------------
 
-
     // grab the 360 degree position of the MagEncoder's absolute position, and set
     // the relative sensor to match.
     // should only be called on robot.init
     public void setSensorStartPosn() {
         mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
-        //mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        // mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
         int absolutePosition = mBasePosn;
         /* mask out overflows, keep bottom 12 bits */
         absolutePosition &= 0xFFF;
@@ -273,7 +279,6 @@ public class WristSys extends Subsystem {
         mBasePosn = mTalon.getSelectedSensorPosition(0);
         mLog.debug(printPosn("setStart"));
     }
-
 
     private double mLastSensPosn;
     private double mLastQuadPosn;
@@ -301,14 +306,14 @@ public class WristSys extends Subsystem {
         mLastSensPosn = absSensPosn;
 
         mLastQuadPosn = quadPosn;
-        return String.format("IS.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
-                caller, mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
+        return String.format("IS.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", caller,
+                mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
     }
-    
 
-    // MovSlowUpCmd  --------------------------------------------------------
+    // MovSlowUpCmd --------------------------------------------------------
 
-    // move up very slowly unitl we have moved 2 inches. Idea is to find minimum power
+    // move up very slowly unitl we have moved 2 inches. Idea is to find minimum
+    // power
     // need to move the elevator up, because it is very negatively weighted
 
     private int mStartPosn = 0;
@@ -317,22 +322,19 @@ public class WristSys extends Subsystem {
 
     private PeriodicLogger mPLog;
 
-
     public void initMovSlowUp() {
-        mStartPosn =  mTalon.getSensorCollection().getPulseWidthPosition();
+        mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = 0.0;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initMovSlowUp"));
     }
 
-
     public void execMovSlowUp() {
         mPercentOut += 0.001;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMovSlowUp"));
     }
-
 
     public boolean isCompleteMovSlowUp() {
         int curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
@@ -345,15 +347,14 @@ public class WristSys extends Subsystem {
         }
         return isFin;
     }
-    
 
-
-    // ------------------ Move Up  -------------------------------------------------------------
+    // ------------------ Move Up
+    // -------------------------------------------------------------
 
     /**
      * Move up at 0.3 power more than hold
      */
-    public void initMoveUp() {
+    public void initRetract() {
         if (m_holdPID != null) {
             m_holdPID.disable();
         }
@@ -367,19 +368,22 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("initMoveUp") + "--------------------------------------------------------");
     }
 
-    public void execMoveUp() {
+    public void execRetract() {
+        if (mDontRetract) {
+            return;
+        }
         mPercentOut = BASE_PERCENT_OUT + 0.1;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveUp"));
     }
 
-
-    // ------------------ Move Down  -------------------------------------------------------------
+    // ------------------ Move Down
+    // -------------------------------------------------------------
 
     /**
      * Move down at -0.1 power
      */
-    public void initMoveDown() {
+    public void initExtend() {
         if (m_holdPID != null) {
             m_holdPID.disable();
         }
@@ -393,20 +397,21 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("initMoveDown"));
     }
 
-    public void execMoveDown() {
+    public void execExtend() {
+        if (mDontExtend) {
+            return;
+        }
         mPercentOut = -0.1;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveDown"));
     }
 
-
-
-    // ---------- hold posn PID using the TritonTech PID  ----------------------------------
-
+    // ---------- hold posn PID using the TritonTech PID
+    // ----------------------------------
 
     /**
-     * Sensor is on output of gearing (not on motor)
-     * Set the tolerance to +- 0.5 inches
+     * Sensor is on output of gearing (not on motor) Set the tolerance to +- 0.5
+     * inches
      */
     public void initHoldPosnPID() {
 
@@ -419,12 +424,10 @@ public class WristSys extends Subsystem {
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
             m_holdPID.setAbsoluteTolerance(0.3 * TICKS_PER_DEG); // allow +- 200 units (0.4 inches) on error
-        }
-        else {
+        } else {
             m_holdPID.reset();
         }
     }
-
 
     /**
      * Hold at the current position
@@ -433,7 +436,6 @@ public class WristSys extends Subsystem {
         int curPosn = mTalon.getSelectedSensorPosition(0);
         enableHoldPosnPID(curPosn);
     }
-
 
     /**
      * Do a PID hold at the specified sensor position
@@ -449,9 +451,9 @@ public class WristSys extends Subsystem {
         m_holdPID.enable();
     }
 
-
     /**
-     * Disable the hold PID. This will send 0 to the PID out, which writes to the talon
+     * Disable the hold PID. This will send 0 to the PID out, which writes to the
+     * talon
      */
     public void disableHoldPosnPID() {
         if (m_holdPID != null) {
@@ -461,13 +463,12 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("disableHoldPosnPID"));
     }
 
-
-    // move to target using PID  ---------------------------------------------
-
+    // move to target using PID ---------------------------------------------
 
     /**
-     * Target assumes that the elevator base position is zero
-     * Need to adjust for the actual sensor start position
+     * Target assumes that the elevator base position is zero Need to adjust for the
+     * actual sensor start position
+     * 
      * @param targ
      */
     public void initMoveToTarget(WristTarget targ) {
@@ -479,10 +480,11 @@ public class WristSys extends Subsystem {
             double kD = 0.0;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-            m_movePID = new TTPIDController("PID.elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-            m_movePID.setAbsoluteTolerance(TICKS_PER_DEG); // allow +- one inch - then hand over to posn hold to lock                                                       // in
-        }
-        else {
+            m_movePID = new TTPIDController("PID.elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
+                    periodInSecs);
+            m_movePID.setAbsoluteTolerance(TICKS_PER_DEG); // allow +- one inch - then hand over to posn hold to lock //
+                                                           // in
+        } else {
             m_movePID.reset();
         }
 
@@ -498,10 +500,10 @@ public class WristSys extends Subsystem {
         m_movePID.enable();
     }
 
-    
     /**
-     * Dont need to actually do anything here, because the PID if writing to the Talon
-     * What we want to do is wait until the PID is close, then use the holdPID to lock in
+     * Dont need to actually do anything here, because the PID if writing to the
+     * Talon What we want to do is wait until the PID is close, then use the holdPID
+     * to lock in
      */
     public void execMoveToTarget() {
         if (m_movePID.onTarget() && !m_usingHoldPID) {
@@ -513,7 +515,6 @@ public class WristSys extends Subsystem {
         }
     }
 
-
     /**
      * Only return true once we have moved to using holdPID and it is on target
      */
@@ -523,7 +524,6 @@ public class WristSys extends Subsystem {
         }
         return false;
     }
-
 
     public void disableMoveToPID() {
         if (m_movePID != null) {

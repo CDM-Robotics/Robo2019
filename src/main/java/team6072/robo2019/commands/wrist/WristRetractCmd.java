@@ -10,12 +10,12 @@ import team6072.robo2019.subsystems.WristSys;
  * Move the elevator up very slowly until irt has moved 500 ticks from start
  * Designed for testing the 
  */
-public class WristMoveUpCmd extends Command {
+public class WristRetractCmd extends Command {
 
 
     private WristSys mSys;
 
-    public WristMoveUpCmd() {
+    public WristRetractCmd() {
         mSys = WristSys.getInstance();
         requires(mSys);
     }
@@ -24,21 +24,21 @@ public class WristMoveUpCmd extends Command {
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
-        mSys.initMoveUp();
+        mSys.initRetract();
     }
 
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mSys.execMoveUp();
+        mSys.execRetract();
     }
 
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished() {
-        return false;
+        return true;
     }
 
 
