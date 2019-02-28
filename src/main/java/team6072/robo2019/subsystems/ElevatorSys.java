@@ -271,6 +271,7 @@ public class ElevatorSys extends Subsystem {
     
     public void killWatchDog()
     {
+        mLog.info("Killing Watchdog");
         MAX_TRAVEL += 20000;
         MIN_TRAVEL -= 20000;
     }
