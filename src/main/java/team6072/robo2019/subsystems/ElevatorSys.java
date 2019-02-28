@@ -163,9 +163,8 @@ public class ElevatorSys extends Subsystem {
     private int mBasePosn;
 
     // specify the boundaries beyond which not allowed to have power
-    private static final int MAX_TRAVEL = 15000;
-
-    private static final int MIN_TRAVEL = -20000;
+    private static int MAX_TRAVEL = 19500;
+    private static int MIN_TRAVEL = 200;
 
     private DigitalInput m_BottomLimit;
     private Counter m_BottomLimitCtr;
@@ -270,6 +269,11 @@ public class ElevatorSys extends Subsystem {
         }
     }
     
+    public void killWatchDog()
+    {
+        MAX_TRAVEL += 20000;
+        MIN_TRAVEL -= 20000;
+    }
 
     /**
      * Disable the elevator system - make sure all talons and PID loops are not driving anything
@@ -460,7 +464,7 @@ public class ElevatorSys extends Subsystem {
         if (m_DontMoveUp) {
             return;
         }
-        mPercentOut = BASE_PERCENT_OUT + 0.4;
+        mPercentOut = BASE_PERCENT_OUT + 0.35;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveUp"));
     }
