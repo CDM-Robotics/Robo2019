@@ -368,7 +368,7 @@ public class WristSys extends Subsystem {
     }
 
     public void execMoveUp() {
-        mPercentOut = BASE_PERCENT_OUT + 0.3;
+        mPercentOut = BASE_PERCENT_OUT + 0.1;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveUp"));
     }
