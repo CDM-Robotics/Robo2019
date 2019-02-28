@@ -19,20 +19,21 @@ public class AlignmentTurnCmd extends Command {
 
     @Override
     protected void initialize() {
-        mTurnAngle = mNavX.compareYawHeadings();
+        if (mTurnAngle != null) {
+            mDriveSys.initTurnDrive(mNavX.compareYawHeadings().getAngle());
+        }
     }
 
     @Override
     protected void execute() {
-        if(mTurnAngle != null)
-        {
-            
+        if (mTurnAngle != null) {
+            mDriveSys.arcadeTurnPID();
         }
     }
 
     @Override
     protected boolean isFinished() {
-        return true;
+        return mDriveSys.isFinishedTurning();
     }
 
 }

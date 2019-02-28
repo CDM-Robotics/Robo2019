@@ -175,7 +175,7 @@ public class NavXSys {
     private static final double LEFT_LOWER_HATCH_ROCKET_ANGLE = -45; // check whether or not that is accurate
     private static final double LEFT_UPPER_HATCH_ROCKET_ANGLE = -135; // check whether or not that is accurate
 
-    private final double ANGLED_TURN_TOLERANCE = 2;
+    private final double ANGLED_TURN_TOLERANCE = 20.0;
 
     public enum TurnAngle {
         RIGHT_BALL(RIGHT_BALL_ROCKET_ANGLE), RIGHT_LOWER_HATCH(RIGHT_LOWER_HATCH_ROCKET_ANGLE),
