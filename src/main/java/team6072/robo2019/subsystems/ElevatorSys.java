@@ -429,8 +429,7 @@ public class ElevatorSys extends Subsystem {
         }
         if (m_movePID != null) {
             m_movePID.disable();
-        }]
-        l
+        }
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
