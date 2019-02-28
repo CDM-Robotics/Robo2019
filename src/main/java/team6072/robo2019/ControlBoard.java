@@ -17,8 +17,6 @@ import team6072.robo2019.commands.pneumatics.*;
 import team6072.robo2019.subsystems.ElevatorSys.ElvTarget;
 import team6072.robo2019.subsystems.WristSys.WristTarget;
 
-
-
 /**
  * ControlBoard holds the code for interacting with the
  */
@@ -49,14 +47,14 @@ public class ControlBoard {
     public static int EXTREME_BUT_10 = 10; // not working?
     public static int EXTREME_BUT_11 = 11; // not working?
     public static int EXTREME_BUT_12 = 12;
-//left panel buttons
+    // left panel buttons
     public static int LEFTPANEL_BUT_1 = 7;
     public static int LEFTPANEL_BUT_2 = 10;
     public static int LEFTPANEL_BUT_3 = 12;
     public static int LEFTPANEL_BUT_4 = 8;
     public static int LEFTPANEL_BUT_5 = 9;
     public static int LEFTPANEL_BUT_6 = 11;
-//right panel buttons
+    // right panel buttons
     public static int RIGHT_PANEL_BUT_1 = 7;
     public static int RIGHT_PANEL_BUT_2 = 10;
     public static int RIGHT_PANEL_BUT_3 = 11;
@@ -81,9 +79,6 @@ public class ControlBoard {
     // right panel used for rocket calculations
     private static int RPANEL_USB_PORT = 3;
     public Joystick mRightPanel;
-    
-    
-
 
     private static ControlBoard mInstance;
 
@@ -103,57 +98,44 @@ public class ControlBoard {
         mLeftPanel = new Joystick(LPANEL_USB_PORT);
         mRightPanel = new Joystick(RPANEL_USB_PORT);
 
+        // Drive Stick Commands --------------------------------------
 
-        MapCmdToBut(mDriveStick, EXTREME_BUT_7, new DriveHiCmd(), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new DriveHiCmd(), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new DriveLoCmd(), null);
 
-        MapCmdToBut(mDriveStick, EXTREME_BUT_8, new DriveLoCmd(), null);
+        // Control Stick Commands ------------------------------------
 
-
-        // control stick  -------------------------------------------------------------------------------------
-     
         MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd());
-
         MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd());
 
-        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristMoveUpCmd(), new WristHoldPIDCmd());
-        
-        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristMoveDownCmd(), new WristHoldPIDCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristMoveUpCmd(), null);
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristMoveDownCmd(), null);
 
         MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), new IntakeWheelsStopCmd());
-
         MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), new IntakeWheelsStopCmd());
 
         MapCmdToPovBut(mControlStick, PovAngle.Deg_000, new IntakeCloseCmd(), null);
-        
         MapCmdToPovBut(mControlStick, PovAngle.Deg_180, new IntakeOpenCmd(), null);
 
-        
-        // right panel  ----------------------------------------------------------------------------------------
+        // right panel
+        // ----------------------------------------------------------------------------------------
 
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmdGrp(Objective.RocketCargoHi), null);
-
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ObjectiveCmdGrp(Objective.RocketCargoMid), null);
-
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ObjectiveCmdGrp(Objective.RocketCargoLo), null);
-
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmdGrp(Objective.RocketHatchHi), null);
-
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmdGrp(Objective.RocketHatchMid), null);
-
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmdGrp(Objective.RocketHatchLo), null);
 
+        // left panel
+        // -----------------------------------------------------------------------------------------
 
-        // left panel  -----------------------------------------------------------------------------------------
-        
         MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmdGrp(Objective.CargoshipCargo), null);
-
         MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmdGrp(Objective.CargoshipHatch), null);
-        
 
-        //MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
+
     }
-
-
 
     /**
      * Create a new Joystick button with the commands attached to it.
@@ -174,17 +156,8 @@ public class ControlBoard {
         mButtonList.add(but);
     }
 
-
-
     public enum PovAngle {
-        Deg_000(0),
-        Deg_045(45),
-        Deg_090(90),
-        Deg_135(135),
-        Deg_180(180),
-        Deg_225(225),
-        Deg_270(270),
-        Deg_315(315);
+        Deg_000(0), Deg_045(45), Deg_090(90), Deg_135(135), Deg_180(180), Deg_225(225), Deg_270(270), Deg_315(315);
 
         private int mAngle;
 
@@ -196,7 +169,6 @@ public class ControlBoard {
             return mAngle;
         }
     }
-
 
     /**
      * See PovButton here:
