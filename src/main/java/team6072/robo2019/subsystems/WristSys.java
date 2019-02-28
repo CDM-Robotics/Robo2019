@@ -1,6 +1,9 @@
 
 package team6072.robo2019.subsystems;
 
+import java.util.TimerTask;
+import java.util.Timer;
+
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -35,6 +38,11 @@ public class WristSys extends Subsystem {
     // MEASURE the ticks per degree on physical mechanism
     private static final int TICKS_PER_DEG = RobotConfig.WRIST_TICKS_PER_DEG; // MEASURED
 
+    // specify the boundaries beyond which not allowed to have power
+    private static final int MAX_TRAVEL = 123456;
+
+    private static final int MIN_TRAVEL = 123;
+
     // --------------------------------------Rocket  Hatch----------------------------------------------
 
     private static final int ROCKET_HATCH_LO_DEGS = FLAT_TO_TARGET;
@@ -65,7 +73,7 @@ public class WristSys extends Subsystem {
     // --------------------------------------CARGOSHIP CARGO----------------------------------------
 
     private static final int CARGOSHIP_CARGO_DEGS = FLAT_TO_TARGET;
-    // extra 2 inches for safety^^^
+
     private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_DEGS * TICKS_PER_DEG);
 
     public enum WristTarget {
@@ -115,43 +123,18 @@ public class WristSys extends Subsystem {
     private static final boolean TALON_INVERT = RobotConfig.WRIST_INVERT;
     private static final boolean TALON_SENSOR_PHASE = RobotConfig.WRIST_SENSOR_PHASE;
 
-    private static final int TALON_FORWARD_LIMIT = -1;
+    private static final int TALON_FORWARD_LIMIT = 1;
 
     private static final int TALON_REVERSE_LIMIT = -1;
 
-    /*
-     * set the allowable closed-loop error, Closed-Loop output will be neutral
-     * within this range. See Table in Section 17.2.1 for native units per rotation.
-     */
-    private static final int TALON_ALLOWED_CLOSELOOP_ERROR = 0;
 
     public static final int kTimeoutMs = 10;
 
-    // Motor deadband, set to 1%.
-    public static final double kNeutralDeadband = 0.01;
-    /**
-     * Which PID slot to pull gains from. Starting 2018, you can choose from 0,1,2
-     * or 3. Only the first two (0,1) are visible in web-based configuration.
-     */
-    public static final int kPIDSlot_Move = 1;
-    public static final int kPIDSlot_Hold = 0;
-    public static final int kPIDSlot_2 = 2;
-    public static final int kPIDSlot_3 = 3;
-
     public static final int kPIDLoopIdx = 0;
 
-    // Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops.
-    // public static final int kPIDLoopIdx = 0;
+    // Motor deadband, set to 1%.
+    public static final double kNeutralDeadband = 0.01;
 
-    // paramter to the configXXX() methods. Set to non-zero to have talon wait to
-    // check and report error
-    // public static final int kTimeoutMs = 10;
-
-    /**
-     * Specify the target position we want to reach. Might be replaced by an enum or
-     * some other way of specifying desired state
-     */
-    private double mTarget;
 
     /**
      * Log the sensor position at power up - use this as the base reference for positioning.
@@ -213,6 +196,11 @@ public class WristSys extends Subsystem {
 
             setSensorStartPosn();
 
+            // set the watch dog going
+            mWatchDogTimer = new Timer("WristSys watchdog");
+            // wait for 1 second before starting, then check every 50 milliseconds
+            mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+
             mLog.info("WristSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
             mLog.severe(ex, "WristSys.ctor exception: " + ex.getMessage());
@@ -242,6 +230,29 @@ public class WristSys extends Subsystem {
         }
     }
 
+
+    // ------------  set up watch on talon position and disable if out of bounds  -----------------------
+
+    private Timer mWatchDogTimer = new Timer();
+
+    private TimerTask mWatchDog = new TimerTask() {
+        public void run() {
+            int curPosn = mTalon.getSelectedSensorPosition();
+            double curOutput = mTalon.getMotorOutputPercent();
+            if (curPosn > MAX_TRAVEL && curOutput > 0) {
+                // past the max boundry and going forward
+                mTalon.set(ControlMode.PercentOutput, 0);
+                mLog.severe("WristSys: talon exceeded forward boundry");
+            }
+            else if (curPosn < MIN_TRAVEL && curOutput < 0) {
+                // past the max boundry and going forward
+                mTalon.set(ControlMode.PercentOutput, 0);
+                mLog.severe("WristSys: talon exceeded backward boundry");
+            }
+        }
+    };
+
+    // --------------------------------------------------------------------------------------------------
 
 
     // grab the 360 degree position of the MagEncoder's absolute position, and set
@@ -410,7 +421,7 @@ public class WristSys extends Subsystem {
         int curPosn = mTalon.getSelectedSensorPosition(0);
         enableHoldPosnPID(curPosn);
     }
-    
+
 
     /**
      * Do a PID hold at the specified sensor position
