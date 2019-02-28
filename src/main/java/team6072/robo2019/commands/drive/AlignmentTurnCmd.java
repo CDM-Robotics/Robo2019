@@ -5,39 +5,34 @@ import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.subsystems.DriveSys;
 import team6072.robo2019.subsystems.NavXSys;;
 
-public class AngledTurnCmd extends Command {
+public class AlignmentTurnCmd extends Command {
 
     private DriveSys mDriveSys;
     private NavXSys mNavX;
-    
-    public enum TurnAngle {
-        RIGHT_BALL,
-        RIGHT_LOWER_HATCH,
-        RIGHT_UPPER_HATCH,
-        LEFT_BALL,
-        LEFT_LOWER_HATCH,
-        LEFT_UPPER_HATCH;
-    }
-    
-    public AngledTurnCmd() {
+    private NavXSys.TurnAngle mTurnAngle;
+
+    public AlignmentTurnCmd() {
         mNavX = NavXSys.getInstance();
         mDriveSys = DriveSys.getInstance();
         requires(mDriveSys);
-
     }
 
     @Override
     protected void initialize() {
+        mTurnAngle = mNavX.compareYawHeadings();
     }
 
     @Override
     protected void execute() {
-
+        if(mTurnAngle != null)
+        {
+            
+        }
     }
 
     @Override
     protected boolean isFinished() {
-        return false;
+        return true;
     }
 
 }
