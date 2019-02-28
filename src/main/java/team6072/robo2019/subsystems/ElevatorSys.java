@@ -398,6 +398,12 @@ public class ElevatorSys extends Subsystem {
      * Move up at 0.3 power more than hold
      */
     public void initMoveUp() {
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
+        if (m_movePID != null) {
+            m_movePID.disable();
+        }
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
@@ -418,6 +424,13 @@ public class ElevatorSys extends Subsystem {
      * Moe down at -0.1 power
      */
     public void initMoveDown() {
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
+        if (m_movePID != null) {
+            m_movePID.disable();
+        }]
+        l
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
