@@ -103,6 +103,8 @@ public class ControlBoard {
         // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new DriveHiCmd(), null);
         // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new DriveLoCmd(), null);
 
+        MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new WristMoveUpSlowCmd(), null);  // DEBUG
+
         // Control Stick Commands ------------------------------------
 
         MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd());

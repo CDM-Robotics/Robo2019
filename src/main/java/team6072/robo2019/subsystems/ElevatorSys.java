@@ -1,6 +1,9 @@
 
 package team6072.robo2019.subsystems;
 
+import java.util.TimerTask;
+import java.util.Timer;
+
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -159,6 +162,11 @@ public class ElevatorSys extends Subsystem {
      */
     private int mBasePosn;
 
+    // specify the boundaries beyond which not allowed to have power
+    private static final int MAX_TRAVEL = 123456;
+
+    private static final int MIN_TRAVEL = 123;
+
     private DigitalInput m_BottomLimit;
     private Counter m_BottomLimitCtr;
     private Notifier m_BotLimitWatcher;
@@ -250,6 +258,11 @@ public class ElevatorSys extends Subsystem {
 
             setSensorStartPosn();
 
+            // set the watch dog going
+            // mWatchDogTimer = new Timer("ElvSys watchdog");
+            // wait for 1 second before starting, then check every 50 milliseconds
+            // mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+
             mLog.info("ElevatorSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
             mLog.severe(ex, "ElevatorSys.ctor exception: " + ex.getMessage());
@@ -284,6 +297,27 @@ public class ElevatorSys extends Subsystem {
     private void botLimitWatcher() {
         m_botLimitSwitchActive = m_BottomLimit.get();
     }
+
+
+    // ------------ set up watch on talon position and disable if out of bounds -----------------------
+
+    private Timer mWatchDogTimer = new Timer();
+
+    private TimerTask mWatchDog = new TimerTask() {
+        public void run() {
+            int curPosn = mTalon.getSelectedSensorPosition();
+            double curOutput = mTalon.getMotorOutputPercent();
+            if (curPosn > MAX_TRAVEL && curOutput > 0) {
+                // past the max boundry and going forward
+                mTalon.set(ControlMode.PercentOutput, 0);
+                mLog.severe("WristSys: talon exceeded forward boundry");
+            } else if (curPosn < MIN_TRAVEL && curOutput < 0) {
+                // past the max boundry and going forward
+                mTalon.set(ControlMode.PercentOutput, 0);
+                mLog.severe("WristSys: talon exceeded backward boundry");
+            }
+        }
+    };
 
 
 
@@ -398,6 +432,12 @@ public class ElevatorSys extends Subsystem {
      * Move up at 0.3 power more than hold
      */
     public void initMoveUp() {
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
+        if (m_movePID != null) {
+            m_movePID.disable();
+        }
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
@@ -418,6 +458,12 @@ public class ElevatorSys extends Subsystem {
      * Moe down at -0.1 power
      */
     public void initMoveDown() {
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
+        if (m_movePID != null) {
+            m_movePID.disable();
+        }
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);

@@ -1,6 +1,9 @@
 
 package team6072.robo2019.subsystems;
 
+import java.util.TimerTask;
+import java.util.Timer;
+
 import com.ctre.phoenix.motorcontrol.*;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -22,49 +25,56 @@ public class WristSys extends Subsystem {
         Up, Down
     }
 
-    private static final double GEAR_DIA_INCHES = 1.5;
 
     // a motor output of BASE_POWER holds the motor in place when not disturbed
     private static final double BASE_PERCENT_OUT = RobotConfig.WRIST_BASE_PERCENT_OUT;
 
-    // MEASURE the ticks per inch on physical mechanism
-    private static final int TICKS_PER_INCH = RobotConfig.WRIST_TICKS_PER_DEG; // MEASURED
-    private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
+    // consider 0 degreess as fully folded back onto arm
+    // 180 degrees folded out so presenting flat to target
 
-    private static final double WRIST_FLOOR_INCHES = 13.0; // inches from ground when elevator at zero
+    private static final int BASE = 0;
+    private static final int FLAT_TO_TARGET = 180;
+
+    // MEASURE the ticks per degree on physical mechanism
+    private static final int TICKS_PER_DEG = RobotConfig.WRIST_TICKS_PER_DEG; // MEASURED
+
+    // specify the boundaries beyond which not allowed to have power
+    private static final int MAX_TRAVEL = 123456;
+
+    private static final int MIN_TRAVEL = 123;
 
     // --------------------------------------Rocket  Hatch----------------------------------------------
 
-    private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - WRIST_FLOOR_INCHES);
-    private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_HATCH_LO_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_DEGS * TICKS_PER_DEG);
 
-    private static final double ROCKET_HATCH_MID_INCHES = (ROCKET_HATCH_LO_INCHES + 24 + 4);
-    private static final int ROCKET_HATCH_MID = (int) (ROCKET_HATCH_MID_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_HATCH_MID_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_HATCH_MID = (int) (ROCKET_HATCH_MID_DEGS * TICKS_PER_DEG);
 
-    private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
-    private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_HATCH_HI_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_DEGS * TICKS_PER_DEG);
 
     // -------------------------------------Rocket Cargo----------------------------------------------
 
-    private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - WRIST_FLOOR_INCHES);
-    private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_CARGO_LO_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_DEGS * TICKS_PER_DEG);
 
-    private static final double ROCKET_CARGO_MID_INCHES = (ROCKET_CARGO_LO_INCHES + 24 + 4);
-    private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_CARGO_MID_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_DEGS * TICKS_PER_DEG);
 
-    private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
-    private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * TICKS_PER_INCH);
+    private static final int ROCKET_CARGO_HI_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_DEGS * TICKS_PER_DEG);
 
     // --------------------------------------Cargoship Hatch----------------------------------------
 
-    private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - WRIST_FLOOR_INCHES);
-    private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * TICKS_PER_INCH);
+    private static final int CARGOSHIP_HATCH_DEGS = FLAT_TO_TARGET;
+    private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_DEGS * TICKS_PER_DEG);
 
     // --------------------------------------CARGOSHIP CARGO----------------------------------------
 
-    private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - WRIST_FLOOR_INCHES);
-    // extra 2 inches for safety^^^
-    private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_INCHES * TICKS_PER_INCH);
+    private static final int CARGOSHIP_CARGO_DEGS = FLAT_TO_TARGET;
+
+    private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_DEGS * TICKS_PER_DEG);
 
     public enum WristTarget {
         RocketHatchHi(ROCKET_HATCH_HI), RocketHatchMid(ROCKET_HATCH_MID), RocketHatchLo(ROCKET_HATCH_LO),
@@ -113,43 +123,18 @@ public class WristSys extends Subsystem {
     private static final boolean TALON_INVERT = RobotConfig.WRIST_INVERT;
     private static final boolean TALON_SENSOR_PHASE = RobotConfig.WRIST_SENSOR_PHASE;
 
-    private static final int TALON_FORWARD_LIMIT = -1;
+    private static final int TALON_FORWARD_LIMIT = 1;
 
     private static final int TALON_REVERSE_LIMIT = -1;
 
-    /*
-     * set the allowable closed-loop error, Closed-Loop output will be neutral
-     * within this range. See Table in Section 17.2.1 for native units per rotation.
-     */
-    private static final int TALON_ALLOWED_CLOSELOOP_ERROR = 0;
 
     public static final int kTimeoutMs = 10;
 
-    // Motor deadband, set to 1%.
-    public static final double kNeutralDeadband = 0.01;
-    /**
-     * Which PID slot to pull gains from. Starting 2018, you can choose from 0,1,2
-     * or 3. Only the first two (0,1) are visible in web-based configuration.
-     */
-    public static final int kPIDSlot_Move = 1;
-    public static final int kPIDSlot_Hold = 0;
-    public static final int kPIDSlot_2 = 2;
-    public static final int kPIDSlot_3 = 3;
-
     public static final int kPIDLoopIdx = 0;
 
-    // Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops.
-    // public static final int kPIDLoopIdx = 0;
+    // Motor deadband, set to 1%.
+    public static final double kNeutralDeadband = 0.01;
 
-    // paramter to the configXXX() methods. Set to non-zero to have talon wait to
-    // check and report error
-    // public static final int kTimeoutMs = 10;
-
-    /**
-     * Specify the target position we want to reach. Might be replaced by an enum or
-     * some other way of specifying desired state
-     */
-    private double mTarget;
 
     /**
      * Log the sensor position at power up - use this as the base reference for positioning.
@@ -211,6 +196,11 @@ public class WristSys extends Subsystem {
 
             setSensorStartPosn();
 
+            // set the watch dog going
+            //mWatchDogTimer = new Timer("WristSys watchdog");
+            // wait for 1 second before starting, then check every 50 milliseconds
+            //mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+
             mLog.info("WristSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
             mLog.severe(ex, "WristSys.ctor exception: " + ex.getMessage());
@@ -240,6 +230,29 @@ public class WristSys extends Subsystem {
         }
     }
 
+
+    // ------------  set up watch on talon position and disable if out of bounds  -----------------------
+
+    private Timer mWatchDogTimer = new Timer();
+
+    private TimerTask mWatchDog = new TimerTask() {
+        public void run() {
+            int curPosn = mTalon.getSelectedSensorPosition();
+            double curOutput = mTalon.getMotorOutputPercent();
+            if (curPosn > MAX_TRAVEL && curOutput > 0) {
+                // past the max boundry and going forward
+                mTalon.set(ControlMode.PercentOutput, 0);
+                mLog.severe("WristSys: talon exceeded forward boundry");
+            }
+            else if (curPosn < MIN_TRAVEL && curOutput < 0) {
+                // past the max boundry and going forward
+                mTalon.set(ControlMode.PercentOutput, 0);
+                mLog.severe("WristSys: talon exceeded backward boundry");
+            }
+        }
+    };
+
+    // --------------------------------------------------------------------------------------------------
 
 
     // grab the 360 degree position of the MagEncoder's absolute position, and set
@@ -288,7 +301,7 @@ public class WristSys extends Subsystem {
         mLastSensPosn = absSensPosn;
 
         mLastQuadPosn = quadPosn;
-        return String.format("ES.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
+        return String.format("IS.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
                 caller, mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
     }
     
@@ -323,7 +336,7 @@ public class WristSys extends Subsystem {
 
     public boolean isCompleteMovSlowUp() {
         int curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        boolean isFin = (curPosn - mStartPosn) >= TICKS_PER_INCH * 2;
+        boolean isFin = (curPosn - mStartPosn) >= TICKS_PER_DEG * 2;
         if (isFin) {
             mLog.debug(printPosn("isComp") + "\n------------------------------------------------------");
             mLog.debug("Holding at output %.3f", BASE_PERCENT_OUT);
@@ -334,17 +347,6 @@ public class WristSys extends Subsystem {
     }
     
 
-    // -------------------------  basic hold  -------------------------------------
-
-
-
-    public void holdPosnPower() {
-        mLog.debug(printPosn("holdPosnPower") + "\n------------------------------------------------------");
-        mLog.debug("Holding at output %.3f", BASE_PERCENT_OUT);
-        mPercentOut = BASE_PERCENT_OUT;
-        mTalon.set(ControlMode.PercentOutput, mPercentOut);
-    }
-
 
     // ------------------ Move Up  -------------------------------------------------------------
 
@@ -352,6 +354,12 @@ public class WristSys extends Subsystem {
      * Move up at 0.3 power more than hold
      */
     public void initMoveUp() {
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
+        if (m_movePID != null) {
+            m_movePID.disable();
+        }
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
@@ -369,9 +377,15 @@ public class WristSys extends Subsystem {
     // ------------------ Move Down  -------------------------------------------------------------
 
     /**
-     * Moe down at -0.1 power
+     * Move down at -0.1 power
      */
     public void initMoveDown() {
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
+        if (m_movePID != null) {
+            m_movePID.disable();
+        }
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
@@ -404,7 +418,7 @@ public class WristSys extends Subsystem {
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-            m_holdPID.setAbsoluteTolerance(0.3 * TICKS_PER_INCH); // allow +- 200 units (0.4 inches) on error
+            m_holdPID.setAbsoluteTolerance(0.3 * TICKS_PER_DEG); // allow +- 200 units (0.4 inches) on error
         }
         else {
             m_holdPID.reset();
@@ -419,6 +433,7 @@ public class WristSys extends Subsystem {
         int curPosn = mTalon.getSelectedSensorPosition(0);
         enableHoldPosnPID(curPosn);
     }
+
 
     /**
      * Do a PID hold at the specified sensor position
@@ -465,7 +480,7 @@ public class WristSys extends Subsystem {
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_movePID = new TTPIDController("PID.elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-            m_movePID.setAbsoluteTolerance(TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock                                                       // in
+            m_movePID.setAbsoluteTolerance(TICKS_PER_DEG); // allow +- one inch - then hand over to posn hold to lock                                                       // in
         }
         else {
             m_movePID.reset();
@@ -478,7 +493,7 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("initMoveToTarget"));
         m_usingHoldPID = false;
         m_movePID.setSetpoint(calcTarg);
-        m_movePID.setRamp(3 * TICKS_PER_INCH, 5 * TICKS_PER_INCH); // set ramps to 3 inches
+        m_movePID.setRamp(3 * TICKS_PER_DEG, 5 * TICKS_PER_DEG); // set ramps to 3 inches
         m_movePID.setBasePower(BASE_PERCENT_OUT, 0.05);
         m_movePID.enable();
     }
