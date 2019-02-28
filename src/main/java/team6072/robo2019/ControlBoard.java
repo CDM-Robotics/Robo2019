@@ -108,6 +108,7 @@ public class ControlBoard {
         MapCmdToBut(mDriveStick, EXTREME_BUT_8, new DriveLoCmd(), null);
 
 
+        // control stick  -------------------------------------------------------------------------------------
      
         MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd());
 
@@ -117,14 +118,16 @@ public class ControlBoard {
         
         MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristMoveDownCmd(), new WristHoldPIDCmd());
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), null);
+        MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), new IntakeWheelsStopCmd());
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), null);
+        MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), new IntakeWheelsStopCmd());
 
         MapCmdToPovBut(mControlStick, PovAngle.Deg_000, new IntakeCloseCmd(), null);
         
         MapCmdToPovBut(mControlStick, PovAngle.Deg_180, new IntakeOpenCmd(), null);
 
+        
+        // right panel  ----------------------------------------------------------------------------------------
 
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmdGrp(Objective.RocketCargoHi), null);
 
@@ -139,7 +142,8 @@ public class ControlBoard {
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmdGrp(Objective.RocketHatchLo), null);
 
 
-
+        // left panel  -----------------------------------------------------------------------------------------
+        
         MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmdGrp(Objective.CargoshipCargo), null);
 
         MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmdGrp(Objective.CargoshipHatch), null);
