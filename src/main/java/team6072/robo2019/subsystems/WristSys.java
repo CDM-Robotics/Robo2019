@@ -197,9 +197,9 @@ public class WristSys extends Subsystem {
             setSensorStartPosn();
 
             // set the watch dog going
-            mWatchDogTimer = new Timer("WristSys watchdog");
+            //mWatchDogTimer = new Timer("WristSys watchdog");
             // wait for 1 second before starting, then check every 50 milliseconds
-            mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+            //mWatchDogTimer.schedule(mWatchDog, 1000, 50);
 
             mLog.info("WristSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
