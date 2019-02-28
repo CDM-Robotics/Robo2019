@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.commands.drive.*;
 import team6072.robo2019.commands.elevator.*;
 import team6072.robo2019.commands.wrist.*;
+import team6072.robo2019.commands.intake.*;
 import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.commands.objectives.ObjectiveCmdGrp;
 import team6072.robo2019.commands.pneumatics.*;
