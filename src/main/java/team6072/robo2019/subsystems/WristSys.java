@@ -370,9 +370,9 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("initExtend") + "--------------------------------------------------------");
     }
 
-    public static final double STARTING_ANGLE = 25.0; // ESTIMATED
+    public static final double STARTING_ANGLE = 38.0; // ESTIMATED
     public static final int TICKS_AT_90 = (int) ((90 - STARTING_ANGLE) * TICKS_PER_DEG);
-    public static final double MAX_WRIST_SPEED = 0.5;
+    public static final double MAX_WRIST_SPEED = 0.3;
 
     public void execExtend() {
         if (mDontExtend) {
@@ -429,6 +429,7 @@ public class WristSys extends Subsystem {
     // ---------------- Wrist Stop Cmd------------------------------------------------------------
 
     public void stop() {
+        mLog.debug("Killing Wrist");
         mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
     }
 
