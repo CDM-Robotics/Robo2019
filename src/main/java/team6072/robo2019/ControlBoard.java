@@ -12,7 +12,7 @@ import team6072.robo2019.commands.elevator.*;
 import team6072.robo2019.commands.wrist.*;
 import team6072.robo2019.commands.intake.*;
 import team6072.robo2019.commands.objectives.Objective;
-import team6072.robo2019.commands.objectives.ObjectiveCmdGrp;
+import team6072.robo2019.commands.objectives.ObjectiveCmd;
 import team6072.robo2019.commands.pneumatics.*;
 import team6072.robo2019.subsystems.ElevatorSys.ElvTarget;
 import team6072.robo2019.subsystems.WristSys.WristTarget;
@@ -127,19 +127,19 @@ public class ControlBoard {
         // right panel
         // ----------------------------------------------------------------------------------------
 
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmdGrp(Objective.RocketCargoHi), null);
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ObjectiveCmdGrp(Objective.RocketCargoMid), null);
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ObjectiveCmdGrp(Objective.RocketCargoLo), null);
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmdGrp(Objective.RocketHatchHi), null);
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmdGrp(Objective.RocketHatchMid), null);
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmdGrp(Objective.RocketHatchLo), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmd(Objective.RocketCargoHi), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ObjectiveCmd(Objective.RocketCargoMid), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ObjectiveCmd(Objective.RocketCargoLo), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmd(Objective.RocketHatchHi), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmd(Objective.RocketHatchMid), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmd(Objective.RocketHatchLo), null);
 
         // left panel
         // -----------------------------------------------------------------------------------------
 
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new ObjectiveCmdGrp(Objective.HatchPickUp), null);
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmdGrp(Objective.CargoshipCargo), null);
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmdGrp(Objective.CargoshipHatch), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new ObjectiveCmd(Objective.HatchPickUp), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmd(Objective.CargoshipCargo), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmd(Objective.CargoshipHatch), null);
 
         MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
 
@@ -164,6 +164,7 @@ public class ControlBoard {
         mButtonList.add(but);
     }
 
+    
     public enum PovAngle {
         Deg_000(0), Deg_045(45), Deg_090(90), Deg_135(135), Deg_180(180), Deg_225(225), Deg_270(270), Deg_315(315);
 

@@ -202,8 +202,8 @@ public class ElevatorSys extends Subsystem {
             mTalon.setInverted(TALON_INVERT);
 
             if (RobotConfig.IS_ROBO_2019) {
-                mTalon.configFactoryDefault();
                 mTalon_Slave0 = new WPI_TalonSRX(RobotConfig.ELEVATOR_SLAVE0);
+                mTalon_Slave0.configFactoryDefault();
                 mTalon_Slave0.follow(mTalon, FollowerType.PercentOutput);
                 mTalon_Slave0.setInverted(InvertType.FollowMaster); // follow tested 2-19
             }
@@ -269,12 +269,12 @@ public class ElevatorSys extends Subsystem {
         }
     }
     
-    public void killWatchDog()
-    {
+    public void killWatchDog() {
         mLog.info("Killing Watchdog");
         MAX_TRAVEL += 20000;
         MIN_TRAVEL -= 20000;
     }
+
 
     /**
      * Disable the elevator system - make sure all talons and PID loops are not driving anything
@@ -474,7 +474,7 @@ public class ElevatorSys extends Subsystem {
     // ------------------ Move Down  -------------------------------------------------------------
 
     /**
-     * Moe down at -0.1 power
+     * Move down at -0.1 power
      */
     public void initMoveDown() {
         if (m_holdPID != null) {
@@ -511,6 +511,7 @@ public class ElevatorSys extends Subsystem {
     public void initHoldPosnPID() {
 
         if (m_holdPID == null) {
+            mLog.debug(printPosn("initHoldPosnPID"));
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
             double kP = 0.2 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
