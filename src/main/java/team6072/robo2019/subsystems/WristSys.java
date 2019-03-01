@@ -373,25 +373,28 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("initExtend") + "--------------------------------------------------------");
     }
 
-    public static final double STARTING_ANGLE = 25.0;       // ESTIMATED
-    public static final int TICKS_AT_90 = (int)((90 - STARTING_ANGLE) * TICKS_PER_DEG);
-    public static final double MAX_WRIST_SPEED = -0.3;
+    public static final double STARTING_ANGLE = 25.0; // ESTIMATED
+    public static final int TICKS_AT_90 = (int) ((90 - STARTING_ANGLE) * TICKS_PER_DEG);
+    public static final double MAX_WRIST_SPEED = 0.3;
 
     public void execExtend() {
         if (mDontExtend) {
             return;
         }
-
-        int currentPosition = getWristPosition();
-        int displacement = currentPosition - TICKS_AT_90;
-        double displacementAngle = displacement * (1 / TICKS_PER_DEG);
-        double speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
+        double speed = MAX_WRIST_SPEED;
+        if (mTalon.getSelectedSensorVelocity() > 0) {
+            int currentPosition = getWristPosition();
+            int displacement = currentPosition - TICKS_AT_90;
+            double displacementAngle = displacement * (1 / TICKS_PER_DEG);
+            speed = -MAX_WRIST_SPEED * Math.sin(displacementAngle);
+        }
         mPercentOut = BASE_PERCENT_OUT + speed;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execExtend"));
     }
 
-    // ------------------ Move Retract  -------------------------------------------------------------
+    // ------------------ Move Retract
+    // -------------------------------------------------------------
 
     /**
      * Move down at -0.1 power
@@ -415,13 +418,16 @@ public class WristSys extends Subsystem {
             return;
         }
 
-        int currentPosition = getWristPosition();
-        int displacement = currentPosition - TICKS_AT_90;
-        double displacementAngle = displacement * (1 / TICKS_PER_DEG);
-        double speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
+        double speed = -MAX_WRIST_SPEED;
+        if (mTalon.getSelectedSensorVelocity() < 0) {
+            int currentPosition = getWristPosition();
+            int displacement = currentPosition - TICKS_AT_90;
+            double displacementAngle = displacement * (1 / TICKS_PER_DEG);
+            speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
+        }
         mPercentOut = BASE_PERCENT_OUT + speed;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog.debug(printPosn("execExtend"));
+        mPLog.debug(printPosn("execRetract"));
     }
 
     // ---------------- Wrist Stop Cmd-------------
@@ -437,7 +443,7 @@ public class WristSys extends Subsystem {
     public void holdWrist() {
         double wristSpeed = mTalon.getSelectedSensorVelocity(); // ticks per 100 milliseconds
         int currentPosition = getWristPosition();
-        int displacement = currentPosition - ZERO_TICK_POSITION;
+        int displacement = currentPosition - TICKS_AT_90;
         double displacementAngle = displacement * (1 / TICKS_PER_DEG);
         double speed = Math.sin(90 - displacementAngle);
     }
