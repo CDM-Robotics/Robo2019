@@ -188,10 +188,10 @@ public class Robot extends TimedRobot {
             SmartDashboard.putString("teleopInit", "teleopInit  count: " + m_teleopCount++);
             mLog.info("teleopInit:  ---------------------------------");
             super.teleopInit();
-            NavXSys.getInstance().zeroYawHeading();
-            Scheduler.getInstance().removeAll();
-            mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
-            Scheduler.getInstance().add(mArcadeDriveCmd);
+            // NavXSys.getInstance().zeroYawHeading();
+            // Scheduler.getInstance().removeAll();
+            // mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            // Scheduler.getInstance().add(mArcadeDriveCmd);
             // mDistSens = DistanceSensor.getInstance();
             // mDistSens.enable();
             // mHallSwitch = new DigitalInput(0);
