@@ -42,7 +42,8 @@ public class WristSys extends Subsystem {
 
     private static final int MIN_TRAVEL = 123;
 
-    // --------------------------------------Rocket Hatch----------------------------------------------
+    // --------------------------------------Rocket
+    // Hatch----------------------------------------------
 
     private static final int ROCKET_HATCH_LO_DEGS = FLAT_TO_TARGET;
     private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_DEGS * TICKS_PER_DEG);
@@ -53,7 +54,8 @@ public class WristSys extends Subsystem {
     private static final int ROCKET_HATCH_HI_DEGS = FLAT_TO_TARGET;
     private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_DEGS * TICKS_PER_DEG);
 
-    // -------------------------------------Rocket  Cargo----------------------------------------------
+    // -------------------------------------Rocket
+    // Cargo----------------------------------------------
 
     private static final int ROCKET_CARGO_LO_DEGS = FLAT_TO_TARGET;
     private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_DEGS * TICKS_PER_DEG);
@@ -349,7 +351,8 @@ public class WristSys extends Subsystem {
         return isFin;
     }
 
-    // ------------------ Move Extend  -------------------------------------------------------------
+    // ------------------ Move Extend
+    // -------------------------------------------------------------
 
     private NavXSys mNavXSys;
 
@@ -390,7 +393,8 @@ public class WristSys extends Subsystem {
         mPLog.debug(printPosn("execExtend"));
     }
 
-    // ------------------ Move Retract  -------------------------------------------------------------
+    // ------------------ Move Retract
+    // -------------------------------------------------------------
 
     /**
      * Move down at -0.1 power
@@ -426,14 +430,19 @@ public class WristSys extends Subsystem {
         mPLog.debug(printPosn("execRetract"));
     }
 
-    // ---------------- Wrist Stop Cmd------------------------------------------------------------
+    // ---------------- Wrist Stop
+    // Cmd------------------------------------------------------------
 
     public void stop() {
         mLog.debug("Killing Wrist");
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
         mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
     }
 
-    // ---------------Wrist Hold Cmd---------------------------------------------------------------------
+    // ---------------Wrist Hold
+    // Cmd---------------------------------------------------------------------
 
     public void holdWrist() {
         double wristSpeed = mTalon.getSelectedSensorVelocity(); // ticks per 100 milliseconds
@@ -443,12 +452,12 @@ public class WristSys extends Subsystem {
         double speed = Math.sin(90 - displacementAngle);
     }
 
-
-
-    // ---------- hold posn PID using the TritonTech PID ----------------------------------
+    // ---------- hold posn PID using the TritonTech PID
+    // ----------------------------------
 
     /**
-     * Sensor is on output of gearing (not on motor) Set the tolerance to +/- 10 degree
+     * Sensor is on output of gearing (not on motor) Set the tolerance to +/- 10
+     * degree
      */
     public void initHoldPosnPID() {
 
@@ -459,13 +468,13 @@ public class WristSys extends Subsystem {
             double kD = 0.0;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-            m_holdPID = new TTPIDController("wrstHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
+            m_holdPID = new TTPIDController("wrstHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
+                    periodInSecs);
             m_holdPID.setAbsoluteTolerance(10 * TICKS_PER_DEG); // allow +- 200 units (0.4 inches) on error
         } else {
             m_holdPID.reset();
         }
     }
-    
 
     /**
      * Hold at the current position
@@ -489,9 +498,9 @@ public class WristSys extends Subsystem {
         m_holdPID.enable();
     }
 
-
     /**
-     * Disable the hold PID. This will send 0 to the PID out, which writes to the talon
+     * Disable the hold PID. This will send 0 to the PID out, which writes to the
+     * talon
      */
     public void disableHoldPosnPID() {
         if (m_holdPID != null) {
