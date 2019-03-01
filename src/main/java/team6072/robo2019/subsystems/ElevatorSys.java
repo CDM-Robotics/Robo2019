@@ -164,14 +164,12 @@ public class ElevatorSys extends Subsystem {
 
     // specify the boundaries beyond which not allowed to have power
     private static int MAX_TRAVEL = 19500;
-    private static int MIN_TRAVEL = 200;
+    private static int MIN_TRAVEL = 350;
 
     private DigitalInput m_BottomLimit;
     private Counter m_BottomLimitCtr;
     private Notifier m_BotLimitWatcher;
     private boolean m_botLimitSwitchActive = false;
-
-    
     
     public static ElevatorSys getInstance() {
         if (mInstance == null) {
@@ -268,13 +266,21 @@ public class ElevatorSys extends Subsystem {
             throw ex;
         }
     }
-    
+    // -----------------------WatchDog functions------------
+    // -----------------------------------------------------
+
     public void killWatchDog() {
         mLog.info("Killing Watchdog");
         MAX_TRAVEL += 20000;
         MIN_TRAVEL -= 20000;
     }
 
+    public void reviveWatchDog(){
+        mTalon.setSelectedSensorPosition(0);
+        MAX_TRAVEL -= 20000;
+        MIN_TRAVEL += 20000;
+        mLog.debug("Reviving Watch Dog");
+    }
 
     /**
      * Disable the elevator system - make sure all talons and PID loops are not driving anything
@@ -465,7 +471,7 @@ public class ElevatorSys extends Subsystem {
         if (m_DontMoveUp) {
             return;
         }
-        mPercentOut = BASE_PERCENT_OUT + 0.60;
+        mPercentOut = BASE_PERCENT_OUT + 0.80;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveUp"));
     }

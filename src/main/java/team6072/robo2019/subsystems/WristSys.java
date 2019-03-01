@@ -375,7 +375,7 @@ public class WristSys extends Subsystem {
 
     public static final double STARTING_ANGLE = 38.0; // ESTIMATED
     public static final int TICKS_AT_90 = (int) ((90 - STARTING_ANGLE) * TICKS_PER_DEG);
-    public static final double MAX_WRIST_SPEED = 0.3;
+    public static final double MAX_WRIST_SPEED = 0.5;
 
     public void execExtend() {
         if (mDontExtend) {
