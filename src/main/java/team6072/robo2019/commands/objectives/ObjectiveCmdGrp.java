@@ -65,9 +65,9 @@ public class ObjectiveCmdGrp extends CommandGroup {
             addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.CargoshipHatch));
             addSequential(new HatchWristExtendCmd());
             addSequential(new WristMoveToCmd(WristSys.WristTarget.CargoshipHatch));
-        break;
+            break;
         }
-        this.start();
+        
     }
 
   
