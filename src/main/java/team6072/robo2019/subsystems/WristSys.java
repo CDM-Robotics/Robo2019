@@ -224,7 +224,7 @@ public class WristSys extends Subsystem {
     public void feedTalons() {
         mTalon.feed();
         if (RobotConfig.IS_ROBO_2019) {
-            // mTalon_Slave0.feed();
+            // mTalon_Slave0.feed(); 
         }
     }
 
