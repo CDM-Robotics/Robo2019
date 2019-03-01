@@ -164,7 +164,7 @@ public class ElevatorSys extends Subsystem {
 
     // specify the boundaries beyond which not allowed to have power
     private static int MAX_TRAVEL = 19500;
-    private static int MIN_TRAVEL = 350;
+    private static int MIN_TRAVEL = 500;
 
     private DigitalInput m_BottomLimit;
     private Counter m_BottomLimitCtr;
