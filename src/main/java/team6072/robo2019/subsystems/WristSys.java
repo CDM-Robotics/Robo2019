@@ -304,7 +304,6 @@ public class WristSys extends Subsystem {
         double voltOut = mTalon.getMotorOutputVoltage();
         double curOut = mTalon.getOutputCurrent();
         mLastSensPosn = absSensPosn;
-
         mLastQuadPosn = quadPosn;
         return String.format("WS.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", caller,
                 mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
