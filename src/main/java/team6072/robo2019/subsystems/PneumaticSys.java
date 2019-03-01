@@ -86,14 +86,14 @@ public class PneumaticSys extends Subsystem {
         mHatchWristSolenoid.set(DoubleSolenoid.Value.kReverse);
     }
     
-    public void setIntakeClosed() {
+    public void setFlowerOpen() {
         mLog.debug("PneumaticSys.setIntakeClosed  <<<<<");
-        mIntakeSolenoid.set(DoubleSolenoid.Value.kForward);
+        mIntakeSolenoid.set(DoubleSolenoid.Value.kReverse);
     }
 
-    public void setIntakeOpen() {
+    public void setFlowerClose() {
         mLog.debug("PneumaticSys.setIntakeOpen  >>>>>");
-        mIntakeSolenoid.set(DoubleSolenoid.Value.kReverse);
+        mIntakeSolenoid.set(DoubleSolenoid.Value.kForward);
     }
 
 

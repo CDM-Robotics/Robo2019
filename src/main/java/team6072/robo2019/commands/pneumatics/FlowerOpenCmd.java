@@ -10,11 +10,11 @@ package team6072.robo2019.commands.pneumatics;
 import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.subsystems.PneumaticSys;
 
-public class IntakeOpenCmd extends Command {
+public class FlowerOpenCmd extends Command {
 
     private PneumaticSys mPneuSys;
 
-    public IntakeOpenCmd() {
+    public FlowerOpenCmd() {
         mPneuSys = PneumaticSys.getInstance();
         requires(mPneuSys);
         // eg. requires(chassis);
@@ -28,7 +28,7 @@ public class IntakeOpenCmd extends Command {
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mPneuSys.setIntakeOpen();
+        mPneuSys.setFlowerOpen();
     }
 
     // Make this return true when this Command no longer needs to run execute()

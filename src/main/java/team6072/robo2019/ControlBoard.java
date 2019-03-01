@@ -116,8 +116,8 @@ public class ControlBoard {
         MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), new IntakeWheelsStopCmd());
         MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), new IntakeWheelsStopCmd());
 
-        MapCmdToPovBut(mControlStick, PovAngle.Deg_000, new IntakeCloseCmd(), null);
-        MapCmdToPovBut(mControlStick, PovAngle.Deg_180, new IntakeOpenCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_000, new FlowerOpenCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_180, new FlowerCloseCmd(), null);
 
         MapCmdToBut(mControlStick, EXTREME_BUT_8, new WristStopCmd(), null);
 
