@@ -122,7 +122,7 @@ public class WristSys extends Subsystem {
     // -------------------------------------------------------------------------------
 
     private WPI_TalonSRX mTalon;
-    private WPI_TalonSRX mTalon_Slave0;
+    // private WPI_TalonSRX mTalon_Slave0; // ctr + f slave to find them
 
     private static final boolean TALON_INVERT = RobotConfig.WRIST_INVERT;
     private static final boolean TALON_SENSOR_PHASE = RobotConfig.WRIST_SENSOR_PHASE;
@@ -171,9 +171,9 @@ public class WristSys extends Subsystem {
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
             if (RobotConfig.IS_ROBO_2019) {
-                mTalon_Slave0 = new WPI_TalonSRX(RobotConfig.WRIST_SLAVE0);
-                mTalon_Slave0.follow(mTalon, FollowerType.PercentOutput);
-                mTalon_Slave0.setInverted(InvertType.FollowMaster);
+                // mTalon_Slave0 = new WPI_TalonSRX(RobotConfig.WRIST_SLAVE0);
+                // mTalon_Slave0.follow(mTalon, FollowerType.PercentOutput);
+                // mTalon_Slave0.setInverted(InvertType.FollowMaster);
             }
 
             // mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
@@ -195,9 +195,9 @@ public class WristSys extends Subsystem {
             setSensorStartPosn();
 
             // set the watch dog going
-            mWatchDogTimer = new Timer("WristSys watchdog");
+            // mWatchDogTimer = new Timer("WristSys watchdog");
             // wait for 1 second before starting, then check every 50 milliseconds
-            mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+            // mWatchDogTimer.schedule(mWatchDog, 1000, 50);
 
             mLog.info("WristSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
@@ -224,7 +224,7 @@ public class WristSys extends Subsystem {
     public void feedTalons() {
         mTalon.feed();
         if (RobotConfig.IS_ROBO_2019) {
-            mTalon_Slave0.feed();
+            // mTalon_Slave0.feed();
         }
     }
 
@@ -248,7 +248,7 @@ public class WristSys extends Subsystem {
                 mLog.severe("WristSys: talon exceeded forward boundry");
             } else if (curPosn < MIN_TRAVEL && curOutput < 0) {
                 mDontExtend = false;
-                mDontRetract = false;
+                mDontRetract = true;
                 // past the max boundry and going forward
                 mTalon.set(ControlMode.PercentOutput, 0);
                 mLog.severe("WristSys: talon exceeded backward boundry");
@@ -306,7 +306,7 @@ public class WristSys extends Subsystem {
         mLastSensPosn = absSensPosn;
 
         mLastQuadPosn = quadPosn;
-        return String.format("IS.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", caller,
+        return String.format("WS.%s  base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", caller,
                 mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
     }
 
@@ -348,40 +348,11 @@ public class WristSys extends Subsystem {
         return isFin;
     }
 
-    // ------------------ Move Up
+    // ------------------ Move Extend
     // -------------------------------------------------------------
 
     /**
      * Move up at 0.3 power more than hold
-     */
-    public void initRetract() {
-        if (m_holdPID != null) {
-            m_holdPID.disable();
-        }
-        if (m_movePID != null) {
-            m_movePID.disable();
-        }
-        mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        mPercentOut = BASE_PERCENT_OUT;
-        mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
-        mLog.debug(printPosn("initMoveUp") + "--------------------------------------------------------");
-    }
-
-    public void execRetract() {
-        if (mDontRetract) {
-            return;
-        }
-        mPercentOut = BASE_PERCENT_OUT + 0.1;
-        mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog.debug(printPosn("execMoveUp"));
-    }
-
-    // ------------------ Move Down
-    // -------------------------------------------------------------
-
-    /**
-     * Move down at -0.1 power
      */
     public void initExtend() {
         if (m_holdPID != null) {
@@ -394,16 +365,52 @@ public class WristSys extends Subsystem {
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog = new PeriodicLogger(mLog, 5);
-        mLog.debug(printPosn("initMoveDown"));
+        mLog.debug(printPosn("initExtend") + "--------------------------------------------------------");
     }
 
     public void execExtend() {
         if (mDontExtend) {
             return;
         }
-        mPercentOut = -0.1;
+        mPercentOut = BASE_PERCENT_OUT + 0.2;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog.debug(printPosn("execMoveDown"));
+        mPLog.debug(printPosn("execExtend"));
+    }
+
+    // ------------------ Move Retract
+    // -------------------------------------------------------------
+
+    /**
+     * Move down at -0.1 power
+     */
+    public void initRetract() {
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
+        if (m_movePID != null) {
+            m_movePID.disable();
+        }
+        mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        mPercentOut = BASE_PERCENT_OUT;
+        mTalon.set(ControlMode.PercentOutput, mPercentOut);
+        mPLog = new PeriodicLogger(mLog, 5);
+        mLog.debug(printPosn("initRetract"));
+    }
+
+    public void execRetract() {
+        if (mDontRetract) {
+            return;
+        }
+        mPercentOut = -0.4;
+        mTalon.set(ControlMode.PercentOutput, mPercentOut);
+        mPLog.debug(printPosn("execRetract"));
+    }
+
+    // ---------------- Wrist Stop Cmd-------------
+    // -----------------------------------------------
+
+    public void stop() {
+        mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
     }
 
     // ---------- hold posn PID using the TritonTech PID

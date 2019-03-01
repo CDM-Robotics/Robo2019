@@ -17,10 +17,7 @@ import team6072.robo2019.commands.drive.ArcadeDriveCmd;
 import team6072.robo2019.commands.drive.DriveDistCmd;
 import team6072.robo2019.commands.elevator.ElvMoveUpSlow;
 import team6072.robo2019.device.DistanceSensor;
-import team6072.robo2019.subsystems.DriveSys;
-import team6072.robo2019.subsystems.ElevatorSys;
-import team6072.robo2019.subsystems.NavXSys;
-import team6072.robo2019.subsystems.PneumaticSys;
+import team6072.robo2019.subsystems.*;
 
 
 
@@ -36,7 +33,7 @@ public class Robot extends TimedRobot {
     private ElevatorSys mElvSys;
     private PneumaticSys mPneuSys;
     private NavXSys mNavXsys;
-
+    private WristSys mWristSys;
   
 
     /**
@@ -78,6 +75,7 @@ public class Robot extends TimedRobot {
             mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
             mPneuSys = PneumaticSys.getInstance();
+            mWristSys = WristSys.getInstance();
 
             //CameraServer.getInstance().startAutomaticCapture();
 
@@ -214,8 +212,12 @@ public class Robot extends TimedRobot {
             // must call the scheduler to run
             Scheduler.getInstance().run();
             //mLogPeriodic.debug("telPer: Hall Switch: %b   Counter: %d    period: %.3f ", mHallSwitch.get(), mHallCtr.get(), mHallCtr.getPeriod());
-            mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
-            mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
+            //mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            //mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
+            //mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            if (mWristSys != null) {
+                mLogPeriodic.debug(mWristSys.printPosn("telPer:"));
+            }
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }
