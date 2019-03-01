@@ -110,8 +110,8 @@ public class ControlBoard {
         MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd());
         MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd());
 
-        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristExtendCmd(), null);
-        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristRetractCmd(), null);
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristExtendCmd(), new WristStopCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristRetractCmd(), new WristStopCmd());
 
         MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), new IntakeWheelsStopCmd());
         MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), new IntakeWheelsStopCmd());

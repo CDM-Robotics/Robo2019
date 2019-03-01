@@ -181,7 +181,7 @@ public class WristSys extends Subsystem {
             // mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
             // mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
 
-            mTalon.configOpenloopRamp(0.1, kTimeoutMs);
+            mTalon.configOpenloopRamp (0.1, kTimeoutMs);
             mTalon.setNeutralMode(NeutralMode.Brake);
 
             // set up current limits
