@@ -351,6 +351,7 @@ public class WristSys extends Subsystem {
     // ------------------ Move Extend
     // -------------------------------------------------------------
 
+    private NavXSys mNavXSys;
     /**
      * Move up at 0.3 power more than hold
      */
@@ -368,11 +369,19 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("initExtend") + "--------------------------------------------------------");
     }
 
+    public static final double STARTING_ANGLE = 25.0;
+    public static final int ZERO_TICK_POSITION = (int)((90 - STARTING_ANGLE) * TICKS_PER_DEG);
+    public static final double MAX_WRIST_SPEED = .3;
+
     public void execExtend() {
         if (mDontExtend) {
             return;
         }
-        mPercentOut = BASE_PERCENT_OUT + 0.2;
+        int currentPosition = mTalon.getSensorCollection().getQuadraturePosition();
+        int displacement = currentPosition - ZERO_TICK_POSITION;
+        double displacementAngle = displacement * (1 / TICKS_PER_DEG);
+        double speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
+        mPercentOut = BASE_PERCENT_OUT + speed;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execExtend"));
     }
@@ -396,14 +405,18 @@ public class WristSys extends Subsystem {
         mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initRetract"));
     }
-
+    
     public void execRetract() {
-        if (mDontRetract) {
+        if (mDontExtend) {
             return;
         }
-        mPercentOut = -0.4;
+        int currentPosition = mTalon.getSensorCollection().getQuadraturePosition();
+        int displacement = currentPosition - ZERO_TICK_POSITION;
+        double displacementAngle = displacement * (1 / TICKS_PER_DEG);
+        double speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
+        mPercentOut = BASE_PERCENT_OUT + speed;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog.debug(printPosn("execRetract"));
+        mPLog.debug(printPosn("execExtend"));
     }
 
     // ---------------- Wrist Stop Cmd-------------
