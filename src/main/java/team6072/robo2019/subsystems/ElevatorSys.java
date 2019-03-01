@@ -465,7 +465,7 @@ public class ElevatorSys extends Subsystem {
         if (m_DontMoveUp) {
             return;
         }
-        mPercentOut = BASE_PERCENT_OUT + 0.35;
+        mPercentOut = BASE_PERCENT_OUT + 0.60;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveUp"));
     }
@@ -494,7 +494,7 @@ public class ElevatorSys extends Subsystem {
         if (m_DontMoveDown) {
             return;
         }
-        mPercentOut = -0.2;
+        mPercentOut = -0.4;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveDown"));
     }
