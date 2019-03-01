@@ -148,8 +148,10 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         try {
             mLog.info("autonomousInit: -----------------------------");
-            mDriveDistCmd = new DriveDistCmd(60);
-            mDriveDistCmd.start();
+            NavXSys.getInstance().zeroYawHeading();
+            Scheduler.getInstance().removeAll();
+            mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            Scheduler.getInstance().add(mArcadeDriveCmd);
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.autoInit:  exception: " + ex.toString());
         }
