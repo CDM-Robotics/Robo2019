@@ -433,6 +433,14 @@ public class WristSys extends Subsystem {
     // ---------------Wrist Hold Cmd--------------------
     // -------------------------------------------------
 
+    public void holdWrist() {
+        double wristSpeed = mTalon.getSelectedSensorVelocity(); // ticks per 100 milliseconds
+        int currentPosition = getWristPosition();
+        int displacement = currentPosition - ZERO_TICK_POSITION;
+        double displacementAngle = displacement * (1 / TICKS_PER_DEG);
+        double speed = Math.sin(90 - displacementAngle);
+    }
+
     // ---------- hold posn PID using the TritonTech PID
     // ----------------------------------
 
