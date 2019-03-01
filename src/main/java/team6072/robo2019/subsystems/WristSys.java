@@ -368,16 +368,16 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("initExtend") + "--------------------------------------------------------");
     }
 
-    public static final double STARTING_ANGLE = 25.0;
-    public static final int ZERO_TICK_POSITION = (int)((90 - STARTING_ANGLE) * TICKS_PER_DEG);
-    public static final double MAX_WRIST_SPEED = .3;
+    public static final double STARTING_ANGLE = 25.0;       // ESTIMATED
+    public static final int TICKS_AT_90 = (int)((90 - STARTING_ANGLE) * TICKS_PER_DEG);
+    public static final double MAX_WRIST_SPEED = -0.3;
 
     public void execExtend() {
         if (mDontExtend) {
             return;
         }
-        int currentPosition = mTalon.getSensorCollection().getQuadraturePosition();
-        int displacement = currentPosition - ZERO_TICK_POSITION;
+        int currentPosition = mTalon.getSelectedSensorPosition();
+        int displacement = currentPosition - TICKS_AT_90;
         double displacementAngle = displacement * (1 / TICKS_PER_DEG);
         double speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
         mPercentOut = BASE_PERCENT_OUT + speed;
@@ -385,8 +385,7 @@ public class WristSys extends Subsystem {
         mPLog.debug(printPosn("execExtend"));
     }
 
-    // ------------------ Move Retract
-    // -------------------------------------------------------------
+    // ------------------ Move Retract  -------------------------------------------------------------
 
     /**
      * Move down at -0.1 power
@@ -410,7 +409,7 @@ public class WristSys extends Subsystem {
             return;
         }
         int currentPosition = mTalon.getSensorCollection().getQuadraturePosition();
-        int displacement = currentPosition - ZERO_TICK_POSITION;
+        int displacement = currentPosition - TICKS_AT_90;
         double displacementAngle = displacement * (1 / TICKS_PER_DEG);
         double speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
         mPercentOut = BASE_PERCENT_OUT + speed;
