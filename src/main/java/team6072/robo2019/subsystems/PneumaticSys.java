@@ -88,12 +88,12 @@ public class PneumaticSys extends Subsystem {
     
     public void setFlowerOpen() {
         mLog.debug("PneumaticSys.setIntakeClosed  <<<<<");
-        mIntakeSolenoid.set(DoubleSolenoid.Value.kReverse);
+        mIntakeSolenoid.set(DoubleSolenoid.Value.kForward);
     }
 
     public void setFlowerClose() {
         mLog.debug("PneumaticSys.setIntakeOpen  >>>>>");
-        mIntakeSolenoid.set(DoubleSolenoid.Value.kForward);
+        mIntakeSolenoid.set(DoubleSolenoid.Value.kReverse);
     }
 
 
