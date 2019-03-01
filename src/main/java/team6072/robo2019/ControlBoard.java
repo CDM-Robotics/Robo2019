@@ -119,12 +119,13 @@ public class ControlBoard {
         MapCmdToPovBut(mControlStick, PovAngle.Deg_000, new FlowerOpenCmd(), null);
         MapCmdToPovBut(mControlStick, PovAngle.Deg_180, new FlowerCloseCmd(), null);
 
-        MapCmdToBut(mControlStick, EXTREME_BUT_8, new WristStopCmd(), null);
-
         MapCmdToPovBut(mControlStick, PovAngle.Deg_090, new HatchWristExtendCmd(), null);
         MapCmdToPovBut(mControlStick, PovAngle.Deg_270, new HatchWristRetractCmd(), null);
 
         MapCmdToBut(mControlStick, EXTREME_BUT_7, new ElvKillWatchDogCmd(), null);
+        MapCmdToBut(mControlStick, EXTREME_BUT_8, new ElvReviveWatchDogCmd(), null);
+
+        MapCmdToBut(mControlStick, EXTREME_BUT_9, new WristStopCmd(), null);
 
         // right panel
         // ----------------------------------------------------------------------------------------
