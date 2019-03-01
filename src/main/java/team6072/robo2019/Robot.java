@@ -16,6 +16,7 @@ import team6072.robo2019.logging.*;
 import team6072.robo2019.commands.drive.ArcadeDriveCmd;
 import team6072.robo2019.commands.drive.DriveDistCmd;
 import team6072.robo2019.commands.elevator.ElvMoveUpSlow;
+import team6072.robo2019.commands.pneumatics.IntakeOpenCmd;
 import team6072.robo2019.device.DistanceSensor;
 import team6072.robo2019.subsystems.*;
 
@@ -151,6 +152,7 @@ public class Robot extends TimedRobot {
             NavXSys.getInstance().zeroYawHeading();
             Scheduler.getInstance().removeAll();
             mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            Scheduler.getInstance().add(new IntakeOpenCmd());
             Scheduler.getInstance().add(mArcadeDriveCmd);
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.autoInit:  exception: " + ex.toString());
@@ -217,6 +219,10 @@ public class Robot extends TimedRobot {
             //mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
             //mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
             //mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            Scheduler.getInstance().removeAll();
+            mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
+            Scheduler.getInstance().add(mArcadeDriveCmd);
+            
             if (mWristSys != null) {
                 mLogPeriodic.debug(mWristSys.printPosn("telPer:"));
             }
