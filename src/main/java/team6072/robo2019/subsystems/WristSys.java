@@ -33,7 +33,7 @@ public class WristSys extends Subsystem {
 
     private static final int BASE = 0;
     
-    public static final double STARTING_ANGLE = 38.0;
+    public static final double STARTING_ANGLE = 39.0;
     private static final double TILT_TO_TOP_CARGO_ROCKET = 165; // ESTIMATE
     private static final double FLAT_TO_TARGET = 180; // ESTIMATE
     private static final double TILT_TO_GROUND = 190; // Estimate
@@ -42,9 +42,10 @@ public class WristSys extends Subsystem {
     private static final int TICKS_PER_DEG = RobotConfig.WRIST_TICKS_PER_DEG; // MEASURED
 
     // specify the boundaries beyond which not allowed to have power
-    private static final int MAX_TRAVEL = 123456;
-
-    private static final int MIN_TRAVEL = 123;
+    private static final double RETRACT_STOP_ANGLE = 37.0;
+    private static final int MAX_TRAVEL = (int)((RETRACT_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
+    private static final double EXTEND_STOP_ANGLE = 250.0;
+    private static final int MIN_TRAVEL = (int)((EXTEND_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
 /* 
     // --------------------------------------Rocket
     // Hatch----------------------------------------------
@@ -203,9 +204,9 @@ public class WristSys extends Subsystem {
             setSensorStartPosn();
 
             // set the watch dog going
-            // mWatchDogTimer = new Timer("WristSys watchdog");
+            mWatchDogTimer = new Timer("WristSys watchdog");
             // wait for 1 second before starting, then check every 50 milliseconds
-            // mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+            mWatchDogTimer.schedule(mWatchDog, 1000, 50);
 
             mLog.info("WristSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
