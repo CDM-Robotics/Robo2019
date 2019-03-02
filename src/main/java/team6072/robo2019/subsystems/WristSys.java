@@ -32,7 +32,11 @@ public class WristSys extends Subsystem {
     // 180 degrees folded out so presenting flat to target
 
     private static final int BASE = 0;
-    private static final int FLAT_TO_TARGET = 180;
+    
+    public static final double STARTING_ANGLE = 38.0;
+    private static final double TILT_TO_TOP_CARGO_ROCKET = 165; // ESTIMATE
+    private static final double FLAT_TO_TARGET = 180; // ESTIMATE
+    private static final double TILT_TO_GROUND = 190; // Estimate
 
     // MEASURE the ticks per degree on physical mechanism
     private static final int TICKS_PER_DEG = RobotConfig.WRIST_TICKS_PER_DEG; // MEASURED
@@ -41,7 +45,7 @@ public class WristSys extends Subsystem {
     private static final int MAX_TRAVEL = 123456;
 
     private static final int MIN_TRAVEL = 123;
-
+/* 
     // --------------------------------------Rocket
     // Hatch----------------------------------------------
 
@@ -63,7 +67,7 @@ public class WristSys extends Subsystem {
     private static final int ROCKET_CARGO_MID_DEGS = FLAT_TO_TARGET;
     private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_DEGS * TICKS_PER_DEG);
 
-    private static final int ROCKET_CARGO_HI_DEGS = FLAT_TO_TARGET;
+    private static final int ROCKET_CARGO_HI_DEGS = TOP_CARGO_ROCKET;
     private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_DEGS * TICKS_PER_DEG);
 
     // --------------------------------------Cargoship
@@ -79,19 +83,23 @@ public class WristSys extends Subsystem {
 
     private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_DEGS * TICKS_PER_DEG);
 
-    public enum WristTarget {
+ */    public enum WristTarget {
+        RetractedStartPosition(STARTING_ANGLE), RetrieveBallPosition(TILT_TO_GROUND),
+        FlatDeployPosition(FLAT_TO_TARGET), TiltedDeployCargoHi(TILT_TO_TOP_CARGO_ROCKET);
+        /* 
         RocketHatchHi(ROCKET_HATCH_HI), RocketHatchMid(ROCKET_HATCH_MID), RocketHatchLo(ROCKET_HATCH_LO),
         RocketCargoHi(ROCKET_CARGO_HI), RocketCargoMid(ROCKET_CARGO_MID), RocketCargoLo(ROCKET_CARGO_LO),
-        CargoshipHatch(CARGOSHIP_HATCH), CargoshipCargo(CARGOSHIP_CARGO);
+        CargoshipHatch(CARGOSHIP_HATCH), CargoshipCargo(CARGOSHIP_CARGO); */
 
-        private int mTicks;
+        private double mAngle;
 
-        WristTarget(int ticks) {
-            mTicks = ticks;
+        WristTarget(double angle) {
+            mAngle = angle;
         }
 
         public int getTicks() {
-            return mTicks;
+            mAngle -= STARTING_ANGLE;
+            return (int)(mAngle * TICKS_PER_DEG);
         }
     }
 
@@ -372,10 +380,9 @@ public class WristSys extends Subsystem {
         mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initExtend") + "--------------------------------------------------------");
     }
-
-    public static final double STARTING_ANGLE = 38.0; // ESTIMATED
+    
     public static final int TICKS_AT_90 = (int) ((90 - STARTING_ANGLE) * TICKS_PER_DEG);
-    public static final double MAX_WRIST_SPEED = 0.5;
+    public static final double MAX_WRIST_SPEED = 0.4;
 
     public void execExtend() {
         if (mDontExtend) {
@@ -463,7 +470,7 @@ public class WristSys extends Subsystem {
 
         if (m_holdPID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
-            double kP = 0.2 / (5 * TICKS_PER_DEG); // want 20% power when hit tolerance band of 5 degrees
+            double kP = 0.2 / (15 * TICKS_PER_DEG); // want 20% power when hit tolerance band of 15 degrees
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;
@@ -521,15 +528,15 @@ public class WristSys extends Subsystem {
     public void initMoveToTarget(WristTarget targ) {
         m_targ = targ;
         if (m_movePID == null) {
-            m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
+            m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.5, 0.5);
             double kP = 0.2 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-            m_movePID = new TTPIDController("PID.elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
+            m_movePID = new TTPIDController("PID.wristM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
                     periodInSecs);
-            m_movePID.setAbsoluteTolerance(TICKS_PER_DEG); // allow +- one inch - then hand over to posn hold to lock //
+            m_movePID.setAbsoluteTolerance(10 * TICKS_PER_DEG); // allow +- one inch - then hand over to posn hold to lock //
                                                            // in
         } else {
             m_movePID.reset();
