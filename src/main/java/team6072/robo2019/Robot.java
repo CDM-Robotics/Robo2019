@@ -217,12 +217,13 @@ public class Robot extends TimedRobot {
             // mLogPeriodic.debug("telPer: Hall Switch: %b Counter: %d period: %.3f ",
             // mHallSwitch.get(), mHallCtr.get(), mHallCtr.getPeriod());
             // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
-            // mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
-            // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
-
-            if (mWristSys != null) {
-                mLogPeriodic.debug(mWristSys.printPosn("telPer:"));
+            if (mElvSys != null) {
+                mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
             }
+            // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            // if (mWristSys != null) {
+            //     mLogPeriodic.debug(mWristSys.printPosn("telPer:"));
+            // }
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }

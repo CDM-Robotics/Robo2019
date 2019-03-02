@@ -42,9 +42,9 @@ public class RobotConfig {
     public static final int ELEVATOR_SWITCH_BOT = 0;
 
     // WRIST
-    public static final int WRIST_TICKS_PER_DEG = 12; // NOT MEASURED
-    public static final boolean WRIST_SENSOR_PHASE = false;
-    public static final boolean WRIST_INVERT = false;
+    public static final int WRIST_TICKS_PER_DEG = 11; // NOT MEASURED
+    public static final boolean WRIST_SENSOR_PHASE = false;  // changed 2019-03-02 after wrist fix
+    public static final boolean WRIST_INVERT = true;
     public static final double WRIST_BASE_PERCENT_OUT = 0.0;
 
     public static final int WRIST_MASTER = 11;
