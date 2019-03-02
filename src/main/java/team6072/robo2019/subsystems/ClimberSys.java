@@ -32,7 +32,7 @@ public class ClimberSys extends Subsystem {
 
     private NavXSys mNavX;
     private ElevatorSys mElvSys;
-    private IntakeSys mIntakeSys;
+    private WristSys mWristSys;
 
     private WPI_TalonSRX mClimbTalon;
 
@@ -43,6 +43,10 @@ public class ClimberSys extends Subsystem {
     
     public static final int kTimeoutMs = 10;
     public static final int kPIDLoopIdx = 0;
+
+
+    private static final int HAB_LEVEL = 123456;    // climb ticks when at hab level
+    private static final int MAX_CLIMB = 123456;    // when we want to stop the climber
 
 
     /**
@@ -57,7 +61,7 @@ public class ClimberSys extends Subsystem {
         try {
             mNavX = NavXSys.getInstance();
             mElvSys = ElevatorSys.getInstance();
-            mIntakeSys = IntakeSys.getInstance();
+            mWristSys = WristSys.getInstance();
 
             mClimbTalon = new WPI_TalonSRX(RobotConfig.WRIST_MASTER);
             mClimbTalon.configFactoryDefault();
@@ -67,7 +71,9 @@ public class ClimberSys extends Subsystem {
 
             mClimbTalon.setSensorPhase(TALON_SENSOR_PHASE);
             mClimbTalon.setInverted(TALON_INVERT);
+            
             mClimbTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
+            mClimbTalon.setSelectedSensorPosition(0);
 
             m_PidOutTalon = new PIDOutTalon(mElvTalon, mElvSys.BASE_PERCENT_OUT, -0.8, 0.8);
             double kP = 0.2 / 10; // 20% power when 10 degres from set point
@@ -104,16 +110,24 @@ public class ClimberSys extends Subsystem {
      */
     public void initClimb() {
         mElvSys.disable();          // stop elevator sys from doing anything
-        mIntakeSys.disable();       // stop intake sys from doing anything
+        mWristSys.disable();       // stop wrist sys from doing anything
         m_holdPID.enable();
+        mClimbTalon.set(ControlMode.PercentOutput, 0.1);
     }
 
 
+    /**
+     * When we get to HAB_LEVEL, stop moving the elvator but continue the climber
+     * so that the robot tips forward.
+     */
     public void execClimb() {
 
     }
 
     
+    /**
+     * Climb is completed when the climb talon hits MAX ticks
+     */
     public boolean climbCompleted() {
         return false;
     }
