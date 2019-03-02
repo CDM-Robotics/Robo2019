@@ -38,8 +38,10 @@ public class ElevatorSys extends Subsystem {
     private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
 
     private static final double ELEVATOR_FLOOR_INCHES = 14.5; // inches from ground when elevator at zero
-                                                              // measured from wrist axel to floor but does not account for ball center
-    // --------------------------------------Rocket  Hatch----------------------------------------------
+                                                              // measured from wrist axel to floor but does not account
+                                                              // for ball center
+    // --------------------------------------Rocket
+    // Hatch----------------------------------------------
 
     private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
     private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * TICKS_PER_INCH);
@@ -50,7 +52,8 @@ public class ElevatorSys extends Subsystem {
     private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
     private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * TICKS_PER_INCH);
 
-    // -------------------------------------Rocket Cargo----------------------------------------------
+    // -------------------------------------Rocket
+    // Cargo----------------------------------------------
 
     private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - ELEVATOR_FLOOR_INCHES);
     private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * TICKS_PER_INCH);
@@ -61,12 +64,14 @@ public class ElevatorSys extends Subsystem {
     private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
     private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * TICKS_PER_INCH);
 
-    // --------------------------------------Cargoship Hatch----------------------------------------
+    // --------------------------------------Cargoship
+    // Hatch----------------------------------------
 
     private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
     private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * TICKS_PER_INCH);
 
-    // --------------------------------------CARGOSHIP CARGO----------------------------------------
+    // --------------------------------------CARGOSHIP
+    // CARGO----------------------------------------
 
     private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - ELEVATOR_FLOOR_INCHES);
     // extra 2 inches for safety^^^
@@ -96,16 +101,17 @@ public class ElevatorSys extends Subsystem {
 
     private boolean m_usingHoldPID;
 
-
     /**
      * How many sensor units per rotation.
+     * 
      * @link https://github.com/CrossTheRoadElec/Phoenix-Documentation#what-are-the-units-of-my-sensor
      */
     private static final int kCTREUnitsPerRotation = 4096; // 4096;
 
     private static final int kUnitsPerRotation = kCTREUnitsPerRotation;
 
-    // inches of elevator travel per complete rotation of encoder  gear is 1 inch diameter
+    // inches of elevator travel per complete rotation of encoder gear is 1 inch
+    // diameter
     private static final double kDistancePerRotation = 1.75 * Math.PI;
 
     private static final int kUnitsPerInch = (int) Math.round(kUnitsPerRotation / kDistancePerRotation);
@@ -158,7 +164,8 @@ public class ElevatorSys extends Subsystem {
     private double mTarget;
 
     /**
-     * Log the sensor position at power up - use this as the base reference for positioning.
+     * Log the sensor position at power up - use this as the base reference for
+     * positioning.
      */
     private int mBasePosn;
 
@@ -170,7 +177,7 @@ public class ElevatorSys extends Subsystem {
     private Counter m_BottomLimitCtr;
     private Notifier m_BotLimitWatcher;
     private boolean m_botLimitSwitchActive = false;
-    
+
     public static ElevatorSys getInstance() {
         if (mInstance == null) {
             mInstance = new ElevatorSys();
@@ -178,13 +185,10 @@ public class ElevatorSys extends Subsystem {
         return mInstance;
     }
 
-
-
     @Override
     public void initDefaultCommand() {
-        //setDefaultCommand(new ElvMoveUpSlow());
+        // setDefaultCommand(new ElvMoveUpSlow());
     }
-
 
     public ElevatorSys() {
         mLog.info("ElevatorSys ctor  ----------------------------------------------");
@@ -275,7 +279,7 @@ public class ElevatorSys extends Subsystem {
         MIN_TRAVEL -= 20000;
     }
 
-    public void reviveWatchDog(){
+    public void reviveWatchDog() {
         mTalon.setSelectedSensorPosition(0);
         MAX_TRAVEL -= 20000;
         MIN_TRAVEL += 20000;
@@ -283,7 +287,8 @@ public class ElevatorSys extends Subsystem {
     }
 
     /**
-     * Disable the elevator system - make sure all talons and PID loops are not driving anything
+     * Disable the elevator system - make sure all talons and PID loops are not
+     * driving anything
      */
     public void disable() {
         mLog.debug("ElvSys DISABLED  <<<<<<<<<<<<<<<<<<<<");
@@ -299,18 +304,17 @@ public class ElevatorSys extends Subsystem {
         mTalon.set(ControlMode.PercentOutput, 0);
     }
 
-
     /**
-     * Called every N milliSeconds by Notifier to check the state of the limit switch
-     * Limit switch will be set when elevator at bottom - we do not move through and keep going,
-     * so no need to watch a counter
+     * Called every N milliSeconds by Notifier to check the state of the limit
+     * switch Limit switch will be set when elevator at bottom - we do not move
+     * through and keep going, so no need to watch a counter
      */
     private void botLimitWatcher() {
         m_botLimitSwitchActive = m_BottomLimit.get();
     }
 
-
-    // ------------ set up watch on talon position and disable if out of bounds -----------------------
+    // ------------ set up watch on talon position and disable if out of bounds
+    // -----------------------
 
     private Timer mWatchDogTimer = new Timer();
 
@@ -333,15 +337,12 @@ public class ElevatorSys extends Subsystem {
                 m_DontMoveUp = false;
                 mTalon.set(ControlMode.PercentOutput, 0);
                 mLog.severe("WristSys: talon exceeded backward boundry");
-            }
-            else {
+            } else {
                 m_DontMoveDown = false;
                 m_DontMoveUp = false;
             }
         }
     };
-
-
 
     // grab the 360 degree position of the MagEncoder's absolute position, and set
     // the relative sensor to match.
@@ -349,7 +350,7 @@ public class ElevatorSys extends Subsystem {
     public void setSensorStartPosn() {
 
         mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
-        //mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        // mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
         int absolutePosition = mBasePosn;
         /* mask out overflows, keep bottom 12 bits */
         absolutePosition &= 0xFFF;
@@ -362,7 +363,6 @@ public class ElevatorSys extends Subsystem {
         mBasePosn = mTalon.getSelectedSensorPosition(0);
         mLog.debug(printPosn("setStart"));
     }
-
 
     private double mLastSensPosn;
     private double mLastQuadPosn;
@@ -390,14 +390,16 @@ public class ElevatorSys extends Subsystem {
         mLastSensPosn = absSensPosn;
 
         mLastQuadPosn = quadPosn;
-        return String.format("ES.%s  AtBase: %b LimCnt: %d   base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f", 
-                caller, m_botLimitSwitchActive,  m_BottomLimitCtr.get(), mBasePosn, selSensPosn, vel, mout, voltOut, curOut);
+        return String.format(
+                "ES.%s  AtBase: %b LimCnt: %d   base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f",
+                caller, m_botLimitSwitchActive, m_BottomLimitCtr.get(), mBasePosn, selSensPosn, vel, mout, voltOut,
+                curOut);
     }
-    
 
-    // MovSlowUpCmd  --------------------------------------------------------
+    // MovSlowUpCmd --------------------------------------------------------
 
-    // move up very slowly unitl we have moved 2 inches. Idea is to find minimum power
+    // move up very slowly unitl we have moved 2 inches. Idea is to find minimum
+    // power
     // need to move the elevator up, because it is very negatively weighted
 
     private int mStartPosn = 0;
@@ -406,22 +408,19 @@ public class ElevatorSys extends Subsystem {
 
     private PeriodicLogger mPLog;
 
-
     public void initMovSlowUp() {
-        mStartPosn =  mTalon.getSensorCollection().getPulseWidthPosition();
+        mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = 0.0;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initMovSlowUp"));
     }
 
-
     public void execMovSlowUp() {
         mPercentOut += 0.001;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMovSlowUp"));
     }
-
 
     public boolean isCompleteMovSlowUp() {
         int curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
@@ -434,11 +433,8 @@ public class ElevatorSys extends Subsystem {
         }
         return isFin;
     }
-    
 
-    // -------------------------  basic hold  -------------------------------------
-
-
+    // ------------------------- basic hold -------------------------------------
 
     public void holdPosnPower() {
         mLog.debug(printPosn("holdPosnPower") + "\n------------------------------------------------------");
@@ -447,8 +443,50 @@ public class ElevatorSys extends Subsystem {
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
     }
 
+    // ---------------------------Move To w/ PID
+    // -----------------------------------------------------------------
 
-    // ------------------ Move Up  -------------------------------------------------------------
+    private final double AUTO_SPEED = 0.3;
+    private boolean ElvMoveUpPolarity;
+
+    public void initMoveToWithoutPID(ElvTarget target) {
+        int curPosition = mTalon.getSelectedSensorPosition();
+        int targetPosition = target.getTicks();
+        if ((targetPosition - curPosition) > 0) {
+            ElvMoveUpPolarity = true;
+        } else {
+            ElvMoveUpPolarity = false;
+        }
+    }
+
+    public void execMoveToWithoutPID(ElvTarget target) {
+        int curPosition = mTalon.getSelectedSensorPosition();
+        int targetPosition = target.getTicks();
+        if (ElvMoveUpPolarity && (curPosition < targetPosition)) {
+            mTalon.set(ControlMode.PercentOutput, AUTO_SPEED);
+        } else if (!ElvMoveUpPolarity && (targetPosition < curPosition)) {
+            mTalon.set(ControlMode.PercentOutput, -AUTO_SPEED);
+        } else {
+            mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
+        }
+    }
+
+    public boolean isFinishedMoving(ElvTarget target) {
+        int curPosition = mTalon.getSelectedSensorPosition();
+        int targetPosition = target.getTicks();
+        if (ElvMoveUpPolarity && (curPosition > targetPosition)) {
+            mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
+            return true;
+        } else if (!ElvMoveUpPolarity && (targetPosition > curPosition)) {
+            mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // ------------------ Move Up
+    // -------------------------------------------------------------
 
     /**
      * Move up at 0.3 power more than hold
@@ -471,13 +509,13 @@ public class ElevatorSys extends Subsystem {
         if (m_DontMoveUp) {
             return;
         }
-        mPercentOut = BASE_PERCENT_OUT + 0.80;
+        mPercentOut = BASE_PERCENT_OUT + 0.60;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveUp"));
     }
 
-
-    // ------------------ Move Down  -------------------------------------------------------------
+    // ------------------ Move Down
+    // -------------------------------------------------------------
 
     /**
      * Move down at -0.1 power
@@ -505,14 +543,12 @@ public class ElevatorSys extends Subsystem {
         mPLog.debug(printPosn("execMoveDown"));
     }
 
-
-
-    // ---------- hold posn PID using the TritonTech PID  ----------------------------------
-
+    // ---------- hold posn PID using the TritonTech PID
+    // ----------------------------------
 
     /**
-     * Sensor is on output of gearing (not on motor)
-     * Set the tolerance to +- 0.5 inches
+     * Sensor is on output of gearing (not on motor) Set the tolerance to +- 0.5
+     * inches
      */
     public void initHoldPosnPID() {
 
@@ -526,12 +562,10 @@ public class ElevatorSys extends Subsystem {
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
             m_holdPID.setAbsoluteTolerance(0.3 * TICKS_PER_INCH); // allow +- 200 units (0.4 inches) on error
-        }
-        else {
+        } else {
             m_holdPID.reset();
         }
     }
-
 
     /**
      * Hold at the current position
@@ -555,9 +589,9 @@ public class ElevatorSys extends Subsystem {
         m_holdPID.enable();
     }
 
-
     /**
-     * Disable the hold PID. This will send 0 to the PID out, which writes to the talon
+     * Disable the hold PID. This will send 0 to the PID out, which writes to the
+     * talon
      */
     public void disableHoldPosnPID() {
         if (m_holdPID != null) {
@@ -567,13 +601,12 @@ public class ElevatorSys extends Subsystem {
         mLog.debug(printPosn("disableHoldPosnPID"));
     }
 
-
-    // move to target using PID  ---------------------------------------------
-
+    // move to target using PID ---------------------------------------------
 
     /**
-     * Target assumes that the elevator base position is zero
-     * Need to adjust for the actual sensor start position
+     * Target assumes that the elevator base position is zero Need to adjust for the
+     * actual sensor start position
+     * 
      * @param targ
      */
     public void initMoveToTarget(ElvTarget targ) {
@@ -585,10 +618,11 @@ public class ElevatorSys extends Subsystem {
             double kD = 0.0;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-            m_movePID = new TTPIDController("PID.elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-            m_movePID.setAbsoluteTolerance(TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock                                                       // in
-        }
-        else {
+            m_movePID = new TTPIDController("PID.elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
+                    periodInSecs);
+            m_movePID.setAbsoluteTolerance(TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock
+                                                            // // in
+        } else {
             m_movePID.reset();
         }
 
@@ -604,10 +638,10 @@ public class ElevatorSys extends Subsystem {
         m_movePID.enable();
     }
 
-    
     /**
-     * Dont need to actually do anything here, because the PID if writing to the Talon
-     * What we want to do is wait until the PID is close, then use the holdPID to lock in
+     * Dont need to actually do anything here, because the PID if writing to the
+     * Talon What we want to do is wait until the PID is close, then use the holdPID
+     * to lock in
      */
     public void execMoveToTarget() {
         if (m_movePID.onTarget() && !m_usingHoldPID) {
@@ -619,7 +653,6 @@ public class ElevatorSys extends Subsystem {
         }
     }
 
-
     /**
      * Only return true once we have moved to using holdPID and it is on target
      */
@@ -629,7 +662,6 @@ public class ElevatorSys extends Subsystem {
         }
         return false;
     }
-
 
     public void disableMoveToPID() {
         if (m_movePID != null) {

@@ -30,39 +30,39 @@ public class ObjectiveCmdGrp extends CommandGroup {
         m_obj = obj;
         switch (m_obj) {
         case CargoshipCargo:
-            addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.CargoshipCargo));
+            addSequential(new ElvPIDMoveToCmd(ElevatorSys.ElvTarget.CargoshipCargo));
             // addSequential(new WristMoveToCmd(WristSys.WristTarget.FlatDeployPosition));
             break;
         case CargoshipHatch:
-            addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.CargoshipHatch));
+            addSequential(new ElvPIDMoveToCmd(ElevatorSys.ElvTarget.CargoshipHatch));
             // addSequential(new WristMoveToCmd(WristSys.WristTarget.FlatDeployPosition));
             break;
         case RocketCargoLo:
-            addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.RocketCargoLo));
+            addSequential(new ElvPIDMoveToCmd(ElevatorSys.ElvTarget.RocketCargoLo));
             // addSequential(new WristMoveToCmd(WristSys.WristTarget.FlatDeployPosition));
             break;
         case RocketCargoMid:
-            addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.RocketCargoMid));
+            addSequential(new ElvPIDMoveToCmd(ElevatorSys.ElvTarget.RocketCargoMid));
             // addSequential(new WristMoveToCmd(WristSys.WristTarget.FlatDeployPosition));
             break;
         case RocketCargoHi:
-            addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.RocketCargoHi));
+            addSequential(new ElvPIDMoveToCmd(ElevatorSys.ElvTarget.RocketCargoHi));
             // addSequential(new WristMoveToCmd(WristSys.WristTarget.FlatDeployPosition));
             break;
         case RocketHatchLo:
-            addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.RocketHatchLo));
+            addSequential(new ElvPIDMoveToCmd(ElevatorSys.ElvTarget.RocketHatchLo));
             // addSequential(new WristMoveToCmd(WristSys.WristTarget.FlatDeployPosition));
             break;
         case RocketHatchMid:
-            addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.RocketHatchMid));
+            addSequential(new ElvPIDMoveToCmd(ElevatorSys.ElvTarget.RocketHatchMid));
             // addSequential(new WristMoveToCmd(WristSys.WristTarget.FlatDeployPosition));
             break;
         case RocketHatchHi:
-            addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.RocketHatchHi));
+            addSequential(new ElvPIDMoveToCmd(ElevatorSys.ElvTarget.RocketHatchHi));
             // addSequential(new WristMoveToCmd(WristSys.WristTarget.FlatDeployPosition));
             break;
         case HatchPickUp:
-            addSequential(new ElvMoveToCmd(ElevatorSys.ElvTarget.CargoshipHatch));
+            addSequential(new ElvPIDMoveToCmd(ElevatorSys.ElvTarget.CargoshipHatch));
             // addSequential(new HatchWristExtendCmd());
             // addSequential(new WristMoveToCmd(WristSys.WristTarget.CargoshipHatch));
             break;
