@@ -81,6 +81,14 @@ public class NavXSys {
         // mAhrs.getAngle(), mAhrs.getAngleAdjustment(), mAhrs.getYaw());
     }
 
+
+    /**
+     * Return pitch from -180 to +180
+     */
+    public float getPitch() {
+        return mNavX.getPitch();
+    }
+
     /**
      * Provide detailed info about the NavX for SmartDashboard
      */

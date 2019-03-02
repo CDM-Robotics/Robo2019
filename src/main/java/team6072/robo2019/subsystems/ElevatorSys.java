@@ -22,7 +22,7 @@ public class ElevatorSys extends Subsystem {
 
     private static final LogWrapper mLog = new LogWrapper(ElevatorSys.class.getName());
 
-    private static ElevatorSys mInstance;
+    public static ElevatorSys mInstance;
 
     public static enum Direction {
         Up, Down
@@ -31,7 +31,7 @@ public class ElevatorSys extends Subsystem {
     private static final double GEAR_DIA_INCHES = 1.5;
 
     // a motor output of BASE_POWER holds the motor in place when not disturbed
-    private static final double BASE_PERCENT_OUT = RobotConfig.ELV_BASE_PERCENT_OUT;
+    public static final double BASE_PERCENT_OUT = RobotConfig.ELV_BASE_PERCENT_OUT;
 
     // MEASURE the ticks per inch on physical mechanism
     private static final int TICKS_PER_INCH = RobotConfig.ELV_TICKS_PER_INCH; // MEASURED
