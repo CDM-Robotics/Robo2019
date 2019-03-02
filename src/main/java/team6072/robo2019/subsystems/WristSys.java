@@ -470,12 +470,12 @@ public class WristSys extends Subsystem {
 
         if (m_holdPID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
-            double kP = 0.2 / (15 * TICKS_PER_DEG); // want 20% power when hit tolerance band of 15 degrees
+            double kP = 0.2 / (10 * TICKS_PER_DEG); // want 20% power when hit tolerance band of 15 degrees
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-            m_holdPID = new TTPIDController("wrstHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
+            m_holdPID = new TTPIDController("wristHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
                     periodInSecs);
             m_holdPID.setAbsoluteTolerance(10 * TICKS_PER_DEG); // allow +- 200 units (0.4 inches) on error
         } else {
