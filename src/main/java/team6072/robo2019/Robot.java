@@ -129,8 +129,7 @@ public class Robot extends TimedRobot {
         // mLogPeriodic.debug(mElvSys.printPosn("disPer:"));
     }
 
-    // *********************** Autonomous
-    // *********************************************************
+    // *********************** Autonomous  *********************************************************
 
     /**
      * This autonomous (along with the chooser code above) shows how to select
@@ -167,8 +166,7 @@ public class Robot extends TimedRobot {
         // mLogPeriodic.debug(mDriveSys.logSensors());
     }
 
-    // *********************** Teleop
-    // *********************************************************
+    // *********************** Teleop  *********************************************************
 
     ArcadeDriveCmd mArcadeDriveCmd;
     DriveDistCmd mDriveDistCmd;

@@ -66,12 +66,12 @@ public class ClimberSys extends Subsystem {
             mClimbTalon = new WPI_TalonSRX(RobotConfig.WRIST_MASTER);
             mClimbTalon.configFactoryDefault();
             mClimbTalon.setName(String.format("Wrist: %d", RobotConfig.WRIST_MASTER));
-            // in case we are in magic motion or position hold mode
+            // in case we are in magic motion or position hold model 
             mClimbTalon.set(ControlMode.PercentOutput, 0);
 
             mClimbTalon.setSensorPhase(TALON_SENSOR_PHASE);
             mClimbTalon.setInverted(TALON_INVERT);
-            
+
             mClimbTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mClimbTalon.setSelectedSensorPosition(0);
 
