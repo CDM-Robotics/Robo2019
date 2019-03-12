@@ -260,9 +260,9 @@ public class ElevatorSys extends Subsystem {
             setSensorStartPosn();
 
             // set the watch dog going
-            mWatchDogTimer = new Timer("ElvSys watchdog");
-            // wait for 1 second before starting, then check every 50 milliseconds
-            mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+            // mWatchDogTimer = new Timer("ElvSys watchdog");
+            // // wait for 1 second before starting, then check every 50 milliseconds
+            // mWatchDogTimer.schedule(mWatchDog, 1000, 50);
 
             mLog.info("ElevatorSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
