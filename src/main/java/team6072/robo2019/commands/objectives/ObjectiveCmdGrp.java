@@ -11,11 +11,7 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 
 import team6072.robo2019.commands.elevator.*;
 
-
-
-
 public class ObjectiveCmdGrp extends CommandGroup {
-
 
     private Objective.ElvTarget m_obj;
   

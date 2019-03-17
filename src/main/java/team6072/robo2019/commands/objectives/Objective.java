@@ -95,11 +95,26 @@ public class Objective{
     private TargetAngle mTargetAngle;
     private Side mSide;
 
+    public Objective(ElvTarget elvTarget)
+    {
+        mElvTarget = elvTarget;
+        mSide = null;
+        mTargetAngle = null;
+    }
+
+    public Objective(Side side, TargetAngle targetAngle)
+    {
+        mElvTarget = null;
+        mSide = side;
+        mTargetAngle = targetAngle;
+    }
+
     public Objective(ElvTarget elvTarget, Side side, TargetAngle targetAngle)
     {
         mElvTarget = elvTarget;
         mSide = side;
         mTargetAngle = targetAngle;
     }
+
 
 }
