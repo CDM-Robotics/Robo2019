@@ -26,7 +26,7 @@ public class RobotConfig {
     public static final int DRIVE_GEAR_REV_HI = 5;
 
     // ELEVATOR
-    public static final int ELV_TICKS_PER_INCH = 370; // MEASURED
+    public static final int ELV_TICKS_PER_INCH = 370; // MEASURED  2019-03-14
     public static final double ELV_BASE_PERCENT_OUT = 0.19;
 
     public static final boolean ELV_INVERT = false; // 2018 - false

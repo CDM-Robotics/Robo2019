@@ -33,6 +33,10 @@ public class ElevatorSys extends Subsystem {
     // a motor output of BASE_POWER holds the motor in place when not disturbed
     public static final double BASE_PERCENT_OUT = RobotConfig.ELV_BASE_PERCENT_OUT;
 
+    public static final double BASE_POWER_UP = BASE_PERCENT_OUT + 0.5;
+
+    public static final double BASE_POWER_DOWN = -0.4;
+
     // MEASURE the ticks per inch on physical mechanism
     private static final int TICKS_PER_INCH = RobotConfig.ELV_TICKS_PER_INCH; // MEASURED
     private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
@@ -471,7 +475,7 @@ public class ElevatorSys extends Subsystem {
         if (m_DontMoveUp) {
             return;
         }
-        mPercentOut = BASE_PERCENT_OUT + 0.80;
+        mPercentOut = BASE_POWER_UP;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveUp"));
     }
@@ -500,7 +504,7 @@ public class ElevatorSys extends Subsystem {
         if (m_DontMoveDown) {
             return;
         }
-        mPercentOut = -0.4;
+        mPercentOut = BASE_POWER_DOWN;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveDown"));
     }
