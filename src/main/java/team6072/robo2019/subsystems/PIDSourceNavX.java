@@ -24,6 +24,7 @@ public class PIDSourceNavX implements PIDSource {
         return PIDSourceType.kDisplacement;
     }
     public double pidGet(){
+        
         return mNavXSys.getYawHeading();
     }
     public void setPIDSourceType(PIDSourceType s){

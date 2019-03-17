@@ -33,7 +33,7 @@ import team6072.robo2019.commands.objectives.Objective;
 public class DriveSys extends Subsystem {
 
     private static final LogWrapper mLog = new LogWrapper(DriveSys.class.getName());
-
+    private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 5);
     // Objective is to have the Talon LEDs flashing green when driving forward, and
     // sensor phase in sync with velocity - use the graphing in the Phoenix Tuner
     // plot to check
@@ -167,7 +167,7 @@ public class DriveSys extends Subsystem {
 
             setSensorStartPosn();
 
-            mNavX = NavXSys.getInstance().getNavX();
+            mNavX = NavXSys.getInstance();
             initYawPID();
             createDrivePID();
             initTurnPID();
@@ -466,14 +466,14 @@ public class DriveSys extends Subsystem {
     /* PID Controller will attempt to get. */
     static final double kToleranceDegrees = 2.0f;
 
-    private AHRS mNavX;
+    private NavXSys mNavX;
     private PIDController mYawPID;
     private PIDOutReceiver mYawPIDOut;
 
     private void initYawPID() {
-        mLog.info("DS.initYawPID:  AHRS.SrcType: " + mNavX.getPIDSourceType().name());
+        mLog.info("DS.initYawPID:  AHRS.SrcType: " + mNavX.getNavX().getPIDSourceType().name());
         mYawPIDOut = new PIDOutReceiver();
-        mYawPID = new PIDController(kP_yaw, kI_yaw, kD_yaw, kF_yaw, mNavX, mYawPIDOut);
+        mYawPID = new PIDController(kP_yaw, kI_yaw, kD_yaw, kF_yaw, mNavX.getNavX(), mYawPIDOut);
         mYawPID.setName("DS.YawPID");
         mYawPID.setInputRange(-180.0f, 180.0f);
         mYawPID.setOutputRange(-1.0, 1.0);
@@ -553,10 +553,10 @@ public class DriveSys extends Subsystem {
     // AlignmentTurnCmd
     // -----------------------------------------------------------------------------------------
 
-    static final double mKF_turn = 2.0;
-    static final double mKP_turn = 0.0;
-    static final double mKI_turn = 1.0;
-    static final double mKD_turn = 0.0;
+    static final double mKP_turn = 2.0;
+    static final double mKI_turn = 0.0;
+    static final double mKD_turn = 1.0;
+    static final double mKF_turn = 0.0;
     /* This tuning parameter indicates how close to "on target" the */
     /* PID Controller will attempt to get. */
     static final double mKToleranceDegreesTurn = 2.0;
@@ -566,13 +566,14 @@ public class DriveSys extends Subsystem {
     private PIDSourceNavX mTurnPIDSource;
 
     public void initTurnPID() {
-        mLog.info("DS.initYawPID:  AHRS.SrcType: " + mNavX.getPIDSourceType().name());
+        mNavX.zeroYawHeading();
+        mLog.info("DS.initYawPID:  CurrentYaw: " + mNavX.getYawHeading());
         mTurnPIDOut = new PIDOutReceiver();
         mTurnPIDSource = new PIDSourceNavX();
         mTurnPIDController = new PIDController(mKP_turn, mKI_turn, mKD_turn, mKF_turn, mTurnPIDSource, mTurnPIDOut);
         mTurnPIDController.setName("DS.TurnPID");
-        mTurnPIDController.setInputRange(-180.0f, 180.0f);
-        mTurnPIDController.setOutputRange(-1.0, 1.0);
+        mTurnPIDController.setInputRange(-180.0, 180.0);
+        mTurnPIDController.setOutputRange(-100.0, 100.0);
         // Makes PIDController.onTarget() return True when PIDInput is within the
         // Setpoint +/- the absolute tolerance.
         mTurnPIDController.setAbsoluteTolerance(mKToleranceDegreesTurn);
@@ -585,16 +586,37 @@ public class DriveSys extends Subsystem {
     }
 
     public void initTurnDrive(Objective.TargetAngle target) {
+        mLog.debug("DS turn Target : " + target.getAngle() + " Current Yaw : " + mNavX.getYawHeading());
+
         mTurnPIDController.setSetpoint(target.getAngle());
         mTurnPIDController.enable();
     }
 
     public void arcadeTurnPID() {
-        arcadeDrive(0, mTurnPIDOut.getVal());
+        double yaw = mTurnPIDOut.getVal() / 100;
+        if (abs(yaw) < .4) {
+            yaw = (yaw / yaw) * .4;
+        }
+        mPLog.debug("DS : Yaw Magnitude = " + yaw + "   Yaw Heading : " + mNavX.getYawHeading());
+        arcadeDrive(0, yaw);
     }
 
     public boolean isFinishedTurning() {
-        return mTurnPIDController.onTarget();
+        boolean finished = false;
+        if (mTurnPIDController.onTarget()) {
+            mLog.debug("DS TurnPID complete   Current Yaw : " + mNavX.getYawHeading());
+            finished = true;
+            arcadeDrive(0, 0);
+            mTurnPIDController.disable();
+        }
+        return finished;
+    }
+
+    public double abs(double num) {
+        if (num < 0) {
+            num = num * -1;
+        }
+        return num;
     }
 
 }

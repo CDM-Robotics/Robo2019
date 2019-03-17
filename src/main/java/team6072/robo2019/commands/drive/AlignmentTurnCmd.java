@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.commands.objectives.Objective;
 //import org.cdm.team6072.subsystems.CmdWatchdog;
 import team6072.robo2019.subsystems.DriveSys;
-import team6072.robo2019.subsystems.NavXSys;;
+import team6072.robo2019.subsystems.NavXSys;
 
 public class AlignmentTurnCmd extends Command {
 

@@ -63,6 +63,7 @@ public class NavXSys {
     }
 
     public void zeroYawHeading() {
+        mLog.debug("NavX: setting Yaw to 0");
         mNavX.zeroYaw(); // resets the angle to 0
     }
 
