@@ -10,10 +10,6 @@ package team6072.robo2019.commands.objectives;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
 import team6072.robo2019.commands.elevator.*;
-import team6072.robo2019.commands.*;
-import team6072.robo2019.subsystems.*;
-import team6072.robo2019.commands.pneumatics.*;
-import team6072.robo2019.commands.drive.*;
 
 
 
