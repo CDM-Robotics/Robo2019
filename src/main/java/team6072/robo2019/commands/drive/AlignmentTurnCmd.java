@@ -1,6 +1,7 @@
 package team6072.robo2019.commands.drive;
 
 import edu.wpi.first.wpilibj.command.Command;
+import team6072.robo2019.commands.objectives.Objective;
 //import org.cdm.team6072.subsystems.CmdWatchdog;
 import team6072.robo2019.subsystems.DriveSys;
 import team6072.robo2019.subsystems.NavXSys;;
@@ -9,24 +10,25 @@ public class AlignmentTurnCmd extends Command {
 
     private DriveSys mDriveSys;
     private NavXSys mNavX;
-    private NavXSys.TurnAngle mTurnAngle;
+    private Objective.TargetAngle mTargetAngle;
 
-    public AlignmentTurnCmd() {
+    public AlignmentTurnCmd(Objective.TargetAngle turn) {
         mNavX = NavXSys.getInstance();
         mDriveSys = DriveSys.getInstance();
+        mTargetAngle = turn;
         requires(mDriveSys);
     }
 
     @Override
     protected void initialize() {
-        if (mTurnAngle != null) {
-            mDriveSys.initTurnDrive(mNavX.compareYawHeadings().getAngle());
+        if (mTargetAngle != null) {
+            mDriveSys.initTurnDrive(mTargetAngle);
         }
     }
 
     @Override
     protected void execute() {
-        if (mTurnAngle != null) {
+        if (mTargetAngle != null) {
             mDriveSys.arcadeTurnPID();
         }
     }

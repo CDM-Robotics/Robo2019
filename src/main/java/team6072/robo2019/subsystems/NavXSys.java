@@ -3,7 +3,7 @@ package team6072.robo2019.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.logging.*;
 
 /**
@@ -176,49 +176,12 @@ public class NavXSys {
     // AlignRobotCmd
     // -------------------------------------------------------------------------------------------------------
 
-    private static final double RIGHT_BALL_ROCKET_ANGLE = 90;
-    private static final double RIGHT_LOWER_HATCH_ROCKET_ANGLE = 45; // check whether or not that is accurate
-    private static final double RIGHT_UPPER_HATCH_ROCKET_ANGLE = 135; // check whether or not that is accurate
-    private static final double LEFT_BALL_ROCKET_ANGLE = -90;
-    private static final double LEFT_LOWER_HATCH_ROCKET_ANGLE = -45; // check whether or not that is accurate
-    private static final double LEFT_UPPER_HATCH_ROCKET_ANGLE = -135; // check whether or not that is accurate
-
-    private final double ANGLED_TURN_TOLERANCE = 20.0;
-
-    public enum TurnAngle {
-        RIGHT_BALL(RIGHT_BALL_ROCKET_ANGLE), RIGHT_LOWER_HATCH(RIGHT_LOWER_HATCH_ROCKET_ANGLE),
-        RIGHT_UPPER_HATCH(RIGHT_UPPER_HATCH_ROCKET_ANGLE), LEFT_BALL(LEFT_BALL_ROCKET_ANGLE),
-        LEFT_LOWER_HATCH(LEFT_LOWER_HATCH_ROCKET_ANGLE), LEFT_UPPER_HATCH(LEFT_UPPER_HATCH_ROCKET_ANGLE);
-
-        private double mAngle;
-
-        public double getAngle() {
-            return mAngle;
-        }
-
-        TurnAngle(double angle) {
-            mAngle = angle;
-        }
-    }
-
     public double abs(double a)
     {
         if(a < 0){
             a *= -1;
         }
         return a;
-    }
-
-    public TurnAngle compareYawHeadings() {
-        double currentYaw = getYawHeading();
-        for(TurnAngle turnAngle : TurnAngle.values())
-        {
-            if(abs(currentYaw - turnAngle.getAngle()) < ANGLED_TURN_TOLERANCE)
-            {
-                return turnAngle;
-            }
-        }
-        return null;
     }
 
 }

@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.PIDController;
 
 import team6072.robo2019.RobotConfig;
 import team6072.robo2019.logging.*;
+import team6072.robo2019.commands.objectives.Objective;
 
 /**
  * Implement a drive subsystem for the 2019 robot Two motors per side, driving a
@@ -583,8 +584,8 @@ public class DriveSys extends Subsystem {
 
     }
 
-    public void initTurnDrive(double target) {
-        mTurnPIDController.setSetpoint(target);
+    public void initTurnDrive(Objective.TargetAngle target) {
+        mTurnPIDController.setSetpoint(target.getAngle());
         mTurnPIDController.enable();
     }
 

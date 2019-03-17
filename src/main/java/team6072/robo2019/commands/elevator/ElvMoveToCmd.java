@@ -3,7 +3,7 @@ package team6072.robo2019.commands.elevator;
 
 import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.subsystems.ElevatorSys;
-import team6072.robo2019.subsystems.ElevatorSys.ElvTarget;
+import team6072.robo2019.commands.objectives.Objective;
 
 
 
@@ -15,9 +15,9 @@ public class ElvMoveToCmd extends Command {
 
 
     private ElevatorSys mSys;
-    private ElvTarget mTarget;
+    private Objective.ElvTarget mTarget;
 
-    public ElvMoveToCmd(ElvTarget target) {
+    public ElvMoveToCmd(Objective.ElvTarget target) {
         mTarget = target;
         mSys = ElevatorSys.getInstance();
         requires(mSys);

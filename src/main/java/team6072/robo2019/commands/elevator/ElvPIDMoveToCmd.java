@@ -10,7 +10,8 @@ package team6072.robo2019.commands.elevator;
 import edu.wpi.first.wpilibj.command.Command;
 
 
-import team6072.robo2019.subsystems.ElevatorSys;;
+import team6072.robo2019.subsystems.ElevatorSys;
+import team6072.robo2019.commands.objectives.Objective;
 
 
 public class ElvPIDMoveToCmd extends Command {
@@ -18,10 +19,10 @@ public class ElvPIDMoveToCmd extends Command {
 
     private ElevatorSys mSys;
 
-    private ElevatorSys.ElvTarget m_target;
+    private Objective.ElvTarget m_target;
 
 
-    public ElvPIDMoveToCmd(ElevatorSys.ElvTarget target) {
+    public ElvPIDMoveToCmd(Objective.ElvTarget target) {
         mSys = ElevatorSys.getInstance();
         requires(mSys);
         m_target = target;

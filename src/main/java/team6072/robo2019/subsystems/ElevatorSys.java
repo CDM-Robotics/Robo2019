@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import team6072.robo2019.RobotConfig;
+import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.logging.*;
 import team6072.robo2019.pid.TTPIDController;
 
@@ -34,66 +35,15 @@ public class ElevatorSys extends Subsystem {
     public static final double BASE_PERCENT_OUT = RobotConfig.ELV_BASE_PERCENT_OUT;
 
     // MEASURE the ticks per inch on physical mechanism
-    private static final int TICKS_PER_INCH = RobotConfig.ELV_TICKS_PER_INCH; // MEASURED
-    private static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
+    public static final int TICKS_PER_INCH = RobotConfig.ELV_TICKS_PER_INCH; // MEASURED
+    public static final double INCHES_PER_REVOLUTION = 4096 / TICKS_PER_INCH;
 
-    private static final double ELEVATOR_FLOOR_INCHES = 14.5; // inches from ground when elevator at zero
+    public static final double ELEVATOR_FLOOR_INCHES = 14.5; // inches from ground when elevator at zero
                                                               // measured from wrist axel to floor but does not account
                                                               // for ball center
-    // --------------------------------------Rocket
-    // Hatch----------------------------------------------
+    
 
-    private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
-    private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * TICKS_PER_INCH);
-
-    private static final double ROCKET_HATCH_MID_INCHES = (ROCKET_HATCH_LO_INCHES + 24 + 4);
-    private static final int ROCKET_HATCH_MID = (int) (ROCKET_HATCH_MID_INCHES * TICKS_PER_INCH);
-
-    private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
-    private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * TICKS_PER_INCH);
-
-    // -------------------------------------Rocket
-    // Cargo----------------------------------------------
-
-    private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - ELEVATOR_FLOOR_INCHES);
-    private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * TICKS_PER_INCH);
-
-    private static final double ROCKET_CARGO_MID_INCHES = (ROCKET_CARGO_LO_INCHES + 24 + 4);
-    private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_INCHES * TICKS_PER_INCH);
-
-    private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
-    private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * TICKS_PER_INCH);
-
-    // --------------------------------------Cargoship
-    // Hatch----------------------------------------
-
-    private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - ELEVATOR_FLOOR_INCHES);
-    private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * TICKS_PER_INCH);
-
-    // --------------------------------------CARGOSHIP
-    // CARGO----------------------------------------
-
-    private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - ELEVATOR_FLOOR_INCHES);
-    // extra 2 inches for safety^^^
-    private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_INCHES * TICKS_PER_INCH);
-
-    public enum ElvTarget {
-        RocketHatchHi(ROCKET_HATCH_HI), RocketHatchMid(ROCKET_HATCH_MID), RocketHatchLo(ROCKET_HATCH_LO),
-        RocketCargoHi(ROCKET_CARGO_HI), RocketCargoMid(ROCKET_CARGO_MID), RocketCargoLo(ROCKET_CARGO_LO),
-        CargoshipHatch(CARGOSHIP_HATCH), CargoshipCargo(CARGOSHIP_CARGO);
-
-        private int mTicks;
-
-        ElvTarget(int ticks) {
-            mTicks = ticks;
-        }
-
-        public int getTicks() {
-            return mTicks;
-        }
-    }
-
-    private ElvTarget m_targ;
+    private Objective.ElvTarget m_targ;
     private TTPIDController m_movePID;
     private TTPIDController m_holdPID;
     private PIDSourceTalonPW m_PidSourceTalonPW;
@@ -449,7 +399,7 @@ public class ElevatorSys extends Subsystem {
     private final double AUTO_SPEED = 0.3;
     private boolean ElvMoveUpPolarity;
 
-    public void initMoveToWithoutPID(ElvTarget target) {
+    public void initMoveToWithoutPID(Objective.ElvTarget target) {
         int curPosition = mTalon.getSelectedSensorPosition();
         int targetPosition = target.getTicks();
         if ((targetPosition - curPosition) > 0) {
@@ -459,7 +409,7 @@ public class ElevatorSys extends Subsystem {
         }
     }
 
-    public void execMoveToWithoutPID(ElvTarget target) {
+    public void execMoveToWithoutPID(Objective.ElvTarget target) {
         int curPosition = mTalon.getSelectedSensorPosition();
         int targetPosition = target.getTicks();
         if (ElvMoveUpPolarity && (curPosition < targetPosition)) {
@@ -471,7 +421,7 @@ public class ElevatorSys extends Subsystem {
         }
     }
 
-    public boolean isFinishedMoving(ElvTarget target) {
+    public boolean isFinishedMoving(Objective.ElvTarget target) {
         int curPosition = mTalon.getSelectedSensorPosition();
         int targetPosition = target.getTicks();
         if (ElvMoveUpPolarity && (curPosition > targetPosition)) {
@@ -609,7 +559,7 @@ public class ElevatorSys extends Subsystem {
      * 
      * @param targ
      */
-    public void initMoveToTarget(ElvTarget targ) {
+    public void initMoveToTarget(Objective.ElvTarget targ) {
         m_targ = targ;
         if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, 0.05, -0.8, 0.8);

@@ -16,10 +16,10 @@ import edu.wpi.first.wpilibj.command.Command;
  */
 public class ObjectiveCmd extends Command {
 
-    Objective mObjective;
+    Objective.ElvTarget mObjective;
     ObjectiveCmdGrp mGroup;
 
-    public ObjectiveCmd(Objective obj) {
+    public ObjectiveCmd(Objective.ElvTarget obj) {
         mObjective = obj;
     }
 
