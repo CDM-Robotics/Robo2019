@@ -17,14 +17,14 @@ import team6072.robo2019.pid.TTPIDController;
 
 public class ClimberSys extends Subsystem {
 
-    private static final LogWrapper mLog = new LogWrapper(ClimberSys.class.getName());
+    private static final LogWrapper mLog = new LogWrapper(DistanceMeasureSys.class.getName());
 
 
-    private static ClimberSys mInstance;
+    private static DistanceMeasureSys mInstance;
 
-    public static ClimberSys getInstance() {
+    public static DistanceMeasureSys getInstance() {
         if (mInstance == null) {
-            mInstance = new ClimberSys();
+            mInstance = new DistanceMeasureSys();
         }
         return mInstance;
     }

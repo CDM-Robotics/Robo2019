@@ -116,5 +116,18 @@ public class Objective{
         mTargetAngle = targetAngle;
     }
 
+    public ElvTarget getElvTarget()
+    {
+        return mElvTarget;
+    }
+    public TargetAngle getTargetAngle()
+    {
+        return mTargetAngle;
+    }
+
+    public Side getSide()
+    {
+        return mSide;
+    }
 
 }
