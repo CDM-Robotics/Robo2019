@@ -509,9 +509,9 @@ public class ElevatorSys extends Subsystem {
         if (m_holdPID == null) {
             mLog.debug(printPosn("initHoldPosnPID"));
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
-            double kP = 0.2 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
-            double kI = 0.0;
-            double kD = 0.0;
+            double kP = 0.005 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
+            double kI = 0.0; //0.000001;
+            double kD = 0.001;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
@@ -601,8 +601,8 @@ public class ElevatorSys extends Subsystem {
         if (m_movePID.onTarget() && !m_usingHoldPID) {
             mLog.debug("ES.execMoveToTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
             mLog.debug(printPosn("ES.execMoveToTarget:"));
-            m_movePID.disable();
             enableHoldPosnPID(m_targ.getTicks());
+            m_movePID.disable();
             m_usingHoldPID = true;
         }
     }
