@@ -1,17 +1,13 @@
 package team6072.robo2019.subsystems;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
-import com.kauailabs.navx.frc.AHRS;
 import team6072.robo2019.subsystems.PIDSourceNavX;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
