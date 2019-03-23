@@ -34,9 +34,9 @@ public class ElevatorSys extends Subsystem {
     // a motor output of BASE_POWER holds the motor in place when not disturbed
     public static final double BASE_PERCENT_OUT = RobotConfig.ELV_BASE_PERCENT_OUT;
 
-    public static final double BASE_POWER_UP = BASE_PERCENT_OUT + 0.5;
+    public static final double MANUAL_POWER_UP = BASE_PERCENT_OUT + 0.8;
 
-    public static final double BASE_POWER_DOWN = -0.4;
+    public static final double MANUAL_POWER_DOWN = -0.4;
 
     // MEASURE the ticks per inch on physical mechanism
     public static final int TICKS_PER_INCH = RobotConfig.ELV_TICKS_PER_INCH; // MEASURED
@@ -180,9 +180,9 @@ public class ElevatorSys extends Subsystem {
             mTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
 
             // set up current limits
-            mTalon.configContinuousCurrentLimit(30, kTimeoutMs);
-            mTalon.configPeakCurrentLimit(40, kTimeoutMs);
+            mTalon.configPeakCurrentLimit(50, kTimeoutMs);
             mTalon.configPeakCurrentDuration(200, kTimeoutMs);
+            mTalon.configContinuousCurrentLimit(1, kTimeoutMs);
             mTalon.enableCurrentLimit(true);
 
             // nominal values are used in closed loop when in deadband
@@ -453,7 +453,7 @@ public class ElevatorSys extends Subsystem {
             m_movePID.disable();
         }
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        mPercentOut = BASE_PERCENT_OUT;
+        mPercentOut = MANUAL_POWER_UP;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initMoveUp") + "--------------------------------------------------------");
@@ -463,7 +463,7 @@ public class ElevatorSys extends Subsystem {
         if (m_DontMoveUp) {
             return;
         }
-        mPercentOut = BASE_POWER_UP;
+        mPercentOut = MANUAL_POWER_UP;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveUp"));
     }
@@ -492,7 +492,7 @@ public class ElevatorSys extends Subsystem {
         if (m_DontMoveDown) {
             return;
         }
-        mPercentOut = BASE_POWER_DOWN;
+        mPercentOut = MANUAL_POWER_DOWN;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execMoveDown"));
     }
@@ -567,7 +567,7 @@ public class ElevatorSys extends Subsystem {
         m_targ = targ;
         if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, 0.05, -0.8, 0.8);
-            double kP = 0.2 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
+            double kP = 0.1 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;
