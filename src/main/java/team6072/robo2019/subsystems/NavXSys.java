@@ -27,6 +27,8 @@ public class NavXSys {
     protected final long kInvalidTimestamp = -1;
     protected long mLastSensorTimestampMs;
     protected long mLastSystemTimestamp;
+    protected double mLinAcel_X;
+    protected double mLinAcel_Y;
 
 
     //------------------------------------------
@@ -63,6 +65,8 @@ public class NavXSys {
                 mLastSensorTimestampMs = sensor_timestamp;
                 mLastSystemTimestamp = system_timestamp;
                 mYawDegrees = update.yaw;
+                mLinAcel_X = update.linear_accel_x;
+                mLinAcel_Y = update.linear_accel_y;
             }
         }
     }
@@ -137,6 +141,14 @@ public class NavXSys {
         return mYawRateDegreesPerSecond;
     }
 
+    public double getLinAcceleration_X() {
+        return mLinAcel_X;
+    }
+
+    public double getLinAcceleration_Y() {
+        return mLinAcel_Y;
+    }
+
     public long getSensorTimestamp() {
         return mLastSensorTimestampMs;
     }
@@ -145,6 +157,14 @@ public class NavXSys {
         return mLastSystemTimestamp;
     }
 
+
+    public String logState(String caller) {
+        return String.format("%s:  sysTS: %d  sensTS: %d  yaw: %.3f  yawRate: %.3f  acelX: %.3f  acelY: %.3f",
+                caller, mLastSystemTimestamp, mLastSensorTimestampMs, mYawDegrees, mYawRateDegreesPerSecond, mLinAcel_X,
+                mLinAcel_Y);
+    }
+
+    
     // get navX angle from 0 in degrees
     public double getAngle() {
         return mNavX.getAngle();
