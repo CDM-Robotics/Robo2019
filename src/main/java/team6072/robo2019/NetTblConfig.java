@@ -31,6 +31,7 @@ public class NetTblConfig {
 
     public static final String KV_Y_DIST = "Y_Distance";    // inches distance from target - always positive
     public static final String KV_X_DIST = "X_Distance";    // inches distance left (-ve) or right (+ve) of target center
+    public static final String KV_YAW_ERR = "Yaw_Error";    // the degrees between the Robot's heading and the target
     public static final String KV_HAVE_TARGET = "HaveTarget";  // bool - true if have a target
 
 
