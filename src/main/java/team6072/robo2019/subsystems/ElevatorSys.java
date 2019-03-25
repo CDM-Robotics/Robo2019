@@ -567,7 +567,7 @@ public class ElevatorSys extends Subsystem {
         m_targ = targ;
         if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, 0.05, -0.8, 0.8);
-            double kP = 0.1 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
+            double kP = 0.05 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;
