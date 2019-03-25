@@ -10,9 +10,9 @@ public class AlignmentTurnCmd extends Command {
 
     private DriveSys mDriveSys;
     private NavXSys mNavX;
-    private Objective.TargetAngle mTargetAngle;
+    private Objective.TargetYaw mTargetAngle;
 
-    public AlignmentTurnCmd(Objective.TargetAngle turn) {
+    public AlignmentTurnCmd(Objective.TargetYaw turn) {
         mNavX = NavXSys.getInstance();
         mDriveSys = DriveSys.getInstance();
         mTargetAngle = turn;

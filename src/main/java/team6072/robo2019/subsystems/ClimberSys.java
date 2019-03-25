@@ -20,11 +20,11 @@ public class ClimberSys extends Subsystem {
     private static final LogWrapper mLog = new LogWrapper(DistanceMeasureSys.class.getName());
 
 
-    private static DistanceMeasureSys mInstance;
+    private static ClimberSys mInstance;
 
-    public static DistanceMeasureSys getInstance() {
+    public static ClimberSys getInstance() {
         if (mInstance == null) {
-            mInstance = new DistanceMeasureSys();
+            mInstance = new ClimberSys();
         }
         return mInstance;
     }

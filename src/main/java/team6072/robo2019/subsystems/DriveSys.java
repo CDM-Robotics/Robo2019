@@ -50,6 +50,8 @@ public class DriveSys extends Subsystem {
 
     private DifferentialDrive mRoboDrive;
 
+    private boolean m_RoboControl;      // true - RoboLord is controlling drive
+
     private static DriveSys mInstance;
 
     public static DriveSys getInstance() {
@@ -69,6 +71,7 @@ public class DriveSys extends Subsystem {
         mLog.info("DriveSys ctor  ----------------------------------------------");
 
         try {
+            m_RoboControl = false;
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
             // SetInverted is added to decide if motor should spin clockwise or counter
             // clockwise when told to move positive/forward (green LEDs)
@@ -164,7 +167,6 @@ public class DriveSys extends Subsystem {
             setSensorStartPosn();
 
             mNavX = NavXSys.getInstance();
-            initYawPID();
             createDrivePID();
             initTurnPID();
             SmartDashboard.putNumber("DS_kf", kF_drive);
@@ -177,6 +179,15 @@ public class DriveSys extends Subsystem {
             throw ex;
         }
     }
+
+
+    /**
+     * Called by RoboLord to get control of the drive system
+     */
+    public void setRoboControl(boolean giveControl) {
+        m_RoboControl = giveControl;
+    }
+
 
     public void disable() {
         if (mDrivePID != null) {
@@ -197,15 +208,7 @@ public class DriveSys extends Subsystem {
         }
     }
 
-    /**
-     * Each subsystem may, but is not required to, have a default command which is
-     * scheduled whenever the subsystem is idle (the command currently requiring the
-     * system completes). The most common example of a default command is a command
-     * for the drivetrain that implements the normal joystick control. This command
-     * may be interrupted by other commands for specific maneuvers ("precision
-     * mode", automatic alignment/targeting, etc.) but after any command requiring
-     * the drivetrain completes the joystick command would be scheduled again.
-     */
+    @Override
     public void initDefaultCommand() {
         mLog.info("DriveSys: init default command empty");
     }
@@ -303,8 +306,7 @@ public class DriveSys extends Subsystem {
         mRoboDrive.arcadeDrive(mag, yaw, true);
     }
 
-    // --------------------------- Drive a specified distance
-    // ------------------------------------
+    // ------ Drive a specified distance  ----------------------------
 
     private int mTargetDist = 0; // distance to travel in ticks
     private int mStartPosn = 0; // start position in Talon ticks
@@ -332,9 +334,9 @@ public class DriveSys extends Subsystem {
         mLog.debug("DS.initDriveDist: current yaw: %.3f", NavXSys.getInstance().getYawHeading());
         mHitTarg = false;
         mMoveDistLoopCnt = 0;
-        mYawPID.reset();
-        mYawPID.setSetpoint(NavXSys.getInstance().getYawHeading());
-        mYawPID.enable();
+        mTurnPIDController.reset();
+        mTurnPIDController.setSetpoint(NavXSys.getInstance().getYawHeading());
+        mTurnPIDController.enable();
         initDrivePID();
         mDrivePID.setSetpoint(mTargPosn);
         mDrivePID.enable();
@@ -347,7 +349,7 @@ public class DriveSys extends Subsystem {
     public void driveDist() {
         int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
         double mag = mDrivePIDOut.getVal();
-        double yaw = mYawPIDOut.getVal();
+        double yaw = mTurnPIDOut.getVal();
         int error = mTargPosn - curPosn;
         if (Math.abs(error) < (4096 + 2048)) {
             // if within one revolution, lower the speed
@@ -390,7 +392,7 @@ public class DriveSys extends Subsystem {
         return false;
     }
 
-    // ---------------- Drive distance PID -----------------------------------------
+    // ---------------- Drive distance PID -------------------------------
 
     // resources for understanding PID
     // https://www.youtube.com/watch?v=wkfEZmsQqiA
@@ -454,100 +456,39 @@ public class DriveSys extends Subsystem {
 
     // ------------------ NavX PID for yaw ------------------------------------
 
-    static final double kF_yaw = 0.00;
-    static final double kP_yaw = 0.03;
-    static final double kI_yaw = 0.00;
-    static final double kD_yaw = 0.00;
-    /* This tuning parameter indicates how close to "on target" the */
-    /* PID Controller will attempt to get. */
-    static final double kToleranceDegrees = 2.0f;
+    // static final double kF_yaw = 0.00;
+    // static final double kP_yaw = 0.03;
+    // static final double kI_yaw = 0.00;
+    // static final double kD_yaw = 0.00;
+    // /* This tuning parameter indicates how close to "on target" the */
+    // /* PID Controller will attempt to get. */
+    // static final double kToleranceDegrees = 2.0f;
 
-    private NavXSys mNavX;
-    private PIDController mYawPID;
-    private PIDOutReceiver mYawPIDOut;
 
-    private void initYawPID() {
-        mLog.info("DS.initYawPID:  AHRS.SrcType: " + mNavX.getNavX().getPIDSourceType().name());
-        mYawPIDOut = new PIDOutReceiver();
-        mYawPID = new PIDController(kP_yaw, kI_yaw, kD_yaw, kF_yaw, mNavX.getNavX(), mYawPIDOut);
-        mYawPID.setName("DS.YawPID");
-        mYawPID.setInputRange(-180.0f, 180.0f);
-        mYawPID.setOutputRange(-1.0, 1.0);
-        // Makes PIDController.onTarget() return True when PIDInput is within the
-        // Setpoint +/- the absolute tolerance.
-        mYawPID.setAbsoluteTolerance(kToleranceDegrees);
-        // Treats the input ranges as the same, continuous point rather than two
-        // boundaries, so it can calculate shorter routes.
-        // For example, in a gyro, 0 and 360 are the same point, and should be
-        // continuous. Needs setInputRanges.
-        mYawPID.setContinuous(true);
-        // mYawPID.setSetpoint(0);
-        // mYawPID.enable();
-    }
+    // private PIDController mYawPID;
+    // private PIDOutReceiver mYawPIDOut;
 
-    // ------------------ Magic motion drive distance
-    // -------------------------------------------
+    // private void initYawPID() {
+    //     mLog.info("DS.initYawPID:  AHRS.SrcType: " + mNavX.getNavX().getPIDSourceType().name());
+    //     mYawPIDOut = new PIDOutReceiver();
+    //     mYawPID = new PIDController(kP_yaw, kI_yaw, kD_yaw, kF_yaw, mNavX.getNavX(), mYawPIDOut);
+    //     mYawPID.setName("DS.YawPID");
+    //     mYawPID.setInputRange(-180.0f, 180.0f);
+    //     mYawPID.setOutputRange(-1.0, 1.0);
+    //     // Makes PIDController.onTarget() return True when PIDInput is within the
+    //     // Setpoint +/- the absolute tolerance.
+    //     mYawPID.setAbsoluteTolerance(kToleranceDegrees);
+    //     // Treats the input ranges as the same, continuous point rather than two
+    //     // boundaries, so it can calculate shorter routes.
+    //     // For example, in a gyro, 0 and 360 are the same point, and should be
+    //     // continuous. Needs setInputRanges.
+    //     mYawPID.setContinuous(true);
+    //     // mYawPID.setSetpoint(0);
+    //     // mYawPID.enable();
+    // }
 
-    // Motion Magic values
-    /*
-     * kF calculation: = full forward value * duty-cycle (%) / runtime calculated
-     * target (ticks, velocity units/100 ms) = 1023 * 100% / 1525 =
-     * 0.67081967213114754098360655737705 (1525 determined through PhoenixTuner
-     * self-test)
-     */
-    private static final double kF = 0.67081967213114754098360655737705;
-    private static final double kP = 1;
-    private static final double kI = 0;
-    private static final double kD = 0;
-
-    private static final int kPIDLoopIdx = 0;
-    private static final int kTimeoutMs = 5;
-    private static final int kSlotIdx = 0;
-
-    private double mMMTarget; // target in encoder ticks
-
-    public void initMagicMotion(double distInInches) {
-        double circumferenceInInches = Math.PI * 6;
-        double revsToTarg = distInInches / circumferenceInInches;
-        mTargetDist = (int) (revsToTarg * 4096);
-        mStartPosn = mRight_Master.getSelectedSensorPosition();
-        mMMTarget = mStartPosn + mTargetDist;
-
-        // select profile slot
-        mLeft_Master.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
-        mRight_Master.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
-        // config pidf values
-        mLeft_Master.config_kF(kSlotIdx, kF, kTimeoutMs);
-        mLeft_Master.config_kP(kSlotIdx, kP, kTimeoutMs);
-        mLeft_Master.config_kI(kSlotIdx, kI, kTimeoutMs);
-        mLeft_Master.config_kD(kSlotIdx, kD, kTimeoutMs);
-
-        mRight_Master.config_kF(kSlotIdx, kF, kTimeoutMs);
-        mRight_Master.config_kP(kSlotIdx, kP, kTimeoutMs);
-        mRight_Master.config_kI(kSlotIdx, kI, kTimeoutMs);
-        mRight_Master.config_kD(kSlotIdx, kD, kTimeoutMs);
-
-        mLeft_Master.setSelectedSensorPosition(0);
-        mRight_Master.setSelectedSensorPosition(0);
-
-        mLeft_Master.set(ControlMode.MotionMagic, mMMTarget);
-        mRight_Master.set(ControlMode.MotionMagic, mMMTarget);
-    }
-
-    /**
-     * Called by the command exec - test if in target tolerance and return true
-     * 
-     * @param target
-     * @return
-     */
-    public boolean motionMagicOnTarget() {
-        double tolerance = 50;
-        double currentPos = mLeft_Master.getSelectedSensorPosition();
-        return Math.abs(currentPos - mMMTarget) < tolerance;
-    }
-
-    // AlignmentTurnCmd
-    // -----------------------------------------------------------------------------------------
+// 
+    // AlignmentTurnCmd -------------------------------------------------
 
     static final double mKP_turn = 2.0;
     static final double mKI_turn = 0.0;
@@ -557,9 +498,12 @@ public class DriveSys extends Subsystem {
     /* PID Controller will attempt to get. */
     static final double mKToleranceDegreesTurn = 2.0;
 
+    private NavXSys mNavX;
     private PIDController mTurnPIDController;
     private PIDOutReceiver mTurnPIDOut;
     private PIDSourceNavX mTurnPIDSource;
+
+    private double mTurnDriveSpeed;
 
     public void initTurnPID() {
         mNavX.zeroYawHeading();
@@ -581,20 +525,27 @@ public class DriveSys extends Subsystem {
 
     }
 
-    public void initTurnDrive(Objective.TargetAngle target) {
-        mLog.debug("DS turn Target : " + target.getAngle() + " Current Yaw : " + mNavX.getYawHeading());
 
+    /**
+     * Set a target for the turn, and a drive speed to be using
+     */
+    public void initTurnDrive(Objective.TargetYaw target, double turnDriveSpeed) {
+        mLog.debug("DS turn Target : " + target.getAngle() + " Current Yaw : " + mNavX.getYawHeading());
+        mTurnDriveSpeed = turnDriveSpeed;
         mTurnPIDController.setSetpoint(target.getAngle());
         mTurnPIDController.enable();
     }
 
+    /**
+     * The yaw from turnPIDOut is not an angle, it is a arcade drive value (-1 to +1) possibly scaled
+     */
     public void arcadeTurnPID() {
         double yaw = mTurnPIDOut.getVal() / 100;
         if (abs(yaw) < .4) {
             yaw = (yaw / yaw) * .4;
         }
         mPLog.debug("DS : Yaw Magnitude = " + yaw + "   Yaw Heading : " + mNavX.getYawHeading());
-        arcadeDrive(0, yaw);
+        mRoboDrive.arcadeDrive(mTurnDriveSpeed, yaw, true);
     }
 
     public boolean isFinishedTurning() {

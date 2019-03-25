@@ -78,6 +78,8 @@ public class Robot extends TimedRobot {
 
             // CameraServer.getInstance().startAutomaticCapture();
 
+            //RoboLord lord = new RoboLord();
+
             NetworkTableInstance tblInst = NetworkTableInstance.getDefault();
             tblInst.setUpdateRate(0.01); // tell network tables to update every 10 mSec
             NetworkTable tbl = tblInst.getTable("Vision_Drive");

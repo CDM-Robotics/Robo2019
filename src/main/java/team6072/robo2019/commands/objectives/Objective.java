@@ -3,16 +3,11 @@ package team6072.robo2019.commands.objectives;
 
 import team6072.robo2019.subsystems.ElevatorSys;
 
-public class Objective{
-    
-    
-    public enum Side {
-        Left(),
-        Right()
-    }
+public class Objective {
 
-// --------------------------------------Rocket
-    // Hatch----------------------------------------------
+
+
+    // ---------------Rocket  Hatch---------
 
     private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
     private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * ElevatorSys.TICKS_PER_INCH);
@@ -23,8 +18,7 @@ public class Objective{
     private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
     private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * ElevatorSys.TICKS_PER_INCH);
 
-    // -------------------------------------Rocket
-    // Cargo----------------------------------------------
+    // ---------------Rocket Cargo-------------
 
     private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
     private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * ElevatorSys.TICKS_PER_INCH);
@@ -35,14 +29,12 @@ public class Objective{
     private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
     private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * ElevatorSys.TICKS_PER_INCH);
 
-    // --------------------------------------Cargoship
-    // Hatch----------------------------------------
+    // -----------------Cargoship  Hatch--------
 
     private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
     private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * ElevatorSys.TICKS_PER_INCH);
 
-    // --------------------------------------CARGOSHIP
-    // CARGO----------------------------------------
+    // ----------------CARGOSHIP CARGO---------
 
     private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
     // extra 2 inches for safety^^^
@@ -64,8 +56,6 @@ public class Objective{
         }
     }
 
-
-
     private static final double RIGHT_BALL_ROCKET_ANGLE = 90;
     private static final double RIGHT_NEAR_HATCH_ROCKET_ANGLE = 45; // check whether or not that is accurate
     private static final double RIGHT_FAR_HATCH_ROCKET_ANGLE = 135; // check whether or not that is accurate
@@ -75,7 +65,7 @@ public class Objective{
 
     private final double ANGLED_TURN_TOLERANCE = 20.0;
 
-    public enum TargetAngle {
+    public enum TargetYaw {
         RIGHT_BALL(RIGHT_BALL_ROCKET_ANGLE), RIGHT_NEAR_HATCH(RIGHT_NEAR_HATCH_ROCKET_ANGLE),
         RIGHT_FAR_HATCH(RIGHT_FAR_HATCH_ROCKET_ANGLE), LEFT_BALL(LEFT_BALL_ROCKET_ANGLE),
         LEFT_NEAR_HATCH(LEFT_NEAR_HATCH_ROCKET_ANGLE), LEFT_FAR_HATCH(LEFT_FAR_HATCH_ROCKET_ANGLE);
@@ -86,47 +76,62 @@ public class Objective{
             return mAngle;
         }
 
-        TargetAngle(double angle) {
+        TargetYaw(double angle) {
             mAngle = angle;
         }
     }
 
+
+    public enum Side {
+        LeftNear, LeftMid, LeftFar, RightNear, RightMid, RightFar
+    }
+
+
+
     private ElvTarget mElvTarget;
-    private TargetAngle mTargetAngle;
+    private TargetYaw mTargetYaw;
     private Side mSide;
 
-    public Objective(ElvTarget elvTarget)
-    {
+    public Objective(ElvTarget elvTarget) {
         mElvTarget = elvTarget;
         mSide = null;
-        mTargetAngle = null;
+        mTargetYaw = null;
     }
 
-    public Objective(Side side, TargetAngle targetAngle)
-    {
+    public Objective(Side side, TargetYaw targetAngle) {
         mElvTarget = null;
         mSide = side;
-        mTargetAngle = targetAngle;
+        mTargetYaw = targetAngle;
     }
 
-    public Objective(ElvTarget elvTarget, Side side, TargetAngle targetAngle)
-    {
+    public Objective(ElvTarget elvTarget, Side side, TargetYaw targetAngle) {
         mElvTarget = elvTarget;
         mSide = side;
-        mTargetAngle = targetAngle;
+        mTargetYaw = targetAngle;
     }
 
-    public ElvTarget getElvTarget()
-    {
+
+    @Override
+    public String toString() {
+        return String.format("Side: %s  Yaw: %s  Targ: %s", this.mSide, this.mTargetYaw, this.mElvTarget); 
+    }
+
+
+    public boolean isEqual(Objective otherObj) {
+        return this.mElvTarget == otherObj.mElvTarget
+                && this.mSide == otherObj.mSide
+                && this.mTargetYaw == otherObj.mTargetYaw;
+    }
+
+    public ElvTarget getElvTarget() {
         return mElvTarget;
     }
-    public TargetAngle getTargetAngle()
-    {
-        return mTargetAngle;
+
+    public TargetYaw getTargetYaw() {
+        return mTargetYaw;
     }
 
-    public Side getSide()
-    {
+    public Side getSide() {
         return mSide;
     }
 
