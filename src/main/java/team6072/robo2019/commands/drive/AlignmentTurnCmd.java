@@ -22,7 +22,7 @@ public class AlignmentTurnCmd extends Command {
     @Override
     protected void initialize() {
         if (mTargetAngle != null) {
-            mDriveSys.initTurnDrive(mTargetAngle);
+            // mDriveSys.initTurnDrive(mTargetAngle);
         }
     }
 
