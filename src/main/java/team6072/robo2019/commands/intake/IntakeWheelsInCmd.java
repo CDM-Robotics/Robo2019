@@ -1,39 +1,30 @@
 
-package team6072.robo2019.commands.elevator;
+package team6072.robo2019.commands.intake;
 
 import edu.wpi.first.wpilibj.command.Command;
-import team6072.robo2019.subsystems.ElevatorSys;
+import team6072.robo2019.subsystems.IntakeSys;
 
 
 
-/**
- * Move the elevator up very slowly until irt has moved 500 ticks from start
- * Designed for testing the 
- */
-public class ElvMoveUpCmd extends Command {
+public class IntakeWheelsInCmd extends Command {
 
+    private IntakeSys mSys;
 
-    private ElevatorSys mSys;
-
-    public ElvMoveUpCmd() {
-        mSys = ElevatorSys.getInstance();
+    public IntakeWheelsInCmd() {
+        mSys = IntakeSys.getInstance();
         requires(mSys);
     }
-
 
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
-        mSys.initMoveUp();
+        mSys.intakeWheelsIn();
     }
-
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mSys.execMoveUp();
     }
-
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
@@ -41,12 +32,10 @@ public class ElvMoveUpCmd extends Command {
         return true;
     }
 
-
     // Called once after isFinished returns true
     @Override
     protected void end() {
     }
-
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run

@@ -5,34 +5,30 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package team6072.robo2019.commands.objectives;
+package team6072.robo2019.commands.pneumatics;
 
 import edu.wpi.first.wpilibj.command.Command;
+import team6072.robo2019.subsystems.PneumaticSys;
 
+public class FlowerCloseCmd extends Command {
 
+    private PneumaticSys mPneuSys;
 
-/**
- * Create a command group that will implement the objective
- */
-public class ObjectiveCmd extends Command {
-
-    Objective.ElvTarget mObjective;
-    ObjectiveCmdGrp mGroup;
-
-    public ObjectiveCmd(Objective.ElvTarget obj) {
-        mObjective = obj;
+    public FlowerCloseCmd() {
+        mPneuSys = PneumaticSys.getInstance();
+        requires(mPneuSys);
+        // eg. requires(chassis);
     }
 
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
-        mGroup = new ObjectiveCmdGrp(mObjective);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mGroup.start();
+        mPneuSys.setFlowerClose();
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -51,7 +47,4 @@ public class ObjectiveCmd extends Command {
     @Override
     protected void interrupted() {
     }
-
 }
-
-

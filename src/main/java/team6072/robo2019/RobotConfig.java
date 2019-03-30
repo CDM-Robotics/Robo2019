@@ -1,6 +1,7 @@
 package team6072.robo2019;
 
 public class RobotConfig {
+
     public static final boolean IS_ROBO_2019 = false;
 
     // constants (units in inches)
@@ -25,7 +26,7 @@ public class RobotConfig {
     public static final int DRIVE_GEAR_REV_HI = 5;
 
     // ELEVATOR
-    public static final int ELV_TICKS_PER_INCH = 370; // MEASURED
+    public static final int ELV_TICKS_PER_INCH = 370; // MEASURED  2019-03-14
     public static final double ELV_BASE_PERCENT_OUT = 0.19;
 
     public static final boolean ELV_INVERT = false; // 2018 - false
@@ -43,17 +44,15 @@ public class RobotConfig {
     public static final boolean WRIST_INVERT = true;
     public static final double WRIST_BASE_PERCENT_OUT = 0.0;
 
-    public static final int WRIST_MASTER = 13;
+    public static final int WRIST_MASTER = 11;
     public static final int WRIST_SLAVE0 = -1; // only in 2019
 
     public static final int WRIST_SWITCH_TOP = 3;
     public static final int WRIST_SWITCH_BOT = 2;
 
     // INTAKE
-    public static final int INTAKE_TALON_LEFT = 2; // 2018
-    public static final int INTAKE_TALON_RIGHT = 4; // 2018
-    public static final int INTAKE_MASTER = 8; // 2019
-    public static final int INTAKE_SLAVE0 = 9; // 2019
+    public static final int INTAKE_MASTER = 9; // 2019
+    public static final int INTAKE_SLAVE0 = -1; // 2019
 
     // Power Distribution Panel - NOTE FRC says needs to be 0 for 2018 WPILib
     public static final int PDP_ID = 0;
@@ -81,4 +80,7 @@ public class RobotConfig {
     public static final int PCM_DRIVE_HIGH = 4;
     public static final int PCM_DRIVE_LOW = 5;
 
+    //CLIMBER for 2019
+
+    public static final Double CLIMB_BASE_PERCENT_OUT = 0.0;
 }

@@ -5,30 +5,31 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package team6072.robo2019.commands.pneumatics;
+package team6072.robo2019.commands.intake;
 
 import edu.wpi.first.wpilibj.command.Command;
-import team6072.robo2019.subsystems.PneumaticSys;
+import team6072.robo2019.subsystems.IntakeSys;
 
-public class IntakeOpenCmd extends Command {
 
-    private PneumaticSys mPneuSys;
 
-    public IntakeOpenCmd() {
-        mPneuSys = PneumaticSys.getInstance();
-        requires(mPneuSys);
-        // eg. requires(chassis);
+public class IntakeWheelsOutCmd extends Command {
+
+    private IntakeSys mSys;
+
+    public IntakeWheelsOutCmd() {
+        mSys = IntakeSys.getInstance();
+        requires(mSys);
     }
 
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
+        mSys.intakeWheelsOut();
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mPneuSys.setIntakeOpen();
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -47,4 +48,5 @@ public class IntakeOpenCmd extends Command {
     @Override
     protected void interrupted() {
     }
+
 }

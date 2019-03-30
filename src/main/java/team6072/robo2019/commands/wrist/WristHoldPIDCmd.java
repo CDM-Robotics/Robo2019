@@ -1,22 +1,23 @@
 
-package team6072.robo2019.commands.elevator;
+
+package team6072.robo2019.commands.wrist;
 
 import edu.wpi.first.wpilibj.command.Command;
-import team6072.robo2019.subsystems.ElevatorSys;
+
+import team6072.robo2019.logging.LogWrapper;
+import team6072.robo2019.subsystems.WristSys;
 
 
 
-/**
- * Move the elevator up very slowly until irt has moved 500 ticks from start
- * Designed for testing the 
- */
-public class ElvMoveUpCmd extends Command {
+public class WristHoldPIDCmd extends Command {
+
+    private static final LogWrapper mLog = new LogWrapper(WristHoldPIDCmd.class.getName());
+
+    private WristSys mSys;
 
 
-    private ElevatorSys mSys;
-
-    public ElvMoveUpCmd() {
-        mSys = ElevatorSys.getInstance();
+    public WristHoldPIDCmd() {
+        mSys = WristSys.getInstance();
         requires(mSys);
     }
 
@@ -24,14 +25,15 @@ public class ElvMoveUpCmd extends Command {
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
-        mSys.initMoveUp();
+        mLog.debug("WristHoldPIDCmd.init:  ----------------");
+        mSys.enableHoldPosnPID();
     }
 
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mSys.execMoveUp();
+        return;
     }
 
 
@@ -40,7 +42,7 @@ public class ElvMoveUpCmd extends Command {
     protected boolean isFinished() {
         return true;
     }
-
+    
 
     // Called once after isFinished returns true
     @Override
@@ -52,6 +54,8 @@ public class ElvMoveUpCmd extends Command {
     // subsystems is scheduled to run
     @Override
     protected void interrupted() {
+        mLog.debug("WristHoldPIDCmd.interrupt:  <<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>");
+        mSys.disableHoldPosnPID();
     }
 
 }

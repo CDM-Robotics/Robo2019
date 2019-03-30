@@ -1,22 +1,22 @@
 
-package team6072.robo2019.commands.elevator;
+package team6072.robo2019.commands.wrist;
 
 import edu.wpi.first.wpilibj.command.Command;
-import team6072.robo2019.subsystems.ElevatorSys;
+import team6072.robo2019.subsystems.WristSys;
 
 
 
 /**
  * Move the elevator up very slowly until irt has moved 500 ticks from start
- * Designed for testing the 
+ * Designed for testing the current needed to move elevator
  */
-public class ElvMoveUpCmd extends Command {
+public class WristMoveUpSlowCmd extends Command {
 
 
-    private ElevatorSys mSys;
+    private WristSys mSys;
 
-    public ElvMoveUpCmd() {
-        mSys = ElevatorSys.getInstance();
+    public WristMoveUpSlowCmd() {
+        mSys = WristSys.getInstance();
         requires(mSys);
     }
 
@@ -24,21 +24,21 @@ public class ElvMoveUpCmd extends Command {
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
-        mSys.initMoveUp();
+        mSys.initMovSlowUp();
     }
 
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mSys.execMoveUp();
+        mSys.execMovSlowUp();
     }
 
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished() {
-        return true;
+        return mSys.isCompleteMovSlowUp();
     }
 
 

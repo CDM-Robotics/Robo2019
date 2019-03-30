@@ -5,40 +5,37 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package team6072.robo2019.commands.objectives;
+package team6072.robo2019.commands.intake;
 
 import edu.wpi.first.wpilibj.command.Command;
+import team6072.robo2019.subsystems.IntakeSys;
 
 
 
-/**
- * Create a command group that will implement the objective
- */
-public class ObjectiveCmd extends Command {
+public class IntakeWheelsStopCmd extends Command {
 
-    Objective.ElvTarget mObjective;
-    ObjectiveCmdGrp mGroup;
+    private IntakeSys mSys;
 
-    public ObjectiveCmd(Objective.ElvTarget obj) {
-        mObjective = obj;
+    public IntakeWheelsStopCmd() {
+        mSys = IntakeSys.getInstance();
+        requires(mSys);
     }
 
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
-        mGroup = new ObjectiveCmdGrp(mObjective);
+        mSys.intakeWheelsStop();
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mGroup.start();
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished() {
-        return true;
+        return false;
     }
 
     // Called once after isFinished returns true
@@ -53,5 +50,3 @@ public class ObjectiveCmd extends Command {
     }
 
 }
-
-

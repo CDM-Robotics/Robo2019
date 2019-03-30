@@ -44,18 +44,15 @@ public class RobotConfig_2018 {
     public static final boolean WRIST_INVERT = true;
     public static final double WRIST_BASE_PERCENT_OUT = 0.0;
 
-    public static final int WRIST_MASTER = 13;
+    public static final int WRIST_MASTER = 11;
     public static final int WRIST_SLAVE0 = -1; // only in 2019
 
     public static final int WRIST_SWITCH_TOP = 3;
     public static final int WRIST_SWITCH_BOT = 2;
 
     // INTAKE
-    public static final int INTAKE_TALON_LEFT = 2; // 2018
-    public static final int INTAKE_TALON_RIGHT = 4; // 2018
-    public static final int INTAKE_MASTER = 8; // 2019
-    public static final int INTAKE_SLAVE0 = 9; // 2019
-
+    public static final int INTAKE_MASTER = 9; // 2019
+    public static final int INTAKE_SLAVE0 = -1; // 2019
 
 
     // Power Distribution Panel - NOTE FRC says needs to be 0 for 2018 WPILib

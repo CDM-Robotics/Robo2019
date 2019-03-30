@@ -10,12 +10,12 @@ import team6072.robo2019.subsystems.ElevatorSys;
  * Move the elevator up very slowly until irt has moved 500 ticks from start
  * Designed for testing the 
  */
-public class ElvMoveUpCmd extends Command {
+public class ElvKillWatchDogCmd extends Command {
 
 
     private ElevatorSys mSys;
 
-    public ElvMoveUpCmd() {
+    public ElvKillWatchDogCmd() {
         mSys = ElevatorSys.getInstance();
         requires(mSys);
     }
@@ -24,14 +24,13 @@ public class ElvMoveUpCmd extends Command {
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
-        mSys.initMoveUp();
     }
 
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mSys.execMoveUp();
+        mSys.killWatchDog();
     }
 
 
