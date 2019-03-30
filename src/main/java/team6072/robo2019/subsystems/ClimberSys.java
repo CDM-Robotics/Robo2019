@@ -45,16 +45,14 @@ public class ClimberSys extends Subsystem {
     public static final int kPIDLoopIdx = 0;
 
 
-    private static final int HAB_LEVEL = 123456;    // climb ticks when at hab level
-    private static final int MAX_CLIMB = 123456;    // when we want to stop the climber
-
-
+   
+    public static final double BASE_PERCENT_OUT = RobotConfig.CLIMB_BASE_PERCENT_OUT;
     /**
      * The climber sys has to:
      *      move the intake to hab position and do pid hold
      *      move elevator to hab position
      *      start moving elevator and climber in sync
-     *      use NavX pitch to detect how horzontal we ae
+     *      use NavX pitch to detect how horzontal we a
      */
     private ClimberSys() {
         mLog.info("ClimberSys ctor  ----------------------------------------------");
@@ -109,13 +107,66 @@ public class ClimberSys extends Subsystem {
      * When climb talon has hit MAX ticks, we want to fall forward onto platform
      */
     public void initClimb() {
-        mElvSys.disable();          // stop elevator sys from doing anything
-        mWristSys.disable();       // stop wrist sys from doing anything
+        mElvSys.disable(); // stop elevator sys from doing anything
+        mWristSys.disable(); // stop wrist sys from doing anything
         m_holdPID.enable();
         mClimbTalon.set(ControlMode.PercentOutput, 0.1);
     }
 
+    public String printPosn(String caller) {
+        int sensPosn = mClimbTalon.getSelectedSensorPosition(0);
+        String sensPosnSign = "(+)";
+        int absSensPosn = Math.abs(sensPosn);
 
+        return String.format(
+                "ES.%s  base: %d  selPosn: %d  cur: %.3f",
+                caller, mStartPosn, sensPosn,
+                mPercentOut);
+    }
+
+    private int mStartPosn;
+
+    private double mPercentOut;
+
+    private PeriodicLogger mPLog;
+
+    private static final int HAB_LEVEL = 123456; // climb ticks when at hab level
+    private static final int MAX_CLIMB = 500; // when we want to stop the climber
+
+    public void initPushDownSlow() {
+        mStartPosn = mClimbTalon.getSelectedSensorPosition();
+        mPercentOut = 0.0;
+        mClimbTalon.set(ControlMode.PercentOutput, mPercentOut);
+        mPLog = new PeriodicLogger(mLog, 5);
+        mLog.debug(printPosn("initPushDownSlow"));
+    }
+
+    public void execPushDownSlow() {
+        mPercentOut += 0.001;
+        mClimbTalon.set(ControlMode.PercentOutput, mPercentOut);
+        mPLog.debug(printPosn("execMovSlowUp"));
+    }
+
+    public boolean isCompletePushDownSlow() {
+        int curPosn = mClimbTalon.getSelectedSensorPosition();
+        boolean isFin = (curPosn - mStartPosn) >= MAX_CLIMB;
+        if (isFin) {
+            mLog.debug(printPosn("isComp") + "\n------------------------------------------------------");
+            mPercentOut = BASE_PERCENT_OUT;
+            mLog.debug("Holding at output %.3f", BASE_PERCENT_OUT);
+            mClimbTalon.set(ControlMode.PercentOutput, mPercentOut);
+        }
+        return isFin;
+    }
+
+    // ------------------------- basic hold -------------------------------------
+
+    public void holdPosnPower() {
+        mLog.debug(printPosn("holdPosnPower") + "\n------------------------------------------------------");
+        mLog.debug("Holding at output %.3f", BASE_PERCENT_OUT);
+        mPercentOut = BASE_PERCENT_OUT;
+        mClimbTalon.set(ControlMode.PercentOutput, mPercentOut);
+    }
     /**
      * When we get to HAB_LEVEL, stop moving the elvator but continue the climber
      * so that the robot tips forward.

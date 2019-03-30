@@ -15,7 +15,7 @@ import team6072.robo2019.commands.objectives.ObjectiveCmd;
 import team6072.robo2019.commands.pneumatics.*;
 import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.subsystems.WristSys.WristTarget;
-
+import team6072.robo2019.commands.climber.*;
 /**
  * ControlBoard holds the code for interacting with the
  */
@@ -146,6 +146,8 @@ public class ControlBoard {
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
 
+
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ClimbPushDownSlow() , null);
     }
 
     /**
