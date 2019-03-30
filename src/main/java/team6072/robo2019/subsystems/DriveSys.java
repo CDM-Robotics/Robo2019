@@ -321,11 +321,11 @@ public class DriveSys extends Subsystem {
      * 
      * @param distInInches
      */
-    public void initDriveDist(double distInInches) {
+    public void initDriveDistPID(double distInInches, double targetYaw) {
         double circumferenceInInches = Math.PI * 6;
         double revsToTarg = distInInches / circumferenceInInches;
         mTargetDist = (int) (revsToTarg * 4096);
-        mStartPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+        mStartPosn = mRight_Master.getSelectedSensorPosition();
         mTargPosn = mStartPosn + mTargetDist;
         mLog.debug(
                 "-------------------------  initDriveDist  ----------------------------------------\n"
@@ -335,7 +335,7 @@ public class DriveSys extends Subsystem {
         mHitTarg = false;
         mMoveDistLoopCnt = 0;
         mTurnPIDController.reset();
-        mTurnPIDController.setSetpoint(NavXSys.getInstance().getYawHeading());
+        mTurnPIDController.setSetpoint(targetYaw);
         mTurnPIDController.enable();
         initDrivePID();
         mDrivePID.setSetpoint(mTargPosn);
@@ -346,8 +346,8 @@ public class DriveSys extends Subsystem {
      * While we have not completed driving, move forward Need to: check current
      * position decide if have driven far enough if not, keep driving if yes, stop
      */
-    public void driveDist() {
-        int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+    public void driveDistPID() {
+        int curPosn = mRight_Master.getSelectedSensorPosition();
         double mag = mDrivePIDOut.getVal();
         double yaw = mTurnPIDOut.getVal();
         int error = mTargPosn - curPosn;
@@ -372,7 +372,7 @@ public class DriveSys extends Subsystem {
      * 
      * @return true if have completed driving
      */
-    public boolean isDriveDistComplete() {
+    public boolean isDriveDistPIDComplete() {
         if (mDrivePID.onTarget()) {
             arcadeDrive(0, 0);
             int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
@@ -526,20 +526,33 @@ public class DriveSys extends Subsystem {
     }
 
 
+    private double mTurnPIDSetpoint;
+    private boolean mTurnDrivePIDEnabled = false;
+
     /**
      * Set a target for the turn, and a drive speed to be using
      */
-    public void initTurnDrive(Objective.TargetYaw target, double turnDriveSpeed) {
-        mLog.debug("DS turn Target : " + target.getAngle() + " Current Yaw : " + mNavX.getYawHeading());
+    public void initTurnDrivePID(double targetYaw, double turnDriveSpeed) {
+        mLog.debug("DS turn Target : " + targetYaw + " Current Yaw : " + mNavX.getYawHeading());
         mTurnDriveSpeed = turnDriveSpeed;
-        mTurnPIDController.setSetpoint(target.getAngle());
+        mTurnPIDSetpoint = targetYaw;
+        mTurnPIDController.setSetpoint(targetYaw);
+        mTurnDrivePIDEnabled = true;
         mTurnPIDController.enable();
     }
 
     /**
      * The yaw from turnPIDOut is not an angle, it is a arcade drive value (-1 to +1) possibly scaled
+     * Allow updating the setpoint for the PID
      */
-    public void arcadeTurnPID() {
+    public void execTurnDrivePID(double setPoint) {
+        if (!mTurnDrivePIDEnabled) {
+            return;
+        }
+        if (setPoint != mTurnPIDSetpoint) {
+            mTurnPIDSetpoint = setPoint;
+            mTurnPIDController.setSetpoint(setPoint);
+        }
         double yaw = mTurnPIDOut.getVal() / 100;
         if (abs(yaw) < .4) {
             yaw = (yaw / yaw) * .4;
@@ -548,7 +561,8 @@ public class DriveSys extends Subsystem {
         mRoboDrive.arcadeDrive(mTurnDriveSpeed, yaw, true);
     }
 
-    public boolean isFinishedTurning() {
+
+    public boolean isFinishedTurnDrivePID() {
         boolean finished = false;
         if (mTurnPIDController.onTarget()) {
             mLog.debug("DS TurnPID complete   Current Yaw : " + mNavX.getYawHeading());
@@ -557,6 +571,15 @@ public class DriveSys extends Subsystem {
             mTurnPIDController.disable();
         }
         return finished;
+    }
+
+
+    /**
+     * Disable the turnPID process - used by RoboLord when on centerline
+     */
+    public void stopTurnDrivePID() {
+        mTurnDrivePIDEnabled = false;
+        mTurnPIDController.disable();
     }
 
     public double abs(double num) {

@@ -68,7 +68,12 @@ public class RoboLord extends Subsystem {
 
     protected WatchDogTask mWatchDog;
     protected StartObjTask mStartObjTask;
-    protected RunT1Task mRunT1Task;
+    protected RunToCenterlineTask mRunToCenterlineTask;
+    protected RunToTargetTask mRunToTargetTask;
+
+    private static final double DX_TOLERANCE_INCHES = 2.0; // how close to centerline do we have to be
+    
+    private static final double DEPLOY_DISTINCHES = 24;     // distance robot should be from target to deploy
 
 
 
@@ -93,8 +98,10 @@ public class RoboLord extends Subsystem {
             mSchedulor.scheduleWithFixedDelay(mWatchDog, 200, 200, TimeUnit.MILLISECONDS);
             mStartObjTask = new StartObjTask();
             mSchedulor.scheduleWithFixedDelay(mStartObjTask, 200, 200, TimeUnit.MILLISECONDS);
-            mRunT1Task = new RunT1Task();
-            mSchedulor.scheduleWithFixedDelay(mRunT1Task, 200, 200, TimeUnit.MILLISECONDS);
+            mRunToCenterlineTask = new RunToCenterlineTask();
+            mSchedulor.scheduleWithFixedDelay(mRunToCenterlineTask, 200, 200, TimeUnit.MILLISECONDS);
+            mRunToTargetTask = new RunToTargetTask();
+            mSchedulor.scheduleWithFixedDelay(mRunToTargetTask, 200, 200, TimeUnit.MILLISECONDS);
             mCurState = ObjState.NONE;
             mVisionHasTarget = false;
             // add a listener to check if vison has a target
@@ -151,16 +158,29 @@ public class RoboLord extends Subsystem {
                     // vision does not have a target
                     return;
                 }
-                if (mDistSys.getCurDistInches() == -1) {
-                    // distance sensor not reading anything
-                    return;
-                }
+                // if (mDistSys.getCurDistInches() == -1) {
+                //     // distance sensor not reading anything
+                //     return;
+                // }
                 // looks like we have vision and distance - notify driver, slow robot, set up yaw PID
                 NetTblConfig.setVal(NetTblConfig.T_VISION, NetTblConfig.KV_ROBOCONTROL, true);
-                // need to calc yaw to get to T1 from where we are
                 mDriveSys.setRoboControl(true);
-                mDriveSys.initTurnDrive(mCurObjective.getTargetYaw(), 0.2);
-                mCurState = ObjState.RUNNING_T1;
+                double Dx = NetTblConfig.getDbl(NetTblConfig.T_VISION, NetTblConfig.KV_X_DIST);
+                double Dy = NetTblConfig.getDbl(NetTblConfig.T_VISION, NetTblConfig.KV_X_DIST);
+                if (Math.abs(Dx) <= DX_TOLERANCE_INCHES) {
+                    // close enough to centerline - move to next state
+                    double distToDeployPointInches = Dy - DEPLOY_DISTINCHES;
+                    mDriveSys.initDriveDistPID(distToDeployPointInches, mCurObjective.getTargetYaw().getAngle());
+                    mCurState = ObjState.RUNNING_T2;
+                    return;
+                }
+                else {
+                    // find intercept half way to target and get yaw angle to hit it
+                    double Dintercept = Dy / 2;
+                    double Yintercept = Math.atan2(Dintercept, Dx);
+                    mDriveSys.initTurnDrivePID(Yintercept, 0.2);
+                    mCurState = ObjState.RUNNING_T1;
+                }
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.StartObj: ");
             }
@@ -169,19 +189,47 @@ public class RoboLord extends Subsystem {
 
 
     /**
-     * Looking to move to target T1
+     * Looking to move robot to centerline. Once close enough to centerline, move to next task
      */
-    protected static class RunT1Task implements Runnable {
+    protected static class RunToCenterlineTask implements Runnable {
         @Override
         public void run() {
             try {
                 if (mCurState != ObjState.RUNNING_T1) {
                     return;
                 }
+                double Dx = NetTblConfig.getDbl(NetTblConfig.T_VISION, NetTblConfig.KV_X_DIST);
+                double Dy = NetTblConfig.getDbl(NetTblConfig.T_VISION, NetTblConfig.KV_X_DIST);
+                if (Math.abs(Dx) <= DX_TOLERANCE_INCHES) {
+                    // close enough to centerline - move to next state
+                    // move drive sys to a distance PID
+                    mCurState = ObjState.RUNNING_T2;
+                    mDriveSys.stopTurnDrivePID();
+                    double distToDeployPointInches = Dy - DEPLOY_DISTINCHES;
+                    mDriveSys.initDriveDistPID(distToDeployPointInches, mCurObjective.getTargetYaw().getAngle());
+                    return;
+                }
+                // find intercept half way to target and get yaw angle to hit it
+                double Dintercept = Dy / 2;
+                double Yintercept = Math.atan2(Dintercept, Dx);
+                mDriveSys.execTurnDrivePID(Yintercept);
+            } catch (Exception ex) {
+                mLog.severe(ex, "RL.RunToCenterlineTask: ");
+            }
+        }
+    }
 
+
+    protected static class RunToTargetTask implements Runnable {
+        @Override
+        public void run() {
+            try {
+                if (mCurState != ObjState.RUNNING_T2) {
+                    return;
+                }
 
             } catch (Exception ex) {
-                mLog.severe(ex, "RL.RunT1Task: ");
+                mLog.severe(ex, "RL.RunToTargetTask: ");
             }
         }
     }
