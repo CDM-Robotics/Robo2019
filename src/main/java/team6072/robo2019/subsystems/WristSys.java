@@ -226,7 +226,7 @@ public class WristSys extends Subsystem {
     }
 
     /**
-     * Disable the elevator system - make sure all talongs and PID loops are not
+     * Disable the wrist system - make sure all talons and PID loops are not
      * driving anything
      */
     public void disable() {
@@ -405,7 +405,8 @@ public class WristSys extends Subsystem {
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog = new PeriodicLogger(mLog, 5);
-        mLog.debug(printPosn("initExtend") + "--------------------------------------------------------");
+        mLog.debug("********************");
+        mLog.debug(printPosn("initExtend:") );
     }
 
     public static final int TICKS_AT_90 = (int) ((90 - STARTING_ANGLE) * TICKS_PER_DEG);
@@ -527,7 +528,7 @@ public class WristSys extends Subsystem {
         }
         m_holdPID.reset();
         mLog.debug("WS.enableHoldPosnPID: target: %d    ---------------------", targetPosn);
-        mLog.debug(printPosn("WS.enableHoldPosnPID"));
+        mLog.debug(printPosn("enableHoldPosnPID"));
         m_holdPID.setSetpoint(targetPosn);
         m_holdPID.enable();
     }
