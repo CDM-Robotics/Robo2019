@@ -43,7 +43,7 @@ public class NetTblConfig {
 
     public static void InitTables() {
         NetworkTableInstance mDefaultTbl = NetworkTableInstance.getDefault();
-        mDefaultTbl.startClientTeam(6072);
+        //mDefaultTbl.startClientTeam(6072);
         NetworkTable visTbl = mDefaultTbl.getTable(T_VISION);
         visTbl.getEntry(KV_HAVE_TARGET);
         visTbl.getEntry(KV_X_DIST);

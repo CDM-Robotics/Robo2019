@@ -69,6 +69,7 @@ public class Robot extends TimedRobot {
                 mLog.info("robotInit: -----------------    2018    -----------------------     2018    2018    2018");
             }
 
+            NetTblConfig.InitTables();
             mControlBoard = ControlBoard.getInstance();
             mDriveSys = DriveSys.getInstance();
             mElvSys = ElevatorSys.getInstance();
@@ -79,12 +80,6 @@ public class Robot extends TimedRobot {
             // CameraServer.getInstance().startAutomaticCapture();
 
             //RoboLord lord = new RoboLord();
-
-            NetworkTableInstance tblInst = NetworkTableInstance.getDefault();
-            tblInst.setUpdateRate(0.01); // tell network tables to update every 10 mSec
-            NetworkTable tbl = tblInst.getTable("Vision_Drive");
-            NetworkTableEntry ent = tbl.getEntry("CamName");
-            ent.setString("Initial test from robo");
 
             mLog.info("robotInit: Completed   ---------------------------------------");
         } catch (Exception ex) {
