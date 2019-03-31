@@ -204,9 +204,9 @@ public class WristSys extends Subsystem {
             mTalon.setNeutralMode(NeutralMode.Brake);
 
             // set up current limits
-            mTalon.configContinuousCurrentLimit(30, kTimeoutMs);
             mTalon.configPeakCurrentLimit(40, kTimeoutMs);
             mTalon.configPeakCurrentDuration(200, kTimeoutMs);
+            mTalon.configContinuousCurrentLimit(10, kTimeoutMs);
             mTalon.enableCurrentLimit(true);
 
             m_PidSourceTalonPW = new PIDSourceTalonPW(mTalon, 0);
