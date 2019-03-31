@@ -36,7 +36,8 @@ public class NetTblConfig {
     public static final String KV_YAW_ERR = "Yaw_Error";    // the degrees between the Robot's heading and the target
     public static final String KV_HAVE_TARGET = "HaveTarget"; // bool - true if have a target
     public static final String KV_ROBOCONTROL = "RoboControl"; // bool - true if RoboLord controlling
-
+    public static final String KV_ROBO_YAW = "RoboYaw"; // current robot yaw heading
+    public static final String KV_TARG_YAW = "RoboTargYaw";     // current target yaw
     
     private static NetworkTableInstance mDefaultTbl;
 
@@ -67,7 +68,14 @@ public class NetTblConfig {
         NetworkTable tbl = mDefaultTbl.getTable(table);
         NetworkTableEntry entry = tbl.getEntry(key);
         entry.setValue(val);
-
     }
+
+    public static double getDbl(String table, String key) {
+        NetworkTable tbl = mDefaultTbl.getTable(table);
+        NetworkTableEntry entry = tbl.getEntry(key);
+        return entry.getDouble(0.0);
+    }
+
+    
 
 }

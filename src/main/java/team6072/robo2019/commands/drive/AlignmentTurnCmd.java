@@ -22,20 +22,20 @@ public class AlignmentTurnCmd extends Command {
     @Override
     protected void initialize() {
         if (mTargetAngle != null) {
-            mDriveSys.initTurnDrive(mTargetAngle);
+            mDriveSys.initTurnDrivePID(mTargetAngle.getAngle(), 0.0);
         }
     }
 
     @Override
     protected void execute() {
         if (mTargetAngle != null) {
-            mDriveSys.arcadeTurnPID();
+            mDriveSys.execTurnDrivePID(mTargetAngle.getAngle());
         }
     }
 
     @Override
     protected boolean isFinished() {
-        return mDriveSys.isFinishedTurning();
+        return mDriveSys.isFinishedTurnDrivePID();
     }
 
 }
