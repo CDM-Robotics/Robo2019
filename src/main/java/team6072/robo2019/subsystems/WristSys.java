@@ -247,8 +247,7 @@ public class WristSys extends Subsystem {
         }
     }
 
-    // ------------ set up watch on talon position and disable if out of bounds
-    // -----------------------
+    // -----set up watch on talon position and disable if out of bounds -------
 
     private Timer mWatchDogTimer = new Timer();
 
@@ -386,8 +385,7 @@ public class WristSys extends Subsystem {
 
     }
 
-    // ------------------ Move Extend
-    // -------------------------------------------------------------
+    // ------------------ Move Extend --------------------------------
 
     private NavXSys mNavXSys;
 
@@ -464,8 +462,7 @@ public class WristSys extends Subsystem {
         mPLog.debug(printPosn("execRetract"));
     }
 
-    // ---------------- Wrist Stop
-    // Cmd------------------------------------------------------------
+    // ---------------- Wrist Stop Cmd---------------------------
 
     public void stop() {
         mLog.debug("Killing Wrist");
@@ -475,8 +472,7 @@ public class WristSys extends Subsystem {
         mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
     }
 
-    // ---------------Wrist Hold
-    // Cmd---------------------------------------------------------------------
+    // ---------------Wrist Hold  Cmd-------------------------
 
     public void holdWrist() {
         double wristSpeed = mTalon.getSelectedSensorVelocity(); // ticks per 100 milliseconds
@@ -486,8 +482,7 @@ public class WristSys extends Subsystem {
         double speed = Math.sin(90 - displacementAngle);
     }
 
-    // ---------- hold posn PID using the TritonTech PID
-    // ----------------------------------
+    // ---------- hold posn PID using the TritonTech PID  -------------
 
     /**
      * Sensor is on output of gearing (not on motor) Set the tolerance to +/- 10

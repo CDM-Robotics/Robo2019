@@ -125,8 +125,7 @@ public class ControlBoard {
 
         MapCmdToBut(mControlStick, EXTREME_BUT_9, new WristStopCmd(), null);
 
-        // right panel
-        // ----------------------------------------------------------------------------------------
+        // right panel ---------------------------------------
 
         MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new AlignmentTurnCmd(Objective.TargetYaw.LEFT_BALL), null);
 
