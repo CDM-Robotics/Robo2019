@@ -456,7 +456,8 @@ public class ElevatorSys extends Subsystem {
         mPercentOut = MANUAL_POWER_UP;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog = new PeriodicLogger(mLog, 5);
-        mLog.debug(printPosn("initMoveUp") + "--------------------------------------------------------");
+        mLog.debug("********************");
+        mLog.debug(printPosn("initMoveUp"));
     }
 
     public void execMoveUp() {
@@ -507,7 +508,7 @@ public class ElevatorSys extends Subsystem {
     public void initHoldPosnPID() {
 
         if (m_holdPID == null) {
-            mLog.debug(printPosn("initHoldPosnPID"));
+            mLog.debug(printPosn("initHoldPosnPID:"));
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
             double kP = 0.005 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0; //0.000001;
@@ -537,7 +538,7 @@ public class ElevatorSys extends Subsystem {
             initHoldPosnPID();
         }
         m_holdPID.reset();
-        mLog.debug("enableHoldPosnPID: target: %d    ---------------------", targetPosn);
+        mLog.debug("ES.enableHoldPosnPID: target: %d    ---------------------", targetPosn);
         mLog.debug(printPosn("enableHoldPosnPID"));
         m_holdPID.setSetpoint(targetPosn);
         m_holdPID.enable();

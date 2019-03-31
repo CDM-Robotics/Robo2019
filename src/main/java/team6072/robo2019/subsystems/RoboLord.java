@@ -54,7 +54,7 @@ public class RoboLord extends Subsystem {
 
     protected static boolean mVisionHasTarget;
 
-    private RoboLord mInstance = null;
+    private static RoboLord mInstance = null;
     protected ScheduledExecutorService mSchedulor;
     protected static DistanceMeasureSys mDistSys;
     protected static DriveSys mDriveSys;
@@ -68,7 +68,7 @@ public class RoboLord extends Subsystem {
 
     private static final double DEPLOY_DISTINCHES = 24; // distance robot should be from target to deploy
 
-    public RoboLord getInstance() {
+    public static RoboLord getInstance() {
         if (mInstance == null) {
             mInstance = new RoboLord();
         }
@@ -118,6 +118,7 @@ public class RoboLord extends Subsystem {
             cancelCurObj();
         }
         mCurObjective = obj;
+        mCurState = ObjState.STARTING;
         mLog.debug("RL: Setting current objective: %s", mCurObjective.toString());
     }
 
@@ -243,7 +244,7 @@ public class RoboLord extends Subsystem {
                 if (mCurState == ObjState.NONE || mCurState == ObjState.CANCELLING || mCurState == ObjState.STOPPED) {
                     return;
                 }
-                mPLog.debug("RL.WD ObjState : Running Watchdog");
+                // mPLog.debug("RL.WD ObjState : Running Watchdog");
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.WatchDogTask: ");
             }
