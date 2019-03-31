@@ -497,8 +497,9 @@ public class WristSys extends Subsystem {
     public void initHoldPosnPID() {
 
         if (m_holdPID == null) {
+            mLog.debug(printPosn("initHoldPosnPID:"));
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
-            double kP = 0.2 / (10 * TICKS_PER_DEG); // want 20% power when hit tolerance band of 15 degrees
+            double kP = 0.05 / (10 * TICKS_PER_DEG); // want 20% power when hit tolerance band of 15 degrees
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;
@@ -557,7 +558,7 @@ public class WristSys extends Subsystem {
         m_targ = targ;
         if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.5, 0.5);
-            double kP = 0.2 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
+            double kP = 0.005 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;
