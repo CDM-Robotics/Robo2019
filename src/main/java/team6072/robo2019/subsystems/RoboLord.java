@@ -166,6 +166,7 @@ public class RoboLord extends Subsystem {
                     double Yintercept = Math.atan2(Dintercept, Dx);
                     mDriveSys.initTurnDrivePID(Yintercept, 0.2);
                     mCurState = ObjState.RUNNING_T1;
+                    mPLog.debug("RL.Start ObjState : STARTING");
                 }
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.StartObj: ");
@@ -199,6 +200,7 @@ public class RoboLord extends Subsystem {
                 double Dintercept = Dy / 2;
                 double Yintercept = Math.atan2(Dintercept, Dx);
                 mDriveSys.execTurnDrivePID(Yintercept);
+                mPLog.debug("RL.T1 ObjState : Running_T1");
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.RunToCenterlineTask: ");
             }
@@ -215,6 +217,7 @@ public class RoboLord extends Subsystem {
                 if (mDriveSys.isDriveDistPIDComplete()) {
                     return;
                 }
+                mPLog.debug("RL.T2 ObjState : Running_T2");
                 mDriveSys.driveDistPID();
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.RunToTargetTask: ");
@@ -240,7 +243,7 @@ public class RoboLord extends Subsystem {
                 if (mCurState == ObjState.NONE || mCurState == ObjState.CANCELLING || mCurState == ObjState.STOPPED) {
                     return;
                 }
-
+                mPLog.debug("RL.WD ObjState : Running Watchdog");
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.WatchDogTask: ");
             }
