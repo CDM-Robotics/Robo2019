@@ -363,7 +363,7 @@ public class DriveSys extends Subsystem {
                     error, pidErr);
         }
         mag = mag / PID_SCALE;
-        if(!mDrivePID.onTarget()){
+        if (!mDrivePID.onTarget()){
             mRoboDrive.arcadeDrive(mag, yaw, false);
         }
         mHitTarg = mDrivePID.onTarget();

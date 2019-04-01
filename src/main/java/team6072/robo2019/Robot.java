@@ -37,7 +37,12 @@ public class Robot extends TimedRobot {
 
     /**
      * This function is run when the robot is first started up and should be used
-     * for any initialization code.
+     * for any initialization code. 
+     * // BufferedReader br = new BufferedReader(new FileReader(logFile)); 
+     * // String line = null; 
+     * // while ((line = br.readLine()) != null) { 
+     * // System.out.println(line); 
+     * // } // br.close();
      */
     @Override
     public void robotInit() {
@@ -48,12 +53,6 @@ public class Robot extends TimedRobot {
                 logFile = dir.getAbsolutePath() + "/logging.properties";
             }
             System.out.println("**********  logConfig: " + logFile + "  *********************");
-            // BufferedReader br = new BufferedReader(new FileReader(logFile));
-            // String line = null;
-            // while ((line = br.readLine()) != null) {
-            // System.out.println(line);
-            // }
-            // br.close();
             FileInputStream configFile = new FileInputStream(logFile);
             LogManager.getLogManager().readConfiguration(configFile);
         } catch (IOException ex) {
@@ -224,8 +223,7 @@ public class Robot extends TimedRobot {
         }
     }
 
-    // ******************** test
-    // ********************************************************
+    // ******************** test **************************************
 
     /**
      * This function is called periodically during test mode.

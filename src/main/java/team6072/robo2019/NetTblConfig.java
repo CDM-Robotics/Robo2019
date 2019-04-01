@@ -4,6 +4,7 @@ package team6072.robo2019;
 import java.util.function.Consumer;
 
 import edu.wpi.first.networktables.*;
+import team6072.robo2019.logging.LogWrapper;
 
 
 
@@ -11,6 +12,8 @@ import edu.wpi.first.networktables.*;
  * Sepcify the setup of the Ntwork tables shared between robo, vision, and shuffleboard
  */
 public class NetTblConfig {
+
+    private static LogWrapper mLog = new LogWrapper(NetTblConfig.class.getName());
 
 
     // tables   ----------------------------
@@ -40,15 +43,20 @@ public class NetTblConfig {
     public static final String KV_TARG_YAW = "RoboTargYaw";     // current target yaw
     
     private static NetworkTableInstance mDefaultTbl;
+    
 
     public static void InitTables() {
-        NetworkTableInstance mDefaultTbl = NetworkTableInstance.getDefault();
-        //mDefaultTbl.startClientTeam(6072);
-        NetworkTable visTbl = mDefaultTbl.getTable(T_VISION);
-        visTbl.getEntry(KV_HAVE_TARGET);
-        visTbl.getEntry(KV_X_DIST);
-        visTbl.getEntry(KV_Y_DIST);
-        visTbl.getEntry(KV_ROBOCONTROL);
+        try {
+            mDefaultTbl = NetworkTableInstance.getDefault();
+            //mDefaultTbl.startClientTeam(6072);
+            NetworkTable visTbl = mDefaultTbl.getTable(T_VISION);
+            visTbl.getEntry(KV_HAVE_TARGET);
+            visTbl.getEntry(KV_X_DIST);
+            visTbl.getEntry(KV_Y_DIST);
+            visTbl.getEntry(KV_ROBOCONTROL);
+        } catch (Exception ex) {
+            mLog.severe(ex, "NetTblConfig.InitTables");
+        }
     }
     
 

@@ -136,11 +136,13 @@ public class RoboLord extends Subsystem {
         @Override
         public void run() {
             try {
+                mPLog.debug("RL.Start:  curState: %s", mCurState.toString());
                 if (mCurState != ObjState.STARTING) {
                     return;
                 }
                 if (!mVisionHasTarget) {
                     // vision does not have a target - if false
+                    mPLog.debug("RL.Start:  no vision target");
                     return;
                 }
                 // if it is starting and if we have vision
@@ -157,6 +159,7 @@ public class RoboLord extends Subsystem {
                 double Dy = NetTblConfig.getDbl(NetTblConfig.T_VISION, NetTblConfig.KV_Y_DIST);
                 if (Math.abs(Dx) <= DX_TOLERANCE_INCHES) {
                     // close enough to centerline - move to next state
+                    mPLog.debug("RL.Start Dx: %.3f  Dy: %.3f    in centerline tol");
                     double distToDeployPointInches = Dy - DEPLOY_DISTINCHES;
                     mDriveSys.initDriveDistPID(distToDeployPointInches, mCurObjective.getTargetYaw().getAngle());
                     mCurState = ObjState.RUNNING_T2;
@@ -167,7 +170,7 @@ public class RoboLord extends Subsystem {
                     double Yintercept = Math.atan2(Dintercept, Dx);
                     mDriveSys.initTurnDrivePID(Yintercept, 0.2);
                     mCurState = ObjState.RUNNING_T1;
-                    mPLog.debug("RL.Start ObjState : STARTING");
+                    mPLog.debug("RL.Start Dx: %.3f  Dy: %.3f  Dint: %.3f  Yint: %.3f", Dx, Dy, Dintercept, Yintercept);
                 }
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.StartObj: ");
@@ -191,6 +194,7 @@ public class RoboLord extends Subsystem {
                 if (Math.abs(Dx) <= DX_TOLERANCE_INCHES) {
                     // close enough to centerline - move to next state
                     // move drive sys to a distance PID
+                    mPLog.debug("RL.Centerline - moving to RUNNING_T2");
                     mCurState = ObjState.RUNNING_T2;
                     mDriveSys.stopTurnDrivePID();
                     double distToDeployPointInches = Dy - DEPLOY_DISTINCHES;
@@ -201,7 +205,7 @@ public class RoboLord extends Subsystem {
                 double Dintercept = Dy / 2;
                 double Yintercept = Math.atan2(Dintercept, Dx);
                 mDriveSys.execTurnDrivePID(Yintercept);
-                mPLog.debug("RL.T1 ObjState : Running_T1");
+                mPLog.debug("RL.Centerline  Dx: %.3f  Dy: %.3f  Dint: %.3f  Yint: %.3f", Dx, Dy, Dintercept, Yintercept);
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.RunToCenterlineTask: ");
             }
@@ -219,7 +223,14 @@ public class RoboLord extends Subsystem {
                     return;
                 }
                 mPLog.debug("RL.T2 ObjState : Running_T2");
-                mDriveSys.driveDistPID();
+                if (mDriveSys.isDriveDistPIDComplete()) {
+                    // we have arrived - stop
+                    mCurState = ObjState.STOPPED;
+                    mLog.debug("RL.T2   COMPLETE  -------------");
+                }
+                else {
+                    mDriveSys.driveDistPID();
+                }
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.RunToTargetTask: ");
             }
@@ -235,7 +246,7 @@ public class RoboLord extends Subsystem {
 
         public WatchDogTask(String name) {
             mName = name;
-            mLog.debug("RL: WatchDogTask.ctor:  %s  ----------------", mName);
+            mLog.debug("RL.WatchDogTask.ctor:  %s  ----------------", mName);
         }
 
         @Override

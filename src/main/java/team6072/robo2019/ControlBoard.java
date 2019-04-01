@@ -98,13 +98,15 @@ public class ControlBoard {
         mLeftPanel = new Joystick(LPANEL_USB_PORT);
         mRightPanel = new Joystick(RPANEL_USB_PORT);
 
-        // // Drive Stick Commands --------------------------------------
+        // Drive Stick Commands --------------------------------------
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new DriveLoCmd(), null);
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new WristMoveUpSlowCmd(), null);  // DEBUG
 
-        // // Control Stick Commands ------------------------------------
+        // Control Stick Commands ------------------------------------
+
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
 
         // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldPIDCmd());
         // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldPIDCmd());
@@ -126,29 +128,25 @@ public class ControlBoard {
 
         // MapCmdToBut(mControlStick, EXTREME_BUT_9, new WristStopCmd(), null);
 
-        // // right panel
-        // // ----------------------------------------------------------------------------------------
+        // right panel -------------------------------------------------
+
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new AlignDrive(), null);
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new AlignmentTurnCmd(Objective.TargetYaw.LEFT_BALL), null);
 
         // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.RocketCargoHi), null);
         // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ObjectiveCmd(Objective.ElvTarget.RocketCargoMid), null);
         // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ObjectiveCmd(Objective.ElvTarget.RocketCargoLo), null);
-        // // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.RocketHatchHi), null);
-        // // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.RocketHatchMid), null);
-        // // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmd(Objective.ElvTarget.RocketHatchLo), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.RocketHatchHi), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.RocketHatchMid), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmd(Objective.ElvTarget.RocketHatchLo), null);
 
-        // // // left panel
-        // // // -----------------------------------------------------------------------------------------
+        // left panel -----------------------------------------------------
 
-        // // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.HatchPickUp), null);
-        // // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.CargoshipCargo), null);
-        // // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.CargoshipHatch), null);
+        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.HatchPickUp), null);
+        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.CargoshipCargo), null);
+        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.CargoshipHatch), null);
 
-        // // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
-
-
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new AlignDrive() , null);
     }
 
     /**
