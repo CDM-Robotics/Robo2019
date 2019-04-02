@@ -2,9 +2,12 @@ package team6072.robo2019.logging;
 
 import java.util.logging.*;
 
+import edu.wpi.first.wpilibj.DriverStation;
+
 public class LogWrapper {
 
     private Logger mLog;
+    private DriverStation mDS;
 
     // See here for a bunch of useful code
     //  https://github.com/FRC3620/FRC3620_2015_AverageJava/blob/master/FRC3620_2015_AverageJava/src/org/usfirst/frc3620/EventLogging.java
@@ -15,6 +18,7 @@ public class LogWrapper {
      */
     public LogWrapper(String logClass) {
         mLog = Logger.getLogger(logClass);
+        mDS = DriverStation.getInstance();
     }
 
 
@@ -47,19 +51,19 @@ public class LogWrapper {
 
 
     public void debug(String msg) {
-        if (mLog.isLoggable(Level.FINE)) {
+        if (!mDS.isDisabled() && mLog.isLoggable(Level.FINE)) {
             mLog.log(Level.FINE, msg);
         }
     }
 
     public void debugmf(String msg, Object... params) {
-        if (mLog.isLoggable(Level.FINE)) {
+        if (!mDS.isDisabled() && mLog.isLoggable(Level.FINE)) {
             mLog.log(Level.FINE, msg, params);
         }
     }
 
     public void debug(String msg, Object... params) {
-        if (mLog.isLoggable(Level.FINE)) {
+        if (!mDS.isDisabled() && mLog.isLoggable(Level.FINE)) {
             mLog.log(Level.FINE, String.format(msg, params));
         }
     }

@@ -556,10 +556,10 @@ public class DriveSys extends Subsystem {
             mTurnPIDController.setSetpoint(setPoint);
         }
         double yaw = mTurnPIDOut.getVal() / 100;
-        if (abs(yaw) < .4) {
-            yaw = (yaw / yaw) * .4;
-        }
-        mPLog.debug("DS : Yaw Magnitude = " + yaw + "   Yaw Heading : " + mNavX.getYawHeading());
+        // if (abs(yaw) < .4) {
+        //     yaw = (yaw / yaw) * .4;
+        // }
+        mPLog.debug("DS.execTD  PIDyaw = " + yaw + "   NavXYaw: " + mNavX.getYawHeading());
         mRoboDrive.arcadeDrive(mTurnDriveSpeed, yaw, true);
     }
 

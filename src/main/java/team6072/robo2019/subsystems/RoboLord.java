@@ -110,7 +110,8 @@ public class RoboLord extends Subsystem {
      */
     public void SetObjective(Objective obj) {
 
-        if (mCurObjective != null && mCurObjective.isEqual(obj)) {
+        if (mCurObjective != null && mCurObjective.isEqual(obj) 
+            && ( (mCurState == ObjState.STARTING) || (mCurState == ObjState.RUNNING_T1)  | (mCurState == ObjState.RUNNING_T2) ) ){
             mLog.debug("RL.SetObj: same objective being set");
             return;
         }
@@ -122,12 +123,18 @@ public class RoboLord extends Subsystem {
         mLog.debug("RL: Setting current objective: %s", mCurObjective.toString());
     }
 
+
     /**
      * Cancel the current objective
      */
-    protected void cancelCurObj() {
+    public static void cancelCurObj() {
         mLog.debug("RL: Canceling current objective: %s", mCurObjective.toString());
+        NetTblConfig.setVal(NetTblConfig.T_VISION, NetTblConfig.KV_ROBOCONTROL, false);
+        mCurState = ObjState.STOPPED;
+        mCurObjective = null;
+        // TD: find any active PIDs and cancel them
     }
+
 
     /**
      * Start the process of getting to an objective
@@ -151,15 +158,14 @@ public class RoboLord extends Subsystem {
                 // // distance sensor not reading anything
                 // return;
                 // }
-                // looks like we have vision and distance - notify driver, slow robot, set up
-                // yaw PID
+                // looks like we have vision and distance - notify driver, slow robot, set up yaw PID
                 NetTblConfig.setVal(NetTblConfig.T_VISION, NetTblConfig.KV_ROBOCONTROL, true);
                 mDriveSys.setRoboControl(true);
                 double Dx = NetTblConfig.getDbl(NetTblConfig.T_VISION, NetTblConfig.KV_X_DIST);
                 double Dy = NetTblConfig.getDbl(NetTblConfig.T_VISION, NetTblConfig.KV_Y_DIST);
                 if (Math.abs(Dx) <= DX_TOLERANCE_INCHES) {
                     // close enough to centerline - move to next state
-                    mPLog.debug("RL.Start Dx: %.3f  Dy: %.3f    in centerline tol");
+                    mPLog.debug("RL.Start Dx: %.3f  Dy: %.3f    in centerline tolerance");
                     double distToDeployPointInches = Dy - DEPLOY_DISTINCHES;
                     mDriveSys.initDriveDistPID(distToDeployPointInches, mCurObjective.getTargetYaw().getAngle());
                     mCurState = ObjState.RUNNING_T2;
@@ -177,6 +183,7 @@ public class RoboLord extends Subsystem {
             }
         }
     }
+
 
     /**
      * Looking to move robot to centerline. Once close enough to centerline, move to
@@ -255,6 +262,12 @@ public class RoboLord extends Subsystem {
                 if (mCurState == ObjState.NONE || mCurState == ObjState.CANCELLING || mCurState == ObjState.STOPPED) {
                     return;
                 }
+                boolean visionHasTarg = NetTblConfig.getBool(NetTblConfig.T_VISION, NetTblConfig.KV_HAVE_TARGET);
+                boolean visionBlownUp = NetTblConfig.getBool(NetTblConfig.T_VISION, NetTblConfig.KV_BLOWNUP);
+                if (!visionHasTarg || visionBlownUp) {
+                    mLog.debug("RL.Watchdog: lost vision or vison blown up");
+                    cancelCurObj();
+                }
                 // mPLog.debug("RL.WD ObjState : Running Watchdog");
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.WatchDogTask: ");
@@ -262,6 +275,7 @@ public class RoboLord extends Subsystem {
         }
     }
 
+    
     // mRunCounter++;
     // mStatRunCounter++;
     // mLordInstanceCtr++;
