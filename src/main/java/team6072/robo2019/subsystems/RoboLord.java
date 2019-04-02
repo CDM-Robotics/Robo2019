@@ -263,8 +263,8 @@ public class RoboLord extends Subsystem {
                     return;
                 }
                 boolean visionHasTarg = NetTblConfig.getBool(NetTblConfig.T_VISION, NetTblConfig.KV_HAVE_TARGET);
-                boolean visionBlownUp = NetTblConfig.getBool(NetTblConfig.T_VISION, NetTblConfig.KV_BLOWNUP);
-                if (!visionHasTarg || visionBlownUp) {
+                boolean visionOk = NetTblConfig.getBool(NetTblConfig.T_VISION, NetTblConfig.KV_NOTBLOWNUP);
+                if (!visionHasTarg || !visionOk) {
                     mLog.debug("RL.Watchdog: lost vision or vison blown up");
                     cancelCurObj();
                 }

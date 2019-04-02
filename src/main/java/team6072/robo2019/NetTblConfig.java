@@ -38,7 +38,7 @@ public class NetTblConfig {
     public static final String KV_X_DIST = "X_Distance";        // inches distance left (-ve) or right (+ve) of target center
     public static final String KV_YAW_ERR = "Yaw_Error";        // the degrees between the Robot's heading and the target
     public static final String KV_HAVE_TARGET = "HaveTarget";   // bool - true if have a target
-    public static final String KV_BLOWNUP = "BlownUp";           // true if vision is getting bad values (inifinity)
+    public static final String KV_NOTBLOWNUP = "NotBlownUp";           // FALSE if vision is getting bad values (inifinity)
     public static final String KV_ROBOCONTROL = "RoboControl"; // bool - true if RoboLord controlling
     public static final String KV_ROBO_YAW = "RoboYaw";         // current robot yaw heading
     public static final String KV_TARG_YAW = "RoboTargYaw";     // current target yaw
