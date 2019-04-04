@@ -38,7 +38,7 @@ public class WristExtendCmd extends Command {
     // Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished() {
-        return true;
+        return mSys.moveStopped();
     }
 
 
