@@ -15,7 +15,7 @@ import team6072.robo2019.commands.objectives.ObjectiveCmd;
 import team6072.robo2019.commands.pneumatics.*;
 import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.subsystems.WristSys.WristTarget;
-import team6072.robo2019.commands.RoboLord.AlignDrive;
+import team6072.robo2019.commands.RoboLord.RoboLordCmd;
 import team6072.robo2019.commands.climber.*;
 /**
  * ControlBoard holds the code for interacting with the
@@ -129,22 +129,22 @@ public class ControlBoard {
 
         // right panel -------------------------------------------------
 
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new AlignDrive(), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new RoboLordCmd(), null);
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new AlignmentTurnCmd(Objective.TargetYaw.LEFT_BALL), null);
 
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.RocketCargoHi), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ObjectiveCmd(Objective.ElvTarget.RocketCargoMid), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ObjectiveCmd(Objective.ElvTarget.RocketCargoLo), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.RocketHatchHi), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.RocketHatchMid), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmd(Objective.ElvTarget.RocketHatchLo), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.RocketCargoHi), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ObjectiveCmd(Objective.ElvTarget.RocketCargoMid), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ObjectiveCmd(Objective.ElvTarget.RocketCargoLo), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.RocketHatchHi), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.RocketHatchMid), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmd(Objective.ElvTarget.RocketHatchLo), null);
 
         // left panel -----------------------------------------------------
 
-        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.HatchPickUp), null);
-        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.CargoshipCargo), null);
-        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.CargoshipHatch), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.HatchPickUp), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.CargoshipCargo), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.CargoshipHatch), null);
 
     }
 
