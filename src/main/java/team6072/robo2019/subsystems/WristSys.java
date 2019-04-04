@@ -33,7 +33,7 @@ public class WristSys extends Subsystem {
 
     private static final int BASE = 0;
 
-    public static final double STARTING_ANGLE = 38.0;
+    public static final double STARTING_ANGLE = 35.0;
     private static final double TILT_TO_TOP_CARGO_ROCKET = 165; // ESTIMATE
     private static final double FLAT_TO_TARGET = 180; // ESTIMATE
     private static final double TILT_TO_GROUND = 190; // Estimate
@@ -184,8 +184,6 @@ public class WristSys extends Subsystem {
             mTalon.setName(String.format("Wrist: %d", RobotConfig.WRIST_MASTER));
             // in case we are in magic motion or position hold mode
             mTalon.set(ControlMode.PercentOutput, 0);
-
-            mTalon.enableLi
 
             mTalon.setSensorPhase(TALON_SENSOR_PHASE);
             mTalon.setInverted(TALON_INVERT);
