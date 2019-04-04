@@ -73,7 +73,7 @@ public class PneumaticSys extends Subsystem {
 
     public void setDriveHi() {
         mLog.debug("PneumaticSys.setDriveHi  >>>>>");
-        mDriveTrainSolenoid.set(DoubleSolenoid.Value.kReverse);
+        //mDriveTrainSolenoid.set(DoubleSolenoid.Value.kReverse);
     }
 
     public void setWristExtend() {
