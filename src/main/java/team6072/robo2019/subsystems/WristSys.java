@@ -17,7 +17,7 @@ import team6072.robo2019.pid.TTPIDController;
 public class WristSys extends Subsystem {
 
     private static final LogWrapper mLog = new LogWrapper(WristSys.class.getName());
-    private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 50);
+    private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 10);
 
     private static WristSys mInstance;
 
@@ -184,6 +184,8 @@ public class WristSys extends Subsystem {
             mTalon.setName(String.format("Wrist: %d", RobotConfig.WRIST_MASTER));
             // in case we are in magic motion or position hold mode
             mTalon.set(ControlMode.PercentOutput, 0);
+
+            mTalon.enableLi
 
             mTalon.setSensorPhase(TALON_SENSOR_PHASE);
             mTalon.setInverted(TALON_INVERT);
@@ -406,7 +408,7 @@ public class WristSys extends Subsystem {
     }
 
     public static final int TICKS_AT_90 = (int) ((90 - STARTING_ANGLE) * TICKS_PER_DEG);
-    public static final double MAX_WRIST_SPEED = 0.4;
+    public static final double MAX_WRIST_SPEED = 0.6;
 
     public void execExtend() {
         if (mDontExtend) {
@@ -421,7 +423,7 @@ public class WristSys extends Subsystem {
         }
         mPercentOut = BASE_PERCENT_OUT + speed;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog.debug(printPosn("execExtend"));
+        mPLog.debug(printPosn("execExtend: " + String.format("mPCOut %.3f", mPercentOut)));
     }
 
     // ----------- Move Retract -----------------------------------------------

@@ -216,9 +216,9 @@ public class Robot extends TimedRobot {
                // mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
             }
             // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
-            // if (mWristSys != null) {
-            //     mLogPeriodic.debug(mWristSys.printPosn("telPer:"));
-            // }
+            if (mWristSys != null) {
+                mLogPeriodic.debug(mWristSys.printPosn("telPer:"));
+            }
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }
