@@ -25,6 +25,7 @@ public class NavXSys {
 
     protected double mYawDegrees;
     protected double mYawRateDegreesPerSecond;
+    protected double mPitchDeg;
     protected final long kInvalidTimestamp = -1;
     protected long mLastSensorTimestampMs;
     protected long mLastSystemTimestamp;
@@ -66,6 +67,7 @@ public class NavXSys {
                 mLastSensorTimestampMs = sensor_timestamp;
                 mLastSystemTimestamp = system_timestamp;
                 mYawDegrees = update.yaw;
+                mPitchDeg = update.pitch;
                 mLinAcel_X = update.linear_accel_x;
                 mLinAcel_Y = update.linear_accel_y;
                 NetTblConfig.setVal(NetTblConfig.T_VISION, NetTblConfig.KV_ROBO_YAW, mYawDegrees);
@@ -143,6 +145,10 @@ public class NavXSys {
         return mYawRateDegreesPerSecond;
     }
 
+    public double getPitchDegrees() {
+        return mPitchDeg;
+    }
+    
     public double getLinAcceleration_X() {
         return mLinAcel_X;
     }

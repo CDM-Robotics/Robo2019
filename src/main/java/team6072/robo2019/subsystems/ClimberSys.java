@@ -18,6 +18,7 @@ import team6072.robo2019.pid.TTPIDController;
 public class ClimberSys extends Subsystem {
 
     private static final LogWrapper mLog = new LogWrapper(DistanceMeasureSys.class.getName());
+    private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 10);
 
 
     private static ClimberSys mInstance;
@@ -61,9 +62,9 @@ public class ClimberSys extends Subsystem {
             mElvSys = ElevatorSys.getInstance();
             mWristSys = WristSys.getInstance();
 
-            mClimbTalon = new WPI_TalonSRX(RobotConfig.WRIST_MASTER);
+            mClimbTalon = new WPI_TalonSRX(RobotConfig.CLIMBER_MASTER);
             mClimbTalon.configFactoryDefault();
-            mClimbTalon.setName(String.format("Wrist: %d", RobotConfig.WRIST_MASTER));
+            mClimbTalon.setName(String.format("Climb: %d", RobotConfig.CLIMBER_MASTER));
             // in case we are in magic motion or position hold model 
             mClimbTalon.set(ControlMode.PercentOutput, 0);
 
@@ -73,14 +74,14 @@ public class ClimberSys extends Subsystem {
             mClimbTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mClimbTalon.setSelectedSensorPosition(0);
 
-            m_PidOutTalon = new PIDOutTalon(mElvTalon, mElvSys.BASE_PERCENT_OUT, -0.8, 0.8);
-            double kP = 0.2 / 10; // 20% power when 10 degres from set point
-            double kI = 0.0;
-            double kD = 0.0;
-            double kF = 0.0;
-            double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-            m_holdPID = new TTPIDController("climb", kP, kI, kD, kF, m_NavXSource, m_PidOutTalon, periodInSecs);
-            m_holdPID.setAbsoluteTolerance(5); // allow +- 5 degrees
+            // m_PidOutTalon = new PIDOutTalon(mElvTalon, mElvSys.BASE_PERCENT_OUT, -0.8, 0.8);
+            // double kP = 0.2 / 10; // 20% power when 10 degres from set point
+            // double kI = 0.0;
+            // double kD = 0.0;
+            // double kF = 0.0;
+            // double periodInSecs = 0.05; // for hold, check every 50 mS is fine
+            // m_holdPID = new TTPIDController("climb", kP, kI, kD, kF, m_NavXSource, m_PidOutTalon, periodInSecs);
+            // m_holdPID.setAbsoluteTolerance(5); // allow +- 5 degrees
 
             mLog.info("ClimberSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
@@ -95,7 +96,7 @@ public class ClimberSys extends Subsystem {
     }
 
 
-    private TTPIDController m_holdPID;
+    // private TTPIDController m_holdPID;
     private PIDSourceNavXPitch m_NavXSource;
     private PIDOutTalon m_PidOutTalon;
 
@@ -109,7 +110,7 @@ public class ClimberSys extends Subsystem {
     public void initClimb() {
         mElvSys.disable(); // stop elevator sys from doing anything
         mWristSys.disable(); // stop wrist sys from doing anything
-        m_holdPID.enable();
+        // m_holdPID.enable();
         mClimbTalon.set(ControlMode.PercentOutput, 0.1);
     }
 
@@ -128,7 +129,6 @@ public class ClimberSys extends Subsystem {
 
     private double mPercentOut;
 
-    private PeriodicLogger mPLog;
 
     private static final int HAB_LEVEL = 123456; // climb ticks when at hab level
     private static final int MAX_CLIMB = 500; // when we want to stop the climber
@@ -137,14 +137,13 @@ public class ClimberSys extends Subsystem {
         mStartPosn = mClimbTalon.getSelectedSensorPosition();
         mPercentOut = 0.0;
         mClimbTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initPushDownSlow"));
     }
 
     public void execPushDownSlow() {
         mPercentOut += 0.001;
         mClimbTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog.debug(printPosn("execMovSlowUp"));
+        mPLog.debug(printPosn("execPushDownSlow"));
     }
 
     public boolean isCompletePushDownSlow() {
