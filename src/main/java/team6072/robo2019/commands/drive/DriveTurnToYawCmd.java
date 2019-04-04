@@ -1,42 +1,41 @@
-package team6072.robo2019.commands.RoboLord;
+package team6072.robo2019.commands.drive;
 
 import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.commands.objectives.Objective;
-import team6072.robo2019.commands.objectives.Objective.ElvTarget;
-import team6072.robo2019.commands.objectives.Objective.Side;
-import team6072.robo2019.subsystems.RoboLord;
 //import org.cdm.team6072.subsystems.CmdWatchdog;
 import team6072.robo2019.subsystems.DriveSys;
 import team6072.robo2019.subsystems.NavXSys;
 
-public class AlignDrive extends Command {
+public class DriveTurnToYawCmd extends Command {
 
     private DriveSys mDriveSys;
     private NavXSys mNavX;
     private Objective.TargetYaw mTargetAngle;
-    private RoboLord mRoboLord;
 
-    public AlignDrive() {
+    public DriveTurnToYawCmd(Objective.TargetYaw turn) {
         mNavX = NavXSys.getInstance();
         mDriveSys = DriveSys.getInstance();
-        mRoboLord = RoboLord.getInstance();
+        mTargetAngle = turn;
         requires(mDriveSys);
     }
 
     @Override
     protected void initialize() {
-        mRoboLord.SetObjective(new Objective(ElvTarget.RocketCargoMid, Objective.TargetYaw.TEST));
-        
+        if (mTargetAngle != null) {
+            mDriveSys.initTurnDrivePID(mTargetAngle.getAngle(), 0.0);
+        }
     }
 
     @Override
     protected void execute() {
-
+        if (mTargetAngle != null) {
+            mDriveSys.execTurnDrivePID(mTargetAngle.getAngle());
+        }
     }
 
     @Override
     protected boolean isFinished() {
-        return false;
+        return mDriveSys.isFinishedTurnDrivePID();
     }
 
 }
