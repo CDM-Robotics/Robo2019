@@ -2,6 +2,7 @@ package team6072.robo2019.commands.RoboLord;
 
 import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.commands.objectives.Objective;
+import team6072.robo2019.commands.objectives.Objective.ElvTarget;
 import team6072.robo2019.commands.objectives.Objective.Side;
 import team6072.robo2019.subsystems.RoboLord;
 //import org.cdm.team6072.subsystems.CmdWatchdog;
@@ -24,7 +25,7 @@ public class AlignDrive extends Command {
 
     @Override
     protected void initialize() {
-        mRoboLord.SetObjective(new Objective(Side.RightMid, Objective.TargetYaw.TEST));
+        mRoboLord.SetObjective(new Objective(ElvTarget.RocketCargoMid, Objective.TargetYaw.TEST));
         
     }
 

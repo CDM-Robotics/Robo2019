@@ -120,7 +120,7 @@ public class RoboLord extends Subsystem {
         }
         mCurObjective = obj;
         mCurState = ObjState.STARTING;
-        mLog.debug("RL: Setting current objective: %s", mCurObjective.toString());
+        mLog.debug("RL.SetObj: Setting height: %s  yaw: %.3f", mCurObjective.getElvTarget().toString(), mCurObjective.getTargetYaw().getAngle());
     }
 
 
@@ -165,7 +165,7 @@ public class RoboLord extends Subsystem {
                 double Dy = NetTblConfig.getDbl(NetTblConfig.T_VISION, NetTblConfig.KV_Y_DIST);
                 if (Math.abs(Dx) <= DX_TOLERANCE_INCHES) {
                     // close enough to centerline - move to next state
-                    mPLog.debug("RL.Start Dx: %.3f  Dy: %.3f    in centerline tolerance");
+                    mLog.debug("RL.Start Dx: %.3f  Dy: %.3f    in centerline tolerance");
                     double distToDeployPointInches = Dy - DEPLOY_DISTINCHES;
                     mDriveSys.initDriveDistPID(distToDeployPointInches, mCurObjective.getTargetYaw().getAngle());
                     mCurState = ObjState.RUNNING_T2;
@@ -173,10 +173,10 @@ public class RoboLord extends Subsystem {
                 } else {
                     // find intercept half way to target and get yaw angle to hit it
                     double Dintercept = Dy / 2;
-                    double Yintercept = Math.atan2(Dintercept, Dx);
+                    double Yintercept = (Math.atan2(Dintercept, Dx) / Math.PI) * 180;
                     mDriveSys.initTurnDrivePID(Yintercept, 0.2);
+                    mLog.debug("RL.Start Dx: %.3f  Dy: %.3f  Dint: %.3f  Yint: %.3f", Dx, Dy, Dintercept, Yintercept);
                     mCurState = ObjState.RUNNING_T1;
-                    mPLog.debug("RL.Start Dx: %.3f  Dy: %.3f  Dint: %.3f  Yint: %.3f", Dx, Dy, Dintercept, Yintercept);
                 }
             } catch (Exception ex) {
                 mLog.severe(ex, "RL.StartObj: ");

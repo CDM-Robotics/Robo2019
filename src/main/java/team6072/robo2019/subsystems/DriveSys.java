@@ -505,6 +505,9 @@ public class DriveSys extends Subsystem {
     private PIDOutReceiver mTurnPIDOut;
     private PIDSourceNavX mTurnPIDSource;
 
+    private static final int PIDOUT_SCALE = 100;
+    private static final double MIN_TURNDRIVEPOWER = 0.2;
+
     private double mTurnDriveSpeed;
 
     public void initTurnPID() {
@@ -515,7 +518,7 @@ public class DriveSys extends Subsystem {
         mTurnPIDController = new PIDController(mKP_turn, mKI_turn, mKD_turn, mKF_turn, mTurnPIDSource, mTurnPIDOut);
         mTurnPIDController.setName("DS.TurnPID");
         mTurnPIDController.setInputRange(-180.0, 180.0);
-        mTurnPIDController.setOutputRange(-100.0, 100.0);
+        mTurnPIDController.setOutputRange(-PIDOUT_SCALE, PIDOUT_SCALE);
         // Makes PIDController.onTarget() return True when PIDInput is within the
         // Setpoint +/- the absolute tolerance.
         mTurnPIDController.setAbsoluteTolerance(mKToleranceDegreesTurn);
@@ -534,11 +537,11 @@ public class DriveSys extends Subsystem {
     /**
      * Set a target for the turn, and a drive speed to be using
      */
-    public void initTurnDrivePID(double targetYaw, double turnDriveSpeed) {
-        mLog.debug("DS turn Target : " + targetYaw + " Current Yaw : " + mNavX.getYawHeading());
+    public void initTurnDrivePID(double targetYawDeg, double turnDriveSpeed) {
+        mLog.debug("DS.initTurnDrivePID: " + targetYawDeg + " NavX YawDeg : " + mNavX.getYawHeading());
         mTurnDriveSpeed = turnDriveSpeed;
-        mTurnPIDSetpoint = targetYaw;
-        mTurnPIDController.setSetpoint(targetYaw);
+        mTurnPIDSetpoint = targetYawDeg;
+        mTurnPIDController.setSetpoint(targetYawDeg);
         mTurnDrivePIDEnabled = true;
         mTurnPIDController.enable();
     }
@@ -555,12 +558,17 @@ public class DriveSys extends Subsystem {
             mTurnPIDSetpoint = setPoint;
             mTurnPIDController.setSetpoint(setPoint);
         }
-        double yaw = mTurnPIDOut.getVal() / 100;
-        // if (abs(yaw) < .4) {
-        //     yaw = (yaw / yaw) * .4;
-        // }
-        mPLog.debug("DS.execTD  PIDyaw = " + yaw + "   NavXYaw: " + mNavX.getYawHeading());
-        mRoboDrive.arcadeDrive(mTurnDriveSpeed, yaw, true);
+        double yawMag = mTurnPIDOut.getVal() / PIDOUT_SCALE;
+        if (abs(yawMag) < MIN_TURNDRIVEPOWER) {
+            if (yawMag > 0.0) {
+                yawMag = MIN_TURNDRIVEPOWER;
+            }
+            else {
+                yawMag = -MIN_TURNDRIVEPOWER;
+            }
+        }
+        mPLog.debug("DS.execTD  PIDyawMag = " + yawMag + "   NavXYawDeg: " + mNavX.getYawHeading());
+        mRoboDrive.arcadeDrive(mTurnDriveSpeed, yawMag, true);
     }
 
 

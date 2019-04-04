@@ -92,21 +92,20 @@ public class Objective {
     private TargetYaw mTargetYaw;
     private Side mSide;
 
-    public Objective(ElvTarget elvTarget) {
-        mElvTarget = elvTarget;
-        mSide = null;
-        mTargetYaw = null;
-    }
+    // public Objective(ElvTarget elvTarget) {
+    //     mElvTarget = elvTarget;
+    //     mSide = null;
+    //     mTargetYaw = null;
+    // }
 
-    public Objective(Side side, TargetYaw targetAngle) {
-        mElvTarget = null;
-        mSide = side;
-        mTargetYaw = targetAngle;
-    }
+    // public Objective(TargetYaw targetAngle) {
+    //     mElvTarget = null;
+    //     mSide = side;
+    //     mTargetYaw = targetAngle;
+    // }
 
-    public Objective(ElvTarget elvTarget, Side side, TargetYaw targetAngle) {
+    public Objective(ElvTarget elvTarget, TargetYaw targetAngle) {
         mElvTarget = elvTarget;
-        mSide = side;
         mTargetYaw = targetAngle;
     }
 
