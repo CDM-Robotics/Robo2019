@@ -22,8 +22,7 @@ import team6072.robo2019.pid.TTPIDController;
 public class ElevatorSys extends Subsystem {
 
     private static final LogWrapper mLog = new LogWrapper(ElevatorSys.class.getName());
-
-    private PeriodicLogger mPLog;
+    private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 50);
 
     public static ElevatorSys mInstance;
 
@@ -148,7 +147,6 @@ public class ElevatorSys extends Subsystem {
 
     public ElevatorSys() {
         mLog.info("ElevatorSys ctor  ----------------------------------------------");
-        mPLog = new PeriodicLogger(mLog, 5);
         try {
             mTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_MASTER);
             mTalon.configFactoryDefault();
@@ -472,7 +470,6 @@ public class ElevatorSys extends Subsystem {
         mStartPosn = mTalon.getSelectedSensorPosition();
         mPercentOut = MANUAL_POWER_DOWN;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initMoveDown"));
     }
 
