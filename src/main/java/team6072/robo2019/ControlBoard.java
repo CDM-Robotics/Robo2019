@@ -107,8 +107,8 @@ public class ControlBoard {
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
 
-        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldPIDCmd());
-        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldPIDCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd()); //new ElvHoldPIDCmd()
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd()); //new ElvHoldPIDCmd()
 
         MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristExtendCmd(), new WristStopCmd());  // new WristHoldPIDCmd());
         MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristRetractCmd(), new WristStopCmd()); // new WristHoldPIDCmd());
@@ -156,6 +156,7 @@ public class ControlBoard {
      * @param pressCmd   - command for when button pressed
      * @param releaseCmd - command for when button released
      */
+
     private void MapCmdToBut(Joystick stick, int button, Command pressCmd, Command releaseCmd) {
         JoystickButton but = new JoystickButton(stick, button);
         if (pressCmd != null) {
