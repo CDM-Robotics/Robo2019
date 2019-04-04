@@ -68,7 +68,7 @@ public class Objective {
     public enum TargetYaw {
         RIGHT_BALL(RIGHT_BALL_ROCKET_ANGLE), RIGHT_NEAR_HATCH(RIGHT_NEAR_HATCH_ROCKET_ANGLE),
         RIGHT_FAR_HATCH(RIGHT_FAR_HATCH_ROCKET_ANGLE), LEFT_BALL(LEFT_BALL_ROCKET_ANGLE),
-        LEFT_NEAR_HATCH(LEFT_NEAR_HATCH_ROCKET_ANGLE), LEFT_FAR_HATCH(LEFT_FAR_HATCH_ROCKET_ANGLE);
+        LEFT_NEAR_HATCH(LEFT_NEAR_HATCH_ROCKET_ANGLE), LEFT_FAR_HATCH(LEFT_FAR_HATCH_ROCKET_ANGLE), TEST(0);
 
         private double mAngle;
 
@@ -92,21 +92,20 @@ public class Objective {
     private TargetYaw mTargetYaw;
     private Side mSide;
 
-    public Objective(ElvTarget elvTarget) {
-        mElvTarget = elvTarget;
-        mSide = null;
-        mTargetYaw = null;
-    }
+    // public Objective(ElvTarget elvTarget) {
+    //     mElvTarget = elvTarget;
+    //     mSide = null;
+    //     mTargetYaw = null;
+    // }
 
-    public Objective(Side side, TargetYaw targetAngle) {
-        mElvTarget = null;
-        mSide = side;
-        mTargetYaw = targetAngle;
-    }
+    // public Objective(TargetYaw targetAngle) {
+    //     mElvTarget = null;
+    //     mSide = side;
+    //     mTargetYaw = targetAngle;
+    // }
 
-    public Objective(ElvTarget elvTarget, Side side, TargetYaw targetAngle) {
+    public Objective(ElvTarget elvTarget, TargetYaw targetAngle) {
         mElvTarget = elvTarget;
-        mSide = side;
         mTargetYaw = targetAngle;
     }
 

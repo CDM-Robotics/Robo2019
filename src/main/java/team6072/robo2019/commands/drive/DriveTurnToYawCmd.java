@@ -6,13 +6,13 @@ import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.subsystems.DriveSys;
 import team6072.robo2019.subsystems.NavXSys;
 
-public class AlignmentTurnCmd extends Command {
+public class DriveTurnToYawCmd extends Command {
 
     private DriveSys mDriveSys;
     private NavXSys mNavX;
     private Objective.TargetYaw mTargetAngle;
 
-    public AlignmentTurnCmd(Objective.TargetYaw turn) {
+    public DriveTurnToYawCmd(Objective.TargetYaw turn) {
         mNavX = NavXSys.getInstance();
         mDriveSys = DriveSys.getInstance();
         mTargetAngle = turn;
@@ -22,20 +22,20 @@ public class AlignmentTurnCmd extends Command {
     @Override
     protected void initialize() {
         if (mTargetAngle != null) {
-            // mDriveSys.initTurnDrive(mTargetAngle);
+            mDriveSys.initTurnDrivePID(mTargetAngle.getAngle(), 0.0);
         }
     }
 
     @Override
     protected void execute() {
         if (mTargetAngle != null) {
-            mDriveSys.arcadeTurnPID();
+            mDriveSys.execTurnDrivePID(mTargetAngle.getAngle());
         }
     }
 
     @Override
     protected boolean isFinished() {
-        return mDriveSys.isFinishedTurning();
+        return mDriveSys.isFinishedTurnDrivePID();
     }
 
 }

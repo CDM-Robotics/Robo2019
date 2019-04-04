@@ -161,7 +161,7 @@ public class TTPIDController extends PIDBase implements Controller {
     @Override
     public void disable() {
         // Ensures m_enabled check and pidWrite() call occur 
-        mLog.debug("%s disable called  ------------------", m_name);
+        mLog.debug("PID.%s disable called  ------------------", m_name);
         m_pidWriteMutex.lock();
         try {
             m_thisMutex.lock();
@@ -192,7 +192,7 @@ public class TTPIDController extends PIDBase implements Controller {
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addBooleanProperty("enabled", this::isEnabled, this::setEnabled);
+        builder.addBooleanProperty("PID.enabled", this::isEnabled, this::setEnabled);
     }
 
 

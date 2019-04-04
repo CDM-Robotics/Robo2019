@@ -17,6 +17,7 @@ import team6072.robo2019.pid.TTPIDController;
 public class WristSys extends Subsystem {
 
     private static final LogWrapper mLog = new LogWrapper(WristSys.class.getName());
+    private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 50);
 
     private static WristSys mInstance;
 
@@ -204,9 +205,9 @@ public class WristSys extends Subsystem {
             mTalon.setNeutralMode(NeutralMode.Brake);
 
             // set up current limits
-            mTalon.configContinuousCurrentLimit(30, kTimeoutMs);
             mTalon.configPeakCurrentLimit(40, kTimeoutMs);
             mTalon.configPeakCurrentDuration(200, kTimeoutMs);
+            mTalon.configContinuousCurrentLimit(10, kTimeoutMs);
             mTalon.enableCurrentLimit(true);
 
             m_PidSourceTalonPW = new PIDSourceTalonPW(mTalon, 0);
@@ -226,7 +227,7 @@ public class WristSys extends Subsystem {
     }
 
     /**
-     * Disable the elevator system - make sure all talongs and PID loops are not
+     * Disable the wrist system - make sure all talons and PID loops are not
      * driving anything
      */
     public void disable() {
@@ -247,8 +248,7 @@ public class WristSys extends Subsystem {
         }
     }
 
-    // ------------ set up watch on talon position and disable if out of bounds
-    // -----------------------
+    // -----set up watch on talon position and disable if out of bounds -------
 
     private Timer mWatchDogTimer = new Timer();
 
@@ -342,13 +342,10 @@ public class WristSys extends Subsystem {
 
     private double mPercentOut;
 
-    private PeriodicLogger mPLog;
-
     public void initMovSlowUp() {
         mStartPosn = getWristPosition();
         mPercentOut = 0.0;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initMovSlowUp"));
     }
 
@@ -386,8 +383,7 @@ public class WristSys extends Subsystem {
 
     }
 
-    // ------------------ Move Extend
-    // -------------------------------------------------------------
+    // ------------------ Move Extend --------------------------------
 
     private NavXSys mNavXSys;
 
@@ -404,8 +400,8 @@ public class WristSys extends Subsystem {
         mStartPosn = getWristPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
-        mLog.debug(printPosn("initExtend") + "--------------------------------------------------------");
+        mLog.debug("********************");
+        mLog.debug(printPosn("initExtend:") );
     }
 
     public static final int TICKS_AT_90 = (int) ((90 - STARTING_ANGLE) * TICKS_PER_DEG);
@@ -443,7 +439,6 @@ public class WristSys extends Subsystem {
         mStartPosn = getWristPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initRetract"));
     }
 
@@ -455,7 +450,7 @@ public class WristSys extends Subsystem {
         double speed = -MAX_WRIST_SPEED;
         if (mTalon.getSelectedSensorVelocity() < 0) {
             int currentPosition = getWristPosition();
-            int displacement = currentPosition - TICKS_AT_90;
+            int displacement = TICKS_AT_90 - currentPosition;
             double displacementAngle = displacement * (1 / TICKS_PER_DEG);
             speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
         }
@@ -464,8 +459,7 @@ public class WristSys extends Subsystem {
         mPLog.debug(printPosn("execRetract"));
     }
 
-    // ---------------- Wrist Stop
-    // Cmd------------------------------------------------------------
+    // ---------------- Wrist Stop Cmd---------------------------
 
     public void stop() {
         mLog.debug("Killing Wrist");
@@ -475,8 +469,7 @@ public class WristSys extends Subsystem {
         mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
     }
 
-    // ---------------Wrist Hold
-    // Cmd---------------------------------------------------------------------
+    // ---------------Wrist Hold  Cmd-------------------------
 
     public void holdWrist() {
         double wristSpeed = mTalon.getSelectedSensorVelocity(); // ticks per 100 milliseconds
@@ -486,8 +479,7 @@ public class WristSys extends Subsystem {
         double speed = Math.sin(90 - displacementAngle);
     }
 
-    // ---------- hold posn PID using the TritonTech PID
-    // ----------------------------------
+    // ---------- hold posn PID using the TritonTech PID  -------------
 
     /**
      * Sensor is on output of gearing (not on motor) Set the tolerance to +/- 10
@@ -496,8 +488,9 @@ public class WristSys extends Subsystem {
     public void initHoldPosnPID() {
 
         if (m_holdPID == null) {
+            mLog.debug(printPosn("initHoldPosnPID:"));
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
-            double kP = 0.2 / (10 * TICKS_PER_DEG); // want 20% power when hit tolerance band of 15 degrees
+            double kP = 0.05 / (10 * TICKS_PER_DEG); // want 20% power when hit tolerance band of 15 degrees
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;
@@ -527,7 +520,7 @@ public class WristSys extends Subsystem {
         }
         m_holdPID.reset();
         mLog.debug("WS.enableHoldPosnPID: target: %d    ---------------------", targetPosn);
-        mLog.debug(printPosn("WS.enableHoldPosnPID"));
+        mLog.debug(printPosn("enableHoldPosnPID"));
         m_holdPID.setSetpoint(targetPosn);
         m_holdPID.enable();
     }
@@ -556,7 +549,7 @@ public class WristSys extends Subsystem {
         m_targ = targ;
         if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.5, 0.5);
-            double kP = 0.2 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
+            double kP = 0.005 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;

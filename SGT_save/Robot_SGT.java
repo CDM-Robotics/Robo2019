@@ -4,22 +4,22 @@ package team6072.robo2019;
 import java.io.*;
 import java.util.logging.*;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import team6072.robo2019.logging.*;
 import team6072.robo2019.commands.drive.ArcadeDriveCmd;
 import team6072.robo2019.commands.drive.DriveDistCmd;
 import team6072.robo2019.commands.elevator.ElvMoveUpSlow;
-import team6072.robo2019.commands.pneumatics.FlowerCloseCmd;
-import team6072.robo2019.commands.pneumatics.FlowerOpenCmd;
-import team6072.robo2019.device.DistanceSensor;
-import team6072.robo2019.subsystems.*;
+import team6072.robo2019.subsystems.DriveSys;
+import team6072.robo2019.subsystems.ElevatorSys;
+import team6072.robo2019.subsystems.NavXSys;
+import team6072.robo2019.subsystems.PneumaticSys;
+
+
 
 public class Robot extends TimedRobot {
 
@@ -33,16 +33,12 @@ public class Robot extends TimedRobot {
     private ElevatorSys mElvSys;
     private PneumaticSys mPneuSys;
     private NavXSys mNavXsys;
-    private WristSys mWristSys;
+
+  
 
     /**
      * This function is run when the robot is first started up and should be used
-     * for any initialization code. 
-     * // BufferedReader br = new BufferedReader(new FileReader(logFile)); 
-     * // String line = null; 
-     * // while ((line = br.readLine()) != null) { 
-     * // System.out.println(line); 
-     * // } // br.close();
+     * for any initialization code.
      */
     @Override
     public void robotInit() {
@@ -53,6 +49,12 @@ public class Robot extends TimedRobot {
                 logFile = dir.getAbsolutePath() + "/logging.properties";
             }
             System.out.println("**********  logConfig: " + logFile + "  *********************");
+            // BufferedReader br = new BufferedReader(new FileReader(logFile));
+            // String line = null;
+            // while ((line = br.readLine()) != null) {
+            //     System.out.println(line);
+            // }
+            // br.close();
             FileInputStream configFile = new FileInputStream(logFile);
             LogManager.getLogManager().readConfiguration(configFile);
         } catch (IOException ex) {
@@ -68,25 +70,18 @@ public class Robot extends TimedRobot {
                 mLog.info("robotInit: -----------------    2018    -----------------------     2018    2018    2018");
             }
 
-            NetTblConfig.InitTables();
             mControlBoard = ControlBoard.getInstance();
             mDriveSys = DriveSys.getInstance();
             mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
-            mPneuSys = PneumaticSys.getInstance();
-            mPneuSys.setDriveLo();                  // NEVER USE HI GEAR
-            mWristSys = WristSys.getInstance();
-
-            // CameraServer.getInstance().startAutomaticCapture();
-
-            //RoboLord lord = new RoboLord();
-
+            //mPneuSys = PneumaticSys.getInstance();
             mLog.info("robotInit: Completed   ---------------------------------------");
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.robotInit:  exception: " + ex.getMessage());
         }
     }
 
+    
     /**
      * This function is called every robot packet, no matter the mode. Use this for
      * items like diagnostics that you want ran during disabled, autonomous,
@@ -99,6 +94,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
     }
 
+
     @Override
     public void disabledInit() {
         mLog.info("Robot.disabledInit  ----------------------------");
@@ -109,24 +105,20 @@ public class Robot extends TimedRobot {
         if (mElvSys != null) {
             mElvSys.disable();
         }
-        if (mDistSens != null) {
-            mDistSens.disable();
-        }
-        if (mWristSys != null) {
-            mWristSys.disable();
-        }
     }
+
 
     /**
      * gets called every 20 mSec when disabled
      */
     @Override
     public void disabledPeriodic() {
-        // mDSSensors.debug(mDriveSys.logSensors());
-        // mLogPeriodic.debug(mElvSys.printPosn("disPer:"));
+        //mDSSensors.debug(mDriveSys.logSensors());
+        //mLogPeriodic.debug(mElvSys.printPosn("disPer:"));
     }
 
-    // *********************** Autonomous  *********************************************************
+
+    // *********************** Autonomous *********************************************************
 
     /**
      * This autonomous (along with the chooser code above) shows how to select
@@ -144,15 +136,13 @@ public class Robot extends TimedRobot {
     public void autonomousInit() {
         try {
             mLog.info("autonomousInit: -----------------------------");
-            NavXSys.getInstance().zeroYawHeading();
-            Scheduler.getInstance().removeAll();
-            mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
-            Scheduler.getInstance().add(new FlowerOpenCmd());
-            Scheduler.getInstance().add(mArcadeDriveCmd);
+            mDriveDistCmd = new DriveDistCmd(60);
+            mDriveDistCmd.start();
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.autoInit:  exception: " + ex.toString());
         }
     }
+
 
     /**
      * This function is called periodically during autonomous.
@@ -160,8 +150,10 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         Scheduler.getInstance().run();
-        // mLogPeriodic.debug(mDriveSys.logSensors());
+        //mLogPeriodic.debug(mDriveSys.logSensors());
     }
+
+
 
     // *********************** Teleop  *********************************************************
 
@@ -172,34 +164,29 @@ public class Robot extends TimedRobot {
     DigitalInput mHallSwitch;
     Counter mHallCtr;
 
-    DistanceSensor mDistSens;
-
-    private int m_teleopCount = 0;
 
     @Override
     public void teleopInit() {
         try {
-            SmartDashboard.putString("teleopInit", "teleopInit  count: " + m_teleopCount++);
             mLog.info("teleopInit:  ---------------------------------");
             super.teleopInit();
+            NavXSys.getInstance().zeroYawHeading();
             Scheduler.getInstance().removeAll();
+
             mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
             Scheduler.getInstance().add(mArcadeDriveCmd);
-            // NavXSys.getInstance().zeroYawHeading();
-            // Scheduler.getInstance().removeAll();
-            // mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
-            // Scheduler.getInstance().add(mArcadeDriveCmd);
-            // mDistSens = DistanceSensor.getInstance();
-            // mDistSens.enable();
-            // mHallSwitch = new DigitalInput(0);
-            // mHallCtr = new Counter(mHallSwitch);
-            // mHallCtr.reset();
+
+            //limit switch forelevator
+            mHallSwitch = new DigitalInput(0);
+            mHallCtr = new Counter(mHallSwitch);
+            mHallCtr.reset();
             // mElvSlowCmd = new ElvMoveUpSlow();
-            // Scheduler.getInstance().add(mElvSlowCmd); //mArcadeDriveCmd);
+            // Scheduler.getInstance().add(mElvSlowCmd);      //mArcadeDriveCmd);
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopInit:  exception: " + ex.getMessage());
         }
     }
+
 
     /**
      * This function is called periodically during operator control.
@@ -209,22 +196,15 @@ public class Robot extends TimedRobot {
         try {
             // must call the scheduler to run
             Scheduler.getInstance().run();
-            // mLogPeriodic.debug("telPer: Hall Switch: %b Counter: %d period: %.3f ",
-            // mHallSwitch.get(), mHallCtr.get(), mHallCtr.getPeriod());
-            // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
-            if (mElvSys != null) {
-               // mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
-            }
-            // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
-            // if (mWristSys != null) {
-            //     mLogPeriodic.debug(mWristSys.printPosn("telPer:"));
-            // }
+            mLogPeriodic.debug("telPer: Hall Switch: %b   Counter: %d    period: %.3f ", mHallSwitch.get(), mHallCtr.get(), mHallCtr.getPeriod());
+            //mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            //mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }
     }
 
-    // ******************** test **************************************
+    // ******************** test  ********************************************************
 
     /**
      * This function is called periodically during test mode.

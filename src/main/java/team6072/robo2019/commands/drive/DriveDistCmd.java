@@ -2,7 +2,8 @@ package team6072.robo2019.commands.drive;
 
 import edu.wpi.first.wpilibj.command.Command;
 //import org.cdm.team6072.subsystems.CmdWatchdog;
-import team6072.robo2019.subsystems.DriveSys;;
+import team6072.robo2019.subsystems.DriveSys;
+import team6072.robo2019.subsystems.NavXSys;;
 
 public class DriveDistCmd extends Command {
 
@@ -46,7 +47,7 @@ public class DriveDistCmd extends Command {
     @Override
     protected void initialize() {
         mDriveSys = DriveSys.getInstance();
-        mDriveSys.initDriveDist(mDistInInches);
+        mDriveSys.initDriveDistPID(mDistInInches, NavXSys.getInstance().getYawHeading());
         if (timeout != -1) {
             this.setTimeout(timeout/1000);
         }
@@ -57,7 +58,7 @@ public class DriveDistCmd extends Command {
      * or the OI stops requesting - for example if the whileHeld() button command is used
      */
     protected void execute() {
-        mDriveSys.driveDist();
+        mDriveSys.driveDistPID();
     }
 
 
@@ -87,9 +88,9 @@ public class DriveDistCmd extends Command {
             if (isTimedOut()) {
                 System.out.println("DriveDistCmd.isFinished -- isTimedOut is true  ----------------------------");
             }
-            return mDriveSys.isDriveDistComplete() || isTimedOut();
+            return mDriveSys.isDriveDistPIDComplete() || isTimedOut();
         }
-        return mDriveSys.isDriveDistComplete();
+        return mDriveSys.isDriveDistPIDComplete();
     }
 
     

@@ -15,6 +15,7 @@ import team6072.robo2019.commands.objectives.ObjectiveCmd;
 import team6072.robo2019.commands.pneumatics.*;
 import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.subsystems.WristSys.WristTarget;
+import team6072.robo2019.commands.RoboLord.RoboLordCmd;
 import team6072.robo2019.commands.climber.*;
 /**
  * ControlBoard holds the code for interacting with the
@@ -99,11 +100,12 @@ public class ControlBoard {
 
         // Drive Stick Commands --------------------------------------
 
-        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new DriveLoCmd(), null);
-
-        MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new WristMoveUpSlowCmd(), null);  // DEBUG
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new DriveLoCmd(), null);
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new WristMoveUpSlowCmd(), null);  // DEBUG
 
         // Control Stick Commands ------------------------------------
+
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
 
         MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldPIDCmd());
         MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldPIDCmd());
@@ -117,37 +119,33 @@ public class ControlBoard {
         MapCmdToPovBut(mControlStick, PovAngle.Deg_000, new FlowerOpenCmd(), null);
         MapCmdToPovBut(mControlStick, PovAngle.Deg_180, new FlowerCloseCmd(), null);
 
-        MapCmdToPovBut(mControlStick, PovAngle.Deg_090, new HatchWristExtendCmd(), null);
-        MapCmdToPovBut(mControlStick, PovAngle.Deg_270, new HatchWristRetractCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_090, new FlowerWristExtendCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_270, new FlowerWristRetractCmd(), null);
 
         MapCmdToBut(mControlStick, EXTREME_BUT_7, new ElvKillWatchDogCmd(), null);
         MapCmdToBut(mControlStick, EXTREME_BUT_8, new ElvReviveWatchDogCmd(), null);
 
-        MapCmdToBut(mControlStick, EXTREME_BUT_9, new WristStopCmd(), null);
+        // MapCmdToBut(mControlStick, EXTREME_BUT_9, new WristStopCmd(), null);
 
-        // right panel
-        // ----------------------------------------------------------------------------------------
+        // right panel -------------------------------------------------
 
-        MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new AlignmentTurnCmd(Objective.TargetYaw.LEFT_BALL), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new RoboLordCmd(), null);
+
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new AlignmentTurnCmd(Objective.TargetYaw.LEFT_BALL), null);
 
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.RocketCargoHi), null);
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ObjectiveCmd(Objective.ElvTarget.RocketCargoMid), null);
         MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ObjectiveCmd(Objective.ElvTarget.RocketCargoLo), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.RocketHatchHi), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.RocketHatchMid), null);
-        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmd(Objective.ElvTarget.RocketHatchLo), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.RocketHatchHi), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.RocketHatchMid), null);
+        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmd(Objective.ElvTarget.RocketHatchLo), null);
 
-        // // left panel
-        // // -----------------------------------------------------------------------------------------
+        // left panel -----------------------------------------------------
 
-        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.HatchPickUp), null);
-        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.CargoshipCargo), null);
-        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.CargoshipHatch), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.HatchPickUp), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.CargoshipCargo), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.CargoshipHatch), null);
 
-        // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
-
-
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ClimbPushDownSlow() , null);
     }
 
     /**
@@ -168,7 +166,6 @@ public class ControlBoard {
         }
         mButtonList.add(but);
     }
-
     
     public enum PovAngle {
         Deg_000(0), Deg_045(45), Deg_090(90), Deg_135(135), Deg_180(180), Deg_225(225), Deg_270(270), Deg_315(315);

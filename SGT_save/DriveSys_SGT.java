@@ -1,13 +1,17 @@
 package team6072.robo2019.subsystems;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.kauailabs.navx.frc.AHRS;
 import team6072.robo2019.subsystems.PIDSourceNavX;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -17,7 +21,6 @@ import edu.wpi.first.wpilibj.PIDController;
 
 import team6072.robo2019.RobotConfig;
 import team6072.robo2019.logging.*;
-import team6072.robo2019.commands.objectives.Objective;
 
 /**
  * Implement a drive subsystem for the 2019 robot Two motors per side, driving a
@@ -29,7 +32,7 @@ import team6072.robo2019.commands.objectives.Objective;
 public class DriveSys extends Subsystem {
 
     private static final LogWrapper mLog = new LogWrapper(DriveSys.class.getName());
-    private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 5);
+
     // Objective is to have the Talon LEDs flashing green when driving forward, and
     // sensor phase in sync with velocity - use the graphing in the Phoenix Tuner
     // plot to check
@@ -50,8 +53,6 @@ public class DriveSys extends Subsystem {
 
     private DifferentialDrive mRoboDrive;
 
-    private boolean m_RoboControl;      // true - RoboLord is controlling drive
-
     private static DriveSys mInstance;
 
     public static DriveSys getInstance() {
@@ -71,7 +72,6 @@ public class DriveSys extends Subsystem {
         mLog.info("DriveSys ctor  ----------------------------------------------");
 
         try {
-            m_RoboControl = false;
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
             // SetInverted is added to decide if motor should spin clockwise or counter
             // clockwise when told to move positive/forward (green LEDs)
@@ -80,11 +80,13 @@ public class DriveSys extends Subsystem {
             mLeft_Master.setSensorPhase(RobotConfig.DRIVE_LEFT_SENSPHASE); // false);
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
+            mLeft_Slave0.configFactoryDefault();
             mLeft_Slave0.follow(mLeft_Master, FollowerType.PercentOutput);
             mLeft_Slave0.setInverted(InvertType.FollowMaster); // follow tested 2-19
 
             if (RobotConfig.IS_ROBO_2019) {
                 mLeft_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE1);
+                mLeft_Slave1.configFactoryDefault();
                 mLeft_Slave1.follow(mLeft_Master, FollowerType.PercentOutput);
                 mLeft_Slave1.setInverted(InvertType.OpposeMaster); // oppose tested 2-19
             }
@@ -94,11 +96,13 @@ public class DriveSys extends Subsystem {
             mRight_Master.setSensorPhase(RobotConfig.DRIVE_RIGHT_SENSPHASE); // false);
 
             mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
+            mRight_Slave0.configFactoryDefault();
             mRight_Slave0.follow(mRight_Master, FollowerType.PercentOutput);
             mRight_Slave0.setInverted(InvertType.FollowMaster); // follow tested 2-19
 
             if (RobotConfig.IS_ROBO_2019) {
                 mRight_Slave1 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE1);
+                mRight_Slave1.configFactoryDefault();
                 mRight_Slave1.follow(mRight_Master, FollowerType.PercentOutput);
                 mRight_Slave1.setInverted(InvertType.FollowMaster); // follow tested 2-19
             }
@@ -118,9 +122,9 @@ public class DriveSys extends Subsystem {
             // looking for a conditions where current has exceeded the Peak Current for at
             // least Peak Time. If detected, output is reduced until current measurement is
             // at or under Continuous Current.
-            mLeft_Master.configPeakCurrentLimit(100, 10);
+            mLeft_Master.configPeakCurrentLimit(20, 10);
             mLeft_Master.configPeakCurrentDuration(100);
-            mLeft_Master.configContinuousCurrentLimit(50, 10);
+            mLeft_Master.configContinuousCurrentLimit(10, 10);
             mLeft_Master.enableCurrentLimit(true);
 
             mRight_Master.configOpenloopRamp(0.1, 10);
@@ -131,9 +135,9 @@ public class DriveSys extends Subsystem {
             mRight_Master.configPeakOutputForward(1.0, 10);
             mRight_Master.configPeakOutputReverse(-1.0, 10);
 
-            mRight_Master.configPeakCurrentLimit(100, 10);
-            mRight_Master.configPeakCurrentDuration(100);
-            mRight_Master.configContinuousCurrentLimit(50, 10);
+            mRight_Master.configPeakCurrentLimit(50, 10);
+            mRight_Master.configPeakCurrentDuration(10);
+            mRight_Master.configContinuousCurrentLimit(2, 10);
             mRight_Master.enableCurrentLimit(true);
 
             // // Set the quadrature encoders to be the source feedback device for the
@@ -152,7 +156,7 @@ public class DriveSys extends Subsystem {
 
             mRoboDrive = new DifferentialDrive(mLeft_Master, mRight_Master);
             // get rid of nagging message
-            mRoboDrive.setSafetyEnabled(true);
+            mRoboDrive.setSafetyEnabled(false); // SGT
             mRoboDrive.setExpiration(2);
             /*
              * From CTRE - WPI drivetrain classes assume left and right are opposite by
@@ -166,9 +170,10 @@ public class DriveSys extends Subsystem {
 
             setSensorStartPosn();
 
-            mNavX = NavXSys.getInstance();
+            // mNavX = NavXSys.getInstance().getNavX();
+            // initYawPID();
             createDrivePID();
-            initTurnPID();
+            // initTurnPID();
             SmartDashboard.putNumber("DS_kf", kF_drive);
             SmartDashboard.putNumber("DS_kP", kP_drive);
             SmartDashboard.putNumber("DS_kI", kI_drive);
@@ -179,15 +184,6 @@ public class DriveSys extends Subsystem {
             throw ex;
         }
     }
-
-
-    /**
-     * Called by RoboLord to get control of the drive system
-     */
-    public void setRoboControl(boolean giveControl) {
-        m_RoboControl = giveControl;
-    }
-
 
     public void disable() {
         if (mDrivePID != null) {
@@ -208,7 +204,15 @@ public class DriveSys extends Subsystem {
         }
     }
 
-    @Override
+    /**
+     * Each subsystem may, but is not required to, have a default command which is
+     * scheduled whenever the subsystem is idle (the command currently requiring the
+     * system completes). The most common example of a default command is a command
+     * for the drivetrain that implements the normal joystick control. This command
+     * may be interrupted by other commands for specific maneuvers ("precision
+     * mode", automatic alignment/targeting, etc.) but after any command requiring
+     * the drivetrain completes the joystick command would be scheduled again.
+     */
     public void initDefaultCommand() {
         mLog.info("DriveSys: init default command empty");
     }
@@ -239,8 +243,9 @@ public class DriveSys extends Subsystem {
         SmartDashboard.putNumber(TAL_RIGHT + "_%", rightPercent);
         SmartDashboard.putNumber(TAL_RIGHT + "_V", rightOutVolts);
         SmartDashboard.putNumber(TAL_RIGHT + "_C", rightCurrent);
-        return String.format("DS.motors  LEFT  pc: %.3f  v: %.3f  c: %.3f    RIGHT  c: %.3f  v: %.3f  c: %.3f",
-                leftPercent, leftOutVolts, leftCurrent, rightPercent, rightOutVolts, rightCurrent);
+        //return String.format("DS.motors  LEFT  pc: %.3f  v: %.3f  c: %.3f    RIGHT  c: %.3f  v: %.3f  c: %.3f",
+        //        leftPercent, leftOutVolts, leftCurrent, rightPercent, rightOutVolts, rightCurrent);
+        return String.format("Right motor: percent %1.2f current %2.1f", rightPercent, rightCurrent);
     }
 
     public String logSensors() {
@@ -306,7 +311,8 @@ public class DriveSys extends Subsystem {
         mRoboDrive.arcadeDrive(mag, yaw, true);
     }
 
-    // ------ Drive a specified distance  ----------------------------
+    // --------------------------- Drive a specified distance
+    // ------------------------------------
 
     private int mTargetDist = 0; // distance to travel in ticks
     private int mStartPosn = 0; // start position in Talon ticks
@@ -321,11 +327,11 @@ public class DriveSys extends Subsystem {
      * 
      * @param distInInches
      */
-    public void initDriveDistPID(double distInInches, double targetYaw) {
+    public void initDriveDist(double distInInches) {
         double circumferenceInInches = Math.PI * 6;
         double revsToTarg = distInInches / circumferenceInInches;
         mTargetDist = (int) (revsToTarg * 4096);
-        mStartPosn = mRight_Master.getSelectedSensorPosition();
+        mStartPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
         mTargPosn = mStartPosn + mTargetDist;
         mLog.debug(
                 "-------------------------  initDriveDist  ----------------------------------------\n"
@@ -334,9 +340,9 @@ public class DriveSys extends Subsystem {
         mLog.debug("DS.initDriveDist: current yaw: %.3f", NavXSys.getInstance().getYawHeading());
         mHitTarg = false;
         mMoveDistLoopCnt = 0;
-        mTurnPIDController.reset();
-        mTurnPIDController.setSetpoint(targetYaw);
-        mTurnPIDController.enable();
+        mYawPID.reset();
+        mYawPID.setSetpoint(NavXSys.getInstance().getYawHeading());
+        mYawPID.enable();
         initDrivePID();
         mDrivePID.setSetpoint(mTargPosn);
         mDrivePID.enable();
@@ -346,10 +352,10 @@ public class DriveSys extends Subsystem {
      * While we have not completed driving, move forward Need to: check current
      * position decide if have driven far enough if not, keep driving if yes, stop
      */
-    public void driveDistPID() {
-        int curPosn = mRight_Master.getSelectedSensorPosition();
+    public void driveDist() {
+        int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
         double mag = mDrivePIDOut.getVal();
-        double yaw = mTurnPIDOut.getVal();
+        double yaw = mYawPIDOut.getVal();
         int error = mTargPosn - curPosn;
         if (Math.abs(error) < (4096 + 2048)) {
             // if within one revolution, lower the speed
@@ -363,9 +369,7 @@ public class DriveSys extends Subsystem {
                     error, pidErr);
         }
         mag = mag / PID_SCALE;
-        if (!mDrivePID.onTarget()){
-            mRoboDrive.arcadeDrive(mag, yaw, false);
-        }
+        mRoboDrive.arcadeDrive(mag, yaw, false);
         mHitTarg = mDrivePID.onTarget();
     }
 
@@ -374,7 +378,7 @@ public class DriveSys extends Subsystem {
      * 
      * @return true if have completed driving
      */
-    public boolean isDriveDistPIDComplete() {
+    public boolean isDriveDistComplete() {
         if (mDrivePID.onTarget()) {
             arcadeDrive(0, 0);
             int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
@@ -394,7 +398,7 @@ public class DriveSys extends Subsystem {
         return false;
     }
 
-    // ---------------- Drive distance PID -------------------------------
+    // ---------------- Drive distance PID -----------------------------------------
 
     // resources for understanding PID
     // https://www.youtube.com/watch?v=wkfEZmsQqiA
@@ -458,67 +462,121 @@ public class DriveSys extends Subsystem {
 
     // ------------------ NavX PID for yaw ------------------------------------
 
-    // static final double kF_yaw = 0.00;
-    // static final double kP_yaw = 0.03;
-    // static final double kI_yaw = 0.00;
-    // static final double kD_yaw = 0.00;
-    // /* This tuning parameter indicates how close to "on target" the */
-    // /* PID Controller will attempt to get. */
-    // static final double kToleranceDegrees = 2.0f;
+    static final double kF_yaw = 0.00;
+    static final double kP_yaw = 0.03;
+    static final double kI_yaw = 0.00;
+    static final double kD_yaw = 0.00;
+    /* This tuning parameter indicates how close to "on target" the */
+    /* PID Controller will attempt to get. */
+    static final double kToleranceDegrees = 2.0f;
 
+    private AHRS mNavX;
+    private PIDController mYawPID;
+    private PIDOutReceiver mYawPIDOut;
 
-    // private PIDController mYawPID;
-    // private PIDOutReceiver mYawPIDOut;
+    private void initYawPID() {
+        mLog.info("DS.initYawPID:  AHRS.SrcType: " + mNavX.getPIDSourceType().name());
+        mYawPIDOut = new PIDOutReceiver();
+        mYawPID = new PIDController(kP_yaw, kI_yaw, kD_yaw, kF_yaw, mNavX, mYawPIDOut);
+        mYawPID.setName("DS.YawPID");
+        mYawPID.setInputRange(-180.0f, 180.0f);
+        mYawPID.setOutputRange(-1.0, 1.0);
+        // Makes PIDController.onTarget() return True when PIDInput is within the
+        // Setpoint +/- the absolute tolerance.
+        mYawPID.setAbsoluteTolerance(kToleranceDegrees);
+        // Treats the input ranges as the same, continuous point rather than two
+        // boundaries, so it can calculate shorter routes.
+        // For example, in a gyro, 0 and 360 are the same point, and should be
+        // continuous. Needs setInputRanges.
+        mYawPID.setContinuous(true);
+        // mYawPID.setSetpoint(0);
+        // mYawPID.enable();
+    }
 
-    // private void initYawPID() {
-    //     mLog.info("DS.initYawPID:  AHRS.SrcType: " + mNavX.getNavX().getPIDSourceType().name());
-    //     mYawPIDOut = new PIDOutReceiver();
-    //     mYawPID = new PIDController(kP_yaw, kI_yaw, kD_yaw, kF_yaw, mNavX.getNavX(), mYawPIDOut);
-    //     mYawPID.setName("DS.YawPID");
-    //     mYawPID.setInputRange(-180.0f, 180.0f);
-    //     mYawPID.setOutputRange(-1.0, 1.0);
-    //     // Makes PIDController.onTarget() return True when PIDInput is within the
-    //     // Setpoint +/- the absolute tolerance.
-    //     mYawPID.setAbsoluteTolerance(kToleranceDegrees);
-    //     // Treats the input ranges as the same, continuous point rather than two
-    //     // boundaries, so it can calculate shorter routes.
-    //     // For example, in a gyro, 0 and 360 are the same point, and should be
-    //     // continuous. Needs setInputRanges.
-    //     mYawPID.setContinuous(true);
-    //     // mYawPID.setSetpoint(0);
-    //     // mYawPID.enable();
-    // }
+    // ------------------ Magic motion drive distance
+    // -------------------------------------------
 
-// 
-    // AlignmentTurnCmd -------------------------------------------------
+    // Motion Magic values
+    /*
+     * kF calculation: = full forward value * duty-cycle (%) / runtime calculated
+     * target (ticks, velocity units/100 ms) = 1023 * 100% / 1525 =
+     * 0.67081967213114754098360655737705 (1525 determined through PhoenixTuner
+     * self-test)
+     */
+    private static final double kF = 0.67081967213114754098360655737705;
+    private static final double kP = 1;
+    private static final double kI = 0;
+    private static final double kD = 0;
 
-    static final double mKP_turn = 2.0;
-    static final double mKI_turn = 0.0;
-    static final double mKD_turn = 1.0;
-    static final double mKF_turn = 0.0;
+    private static final int kPIDLoopIdx = 0;
+    private static final int kTimeoutMs = 5;
+    private static final int kSlotIdx = 0;
+
+    private double mMMTarget; // target in encoder ticks
+
+    public void initMagicMotion(double distInInches) {
+        double circumferenceInInches = Math.PI * 6;
+        double revsToTarg = distInInches / circumferenceInInches;
+        mTargetDist = (int) (revsToTarg * 4096);
+        mStartPosn = mRight_Master.getSelectedSensorPosition();
+        mMMTarget = mStartPosn + mTargetDist;
+
+        // select profile slot
+        mLeft_Master.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
+        mRight_Master.selectProfileSlot(kSlotIdx, kPIDLoopIdx);
+        // config pidf values
+        mLeft_Master.config_kF(kSlotIdx, kF, kTimeoutMs);
+        mLeft_Master.config_kP(kSlotIdx, kP, kTimeoutMs);
+        mLeft_Master.config_kI(kSlotIdx, kI, kTimeoutMs);
+        mLeft_Master.config_kD(kSlotIdx, kD, kTimeoutMs);
+
+        mRight_Master.config_kF(kSlotIdx, kF, kTimeoutMs);
+        mRight_Master.config_kP(kSlotIdx, kP, kTimeoutMs);
+        mRight_Master.config_kI(kSlotIdx, kI, kTimeoutMs);
+        mRight_Master.config_kD(kSlotIdx, kD, kTimeoutMs);
+
+        mLeft_Master.setSelectedSensorPosition(0);
+        mRight_Master.setSelectedSensorPosition(0);
+
+        mLeft_Master.set(ControlMode.MotionMagic, mMMTarget);
+        mRight_Master.set(ControlMode.MotionMagic, mMMTarget);
+    }
+
+    /**
+     * Called by the command exec - test if in target tolerance and return true
+     * 
+     * @param target
+     * @return
+     */
+    public boolean motionMagicOnTarget() {
+        double tolerance = 50;
+        double currentPos = mLeft_Master.getSelectedSensorPosition();
+        return Math.abs(currentPos - mMMTarget) < tolerance;
+    }
+
+    // AlignmentTurnCmd
+    // -----------------------------------------------------------------------------------------
+
+    static final double mKF_turn = 2.0;
+    static final double mKP_turn = 0.0;
+    static final double mKI_turn = 1.0;
+    static final double mKD_turn = 0.0;
     /* This tuning parameter indicates how close to "on target" the */
     /* PID Controller will attempt to get. */
     static final double mKToleranceDegreesTurn = 2.0;
 
-    private NavXSys mNavX;
     private PIDController mTurnPIDController;
     private PIDOutReceiver mTurnPIDOut;
     private PIDSourceNavX mTurnPIDSource;
 
-    private static final int PIDOUT_SCALE = 100;
-    private static final double MIN_TURNDRIVEPOWER = 0.2;
-
-    private double mTurnDriveSpeed;
-
     public void initTurnPID() {
-        mNavX.zeroYawHeading();
-        mLog.info("DS.initYawPID:  CurrentYaw: " + mNavX.getYawHeading());
+        mLog.info("DS.initYawPID:  AHRS.SrcType: " + mNavX.getPIDSourceType().name());
         mTurnPIDOut = new PIDOutReceiver();
         mTurnPIDSource = new PIDSourceNavX();
         mTurnPIDController = new PIDController(mKP_turn, mKI_turn, mKD_turn, mKF_turn, mTurnPIDSource, mTurnPIDOut);
         mTurnPIDController.setName("DS.TurnPID");
-        mTurnPIDController.setInputRange(-180.0, 180.0);
-        mTurnPIDController.setOutputRange(-PIDOUT_SCALE, PIDOUT_SCALE);
+        mTurnPIDController.setInputRange(-180.0f, 180.0f);
+        mTurnPIDController.setOutputRange(-1.0, 1.0);
         // Makes PIDController.onTarget() return True when PIDInput is within the
         // Setpoint +/- the absolute tolerance.
         mTurnPIDController.setAbsoluteTolerance(mKToleranceDegreesTurn);
@@ -530,73 +588,17 @@ public class DriveSys extends Subsystem {
 
     }
 
-
-    private double mTurnPIDSetpoint;
-    private boolean mTurnDrivePIDEnabled = false;
-
-    /**
-     * Set a target for the turn, and a drive speed to be using
-     */
-    public void initTurnDrivePID(double targetYawDeg, double turnDriveSpeed) {
-        mLog.debug("DS.initTurnDrivePID: " + targetYawDeg + " NavX YawDeg : " + mNavX.getYawHeading());
-        mTurnDriveSpeed = turnDriveSpeed;
-        mTurnPIDSetpoint = targetYawDeg;
-        mTurnPIDController.setSetpoint(targetYawDeg);
-        mTurnDrivePIDEnabled = true;
+    public void initTurnDrive(double target) {
+        mTurnPIDController.setSetpoint(target);
         mTurnPIDController.enable();
     }
 
-    /**
-     * The yaw from turnPIDOut is not an angle, it is a arcade drive value (-1 to +1) possibly scaled
-     * Allow updating the setpoint for the PID
-     */
-    public void execTurnDrivePID(double setPoint) {
-        if (!mTurnDrivePIDEnabled) {
-            return;
-        }
-        if (setPoint != mTurnPIDSetpoint) {
-            mTurnPIDSetpoint = setPoint;
-            mTurnPIDController.setSetpoint(setPoint);
-        }
-        double yawMag = mTurnPIDOut.getVal() / PIDOUT_SCALE;
-        if (abs(yawMag) < MIN_TURNDRIVEPOWER) {
-            if (yawMag > 0.0) {
-                yawMag = MIN_TURNDRIVEPOWER;
-            }
-            else {
-                yawMag = -MIN_TURNDRIVEPOWER;
-            }
-        }
-        mPLog.debug("DS.execTD  PIDyawMag = " + yawMag + "   NavXYawDeg: " + mNavX.getYawHeading());
-        mRoboDrive.arcadeDrive(mTurnDriveSpeed, yawMag, true);
+    public void arcadeTurnPID() {
+        arcadeDrive(0, mTurnPIDOut.getVal());
     }
 
-
-    public boolean isFinishedTurnDrivePID() {
-        boolean finished = false;
-        if (mTurnPIDController.onTarget()) {
-            mLog.debug("DS TurnPID complete   Current Yaw : " + mNavX.getYawHeading());
-            finished = true;
-            arcadeDrive(0, 0);
-            mTurnPIDController.disable();
-        }
-        return finished;
-    }
-
-
-    /**
-     * Disable the turnPID process - used by RoboLord when on centerline
-     */
-    public void stopTurnDrivePID() {
-        mTurnDrivePIDEnabled = false;
-        mTurnPIDController.disable();
-    }
-
-    public double abs(double num) {
-        if (num < 0) {
-            num = num * -1;
-        }
-        return num;
+    public boolean isFinishedTurning() {
+        return mTurnPIDController.onTarget();
     }
 
 }

@@ -10,6 +10,7 @@ import com.kauailabs.navx.AHRSProtocol.AHRSUpdateBase;
 
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import team6072.robo2019.NetTblConfig;
 import team6072.robo2019.logging.*;
 
 /**
@@ -67,6 +68,7 @@ public class NavXSys {
                 mYawDegrees = update.yaw;
                 mLinAcel_X = update.linear_accel_x;
                 mLinAcel_Y = update.linear_accel_y;
+                NetTblConfig.setVal(NetTblConfig.T_VISION, NetTblConfig.KV_ROBO_YAW, mYawDegrees);
             }
         }
     }
