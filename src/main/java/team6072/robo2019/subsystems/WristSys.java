@@ -19,7 +19,6 @@ public class WristSys extends Subsystem {
     private static final LogWrapper mLog = new LogWrapper(WristSys.class.getName());
     private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 50);
 
-
     private static WristSys mInstance;
 
     public static enum Direction {
