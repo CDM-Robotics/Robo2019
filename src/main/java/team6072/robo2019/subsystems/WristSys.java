@@ -397,6 +397,7 @@ public class WristSys extends Subsystem {
         if (m_movePID != null) {
             m_movePID.disable();
         }
+        mMoveStopped = false;
         mStartPosn = getWristPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
@@ -423,8 +424,7 @@ public class WristSys extends Subsystem {
         mPLog.debug(printPosn("execExtend"));
     }
 
-    // ------------------ Move Retract
-    // -------------------------------------------------------------
+    // ----------- Move Retract -----------------------------------------------
 
     /**
      * Move down at -0.1 power
@@ -436,6 +436,7 @@ public class WristSys extends Subsystem {
         if (m_movePID != null) {
             m_movePID.disable();
         }
+        mMoveStopped = false;
         mStartPosn = getWristPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
@@ -461,12 +462,19 @@ public class WristSys extends Subsystem {
 
     // ---------------- Wrist Stop Cmd---------------------------
 
+    private boolean mMoveStopped = false;
+
+    public boolean moveStopped() {
+        return mMoveStopped;
+    }
+
     public void stop() {
         mLog.debug("Killing Wrist");
         if (m_holdPID != null) {
             m_holdPID.disable();
         }
         mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
+        mMoveStopped = true;        // causes WristExtendCmd and WristRetractCmd to stop
     }
 
     // ---------------Wrist Hold  Cmd-------------------------
