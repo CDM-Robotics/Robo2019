@@ -101,7 +101,6 @@ public class ControlBoard {
         // Drive Stick Commands --------------------------------------
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new DriveLoCmd(), null);
-
         // MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new WristMoveUpSlowCmd(), null);  // DEBUG
 
         // Control Stick Commands ------------------------------------

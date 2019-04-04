@@ -17,6 +17,8 @@ import team6072.robo2019.pid.TTPIDController;
 public class WristSys extends Subsystem {
 
     private static final LogWrapper mLog = new LogWrapper(WristSys.class.getName());
+    private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 50);
+
 
     private static WristSys mInstance;
 
@@ -341,13 +343,10 @@ public class WristSys extends Subsystem {
 
     private double mPercentOut;
 
-    private PeriodicLogger mPLog;
-
     public void initMovSlowUp() {
         mStartPosn = getWristPosition();
         mPercentOut = 0.0;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initMovSlowUp"));
     }
 
@@ -402,7 +401,6 @@ public class WristSys extends Subsystem {
         mStartPosn = getWristPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug("********************");
         mLog.debug(printPosn("initExtend:") );
     }
@@ -442,7 +440,6 @@ public class WristSys extends Subsystem {
         mStartPosn = getWristPosition();
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initRetract"));
     }
 
@@ -454,7 +451,7 @@ public class WristSys extends Subsystem {
         double speed = -MAX_WRIST_SPEED;
         if (mTalon.getSelectedSensorVelocity() < 0) {
             int currentPosition = getWristPosition();
-            int displacement = currentPosition - TICKS_AT_90;
+            int displacement = TICKS_AT_90 - currentPosition;
             double displacementAngle = displacement * (1 / TICKS_PER_DEG);
             speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
         }
