@@ -10,13 +10,13 @@ package team6072.robo2019.commands.pneumatics;
 import edu.wpi.first.wpilibj.command.Command;
 import team6072.robo2019.subsystems.PneumaticSys;
 
-public class HatchWristRetractCmd extends Command {
+public class FlowerWristRetractCmd extends Command {
 
 
   private PneumaticSys mPneuSys;
 
 
-  public HatchWristRetractCmd() {
+  public FlowerWristRetractCmd() {
     mPneuSys = PneumaticSys.getInstance();
     requires(mPneuSys);
    
