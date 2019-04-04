@@ -185,8 +185,6 @@ public class WristSys extends Subsystem {
             // in case we are in magic motion or position hold mode
             mTalon.set(ControlMode.PercentOutput, 0);
 
-            mTalon.enableLi
-
             mTalon.setSensorPhase(TALON_SENSOR_PHASE);
             mTalon.setInverted(TALON_INVERT);
             mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
