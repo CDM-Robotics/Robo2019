@@ -74,6 +74,7 @@ public class Robot extends TimedRobot {
             mElvSys = ElevatorSys.getInstance();
             mNavXsys = NavXSys.getInstance();
             mPneuSys = PneumaticSys.getInstance();
+            mPneuSys.setDriveLo();                  // NEVER USE HI GEAR
             mWristSys = WristSys.getInstance();
 
             // CameraServer.getInstance().startAutomaticCapture();

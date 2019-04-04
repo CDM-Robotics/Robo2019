@@ -107,23 +107,23 @@ public class ControlBoard {
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldPIDCmd());
-        // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldPIDCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldPIDCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldPIDCmd());
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristExtendCmd(), new WristStopCmd());  // new WristHoldPIDCmd());
-        // MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristRetractCmd(), new WristStopCmd()); // new WristHoldPIDCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristExtendCmd(), new WristStopCmd());  // new WristHoldPIDCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristRetractCmd(), new WristStopCmd()); // new WristHoldPIDCmd());
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), new IntakeWheelsStopCmd());
-        // MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), new IntakeWheelsStopCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), new IntakeWheelsStopCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), new IntakeWheelsStopCmd());
 
-        // MapCmdToPovBut(mControlStick, PovAngle.Deg_000, new FlowerOpenCmd(), null);
-        // MapCmdToPovBut(mControlStick, PovAngle.Deg_180, new FlowerCloseCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_000, new FlowerOpenCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_180, new FlowerCloseCmd(), null);
 
-        // MapCmdToPovBut(mControlStick, PovAngle.Deg_090, new HatchWristExtendCmd(), null);
-        // MapCmdToPovBut(mControlStick, PovAngle.Deg_270, new HatchWristRetractCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_090, new HatchWristExtendCmd(), null);
+        MapCmdToPovBut(mControlStick, PovAngle.Deg_270, new HatchWristRetractCmd(), null);
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_7, new ElvKillWatchDogCmd(), null);
-        // MapCmdToBut(mControlStick, EXTREME_BUT_8, new ElvReviveWatchDogCmd(), null);
+        MapCmdToBut(mControlStick, EXTREME_BUT_7, new ElvKillWatchDogCmd(), null);
+        MapCmdToBut(mControlStick, EXTREME_BUT_8, new ElvReviveWatchDogCmd(), null);
 
         // MapCmdToBut(mControlStick, EXTREME_BUT_9, new WristStopCmd(), null);
 

@@ -23,6 +23,8 @@ public class ElevatorSys extends Subsystem {
 
     private static final LogWrapper mLog = new LogWrapper(ElevatorSys.class.getName());
 
+    private PeriodicLogger mPLog;
+
     public static ElevatorSys mInstance;
 
     public static enum Direction {
@@ -146,6 +148,7 @@ public class ElevatorSys extends Subsystem {
 
     public ElevatorSys() {
         mLog.info("ElevatorSys ctor  ----------------------------------------------");
+        mPLog = new PeriodicLogger(mLog, 5);
         try {
             mTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_MASTER);
             mTalon.configFactoryDefault();
@@ -214,9 +217,9 @@ public class ElevatorSys extends Subsystem {
             setSensorStartPosn();
 
             // set the watch dog going
-            // mWatchDogTimer = new Timer("ElvSys watchdog");
+            mWatchDogTimer = new Timer("ElvSys watchdog");
             // // wait for 1 second before starting, then check every 50 milliseconds
-            // mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+            mWatchDogTimer.schedule(mWatchDog, 1000, 50);
 
             mLog.info("ElevatorSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
@@ -224,8 +227,7 @@ public class ElevatorSys extends Subsystem {
             throw ex;
         }
     }
-    // -----------------------WatchDog functions------------
-    // -----------------------------------------------------
+    // ---------- WatchDog  -----------------------------
 
     public void killWatchDog() {
         mLog.info("Killing Watchdog");
@@ -267,8 +269,7 @@ public class ElevatorSys extends Subsystem {
         m_botLimitSwitchActive = m_BottomLimit.get();
     }
 
-    // ------------ set up watch on talon position and disable if out of bounds
-    // -----------------------
+    // -------set up watch on talon position, disable if out of bounds ---------------
 
     private Timer mWatchDogTimer = new Timer();
 
@@ -284,13 +285,13 @@ public class ElevatorSys extends Subsystem {
                 m_DontMoveDown = false;
                 m_DontMoveUp = true;
                 mTalon.set(ControlMode.PercentOutput, 0);
-                mLog.severe("WristSys: talon exceeded forward boundry");
+                mLog.severe("ElvSys: talon exceeded forward boundry");
             } else if (curPosn < MIN_TRAVEL && curOutput < 0) {
                 // past the max boundry and going forward
                 m_DontMoveDown = true;
                 m_DontMoveUp = false;
                 mTalon.set(ControlMode.PercentOutput, 0);
-                mLog.severe("WristSys: talon exceeded backward boundry");
+                mLog.severe("ElvSys: talon exceeded backward boundry");
             } else {
                 m_DontMoveDown = false;
                 m_DontMoveUp = false;
@@ -330,20 +331,13 @@ public class ElevatorSys extends Subsystem {
             // absSensPosn is negative if moving down
             sensPosnSign = "(-)";
         }
-        int quadPosn = mTalon.getSensorCollection().getQuadraturePosition();
-        int pwPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         int selSensPosn = mTalon.getSelectedSensorPosition(0);
-        int pwDelta = pwPosn - mBasePosn;
-        double pwVel = mTalon.getSensorCollection().getPulseWidthVelocity();
-        int relDelta = absSensPosn - mBasePosn;
-        int quadDelta = quadPosn - mBasePosn;
         double vel = mTalon.getSensorCollection().getQuadratureVelocity();
         double mout = mTalon.getMotorOutputPercent();
         double voltOut = mTalon.getMotorOutputVoltage();
         double curOut = mTalon.getOutputCurrent();
         mLastSensPosn = absSensPosn;
 
-        mLastQuadPosn = quadPosn;
         return String.format(
                 "ES.%s  AtBase: %b LimCnt: %d   base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f",
                 caller, m_botLimitSwitchActive, m_BottomLimitCtr.get(), mBasePosn, selSensPosn, vel, mout, voltOut,
@@ -360,13 +354,10 @@ public class ElevatorSys extends Subsystem {
 
     private double mPercentOut;
 
-    private PeriodicLogger mPLog;
-
     public void initMovSlowUp() {
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = 0.0;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initMovSlowUp"));
     }
 
@@ -397,8 +388,7 @@ public class ElevatorSys extends Subsystem {
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
     }
 
-    // ---------------------------Move To w/ PID
-    // -----------------------------------------------------------------
+    // -----------Move To w/ PID -----------------------------------------
 
     private final double AUTO_SPEED = 0.3;
     private boolean ElvMoveUpPolarity;
@@ -439,8 +429,7 @@ public class ElevatorSys extends Subsystem {
         }
     }
 
-    // ------------------ Move Up
-    // -------------------------------------------------------------
+    // ------------------ Move Up ---------------------------------
 
     /**
      * Move up at 0.3 power more than hold
@@ -452,10 +441,9 @@ public class ElevatorSys extends Subsystem {
         if (m_movePID != null) {
             m_movePID.disable();
         }
-        mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        mStartPosn = mTalon.getSelectedSensorPosition();
         mPercentOut = MANUAL_POWER_UP;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug("********************");
         mLog.debug(printPosn("initMoveUp"));
     }
@@ -469,8 +457,7 @@ public class ElevatorSys extends Subsystem {
         mPLog.debug(printPosn("execMoveUp"));
     }
 
-    // ------------------ Move Down
-    // -------------------------------------------------------------
+    // ---------- Move Down  -------------------------------
 
     /**
      * Move down at -0.1 power
@@ -482,8 +469,8 @@ public class ElevatorSys extends Subsystem {
         if (m_movePID != null) {
             m_movePID.disable();
         }
-        mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        mPercentOut = BASE_PERCENT_OUT;
+        mStartPosn = mTalon.getSelectedSensorPosition();
+        mPercentOut = MANUAL_POWER_DOWN;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog = new PeriodicLogger(mLog, 5);
         mLog.debug(printPosn("initMoveDown"));
@@ -498,8 +485,8 @@ public class ElevatorSys extends Subsystem {
         mPLog.debug(printPosn("execMoveDown"));
     }
 
-    // ---------- hold posn PID using the TritonTech PID
-    // ----------------------------------
+
+    // ------ hold posn PID using the TritonTech PID -------------------
 
     /**
      * Sensor is on output of gearing (not on motor) Set the tolerance to +- 0.5
@@ -526,7 +513,7 @@ public class ElevatorSys extends Subsystem {
      * Hold at the current position
      */
     public void enableHoldPosnPID() {
-        int curPosn = mTalon.getSelectedSensorPosition(0);
+        int curPosn = mTalon.getSelectedSensorPosition();
         enableHoldPosnPID(curPosn);
     }
 
