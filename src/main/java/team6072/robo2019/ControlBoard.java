@@ -15,6 +15,8 @@ import team6072.robo2019.commands.objectives.ObjectiveCmd;
 import team6072.robo2019.commands.pneumatics.*;
 import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.subsystems.WristSys.WristTarget;
+import team6072.robo2019.commands.LED.LEDKillCmd;
+import team6072.robo2019.commands.LED.LEDLightsOnCmd;
 import team6072.robo2019.commands.RoboLord.RoboLordCmd;
 import team6072.robo2019.commands.climber.*;
 /**
@@ -100,8 +102,8 @@ public class ControlBoard {
 
         // Drive Stick Commands --------------------------------------
 
-        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new (), null);
-        MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new (), null);  // DEBUG
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new LEDLightsOnCmd(.5), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new LEDKillCmd(), null);  // DEBUG
 
 
         // Control Stick Commands ------------------------------------
