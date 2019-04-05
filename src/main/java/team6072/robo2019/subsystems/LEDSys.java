@@ -21,6 +21,7 @@ public class LEDSys extends Subsystem {
 
     private static LEDSys mInstance;
     private WPI_TalonSRX mTalon;
+    private double mPercentBrightness;
 
     public static LEDSys getInstance(){
         if(mInstance == null){
@@ -35,10 +36,22 @@ public class LEDSys extends Subsystem {
     }
 
     public void set(double percent){
+        mPercentBrightness = percent;
         mTalon.set(ControlMode.PercentOutput, percent);
     }
 
+    public void incrementBrightness(){
+        mPercentBrightness = mPercentBrightness + .1;
+        mTalon.set(ControlMode.PercentOutput, mPercentBrightness);
+    }
+    public void decrementBrightness(){
+        mPercentBrightness = mPercentBrightness - .1;
+
+        mTalon.set(ControlMode.PercentOutput, mPercentBrightness);
+    }
+
     public void killLights(){
+        mPercentBrightness = 0;
         mTalon.set(ControlMode.PercentOutput, 0);
     }
 
