@@ -14,7 +14,7 @@ public class ElvPIDClimbCmd extends Command{
     public void initialize(){
         mSys = ElevatorSys.getInstance();
         requires(mSys);
-        mSys.initNavXClimbPID();
+        // mSys.initNavXClimbPID();
     }
     @Override
     public void execute(){
