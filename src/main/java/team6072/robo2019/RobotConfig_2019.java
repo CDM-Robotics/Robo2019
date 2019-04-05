@@ -49,7 +49,7 @@ public class RobotConfig_2019 {
     public static final double WRIST_BASE_PERCENT_OUT = 0.0;
 
     public static final int WRIST_MASTER = 11;
-    public static final int WRIST_SLAVE0 = 10; // only in 2019
+    public static final int LED_MASTER = 10; // only in 2019
 
     public static final int WRIST_SWITCH_TOP = 3;
     public static final int WRIST_SWITCH_BOT = 2;

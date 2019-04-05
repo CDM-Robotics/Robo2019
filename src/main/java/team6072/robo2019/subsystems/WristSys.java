@@ -214,7 +214,7 @@ public class WristSys extends Subsystem {
 
             setSensorStartPosn();
 
-            // // set the watch dog going
+            // set the watch dog going
             // mWatchDogTimer = new Timer("WristSys watchdog");
             // // wait for 1 second before starting, then check every 50 milliseconds
             // mWatchDogTimer.schedule(mWatchDog, 1000, 50);
@@ -516,11 +516,20 @@ public class WristSys extends Subsystem {
         }
     }
 
+    private final int WRIST_COMPENSATION_TICKS = 200;
+
     /**
      * Hold at the current position
      */
     public void enableHoldPosnPID() {
         int curPosn = mTalon.getSelectedSensorPosition(0);
+        double displacement = Math.abs(TICKS_AT_90 - curPosn);
+        double displacementAngle = (displacement  / TICKS_PER_DEG) / 180 * Math.PI;
+        if(curPosn > TICKS_AT_90){
+            curPosn -= WRIST_COMPENSATION_TICKS * Math.sin(displacementAngle);
+        }else{
+            curPosn += WRIST_COMPENSATION_TICKS * Math.sin(displacementAngle);
+        }
         enableHoldPosnPID(curPosn);
     }
 

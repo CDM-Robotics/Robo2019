@@ -100,21 +100,19 @@ public class ControlBoard {
 
         // Drive Stick Commands --------------------------------------
 
-        // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new DriveLoCmd(), null);
-        // MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new WristMoveUpSlowCmd(), null);  // DEBUG
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new (), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new (), null);  // DEBUG
+
 
         // Control Stick Commands ------------------------------------
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new ElvMoveUpSlow(), null);
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd()); //new ElvHoldPIDCmd()
-        // MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd()); //new ElvHoldPIDCmd()
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd()); //new ElvHoldPIDCmd()
+        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd()); //new ElvHoldPIDCmd()
 
-        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new WristTestExtend(), new WristStopCmd()); // new ElvHoldPIDCmd()
-        MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new WristTestRetract(), new WristStopCmd()); // new ElvHoldPIDCmd()
-
-        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristExtendCmd(), new WristStopCmd());  // new WristHoldPIDCmd());
-        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristRetractCmd(), new WristStopCmd()); // new WristHoldPIDCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristExtendCmd(), new WristHoldPIDCmd());  // new WristHoldPIDCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristRetractCmd(), new WristHoldPIDCmd()); // new WristHoldPIDCmd());
 
         MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), new IntakeWheelsStopCmd());
         MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), new IntakeWheelsStopCmd());
