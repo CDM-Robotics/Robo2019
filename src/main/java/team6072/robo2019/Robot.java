@@ -213,7 +213,7 @@ public class Robot extends TimedRobot {
             // mHallSwitch.get(), mHallCtr.get(), mHallCtr.getPeriod());
             // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
             if (mElvSys != null) {
-               // mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
+               mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
             }
             // // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
             // if (mWristSys != null) {

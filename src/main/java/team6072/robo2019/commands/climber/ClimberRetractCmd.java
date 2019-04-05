@@ -7,11 +7,11 @@ import team6072.robo2019.subsystems.ClimberSys;;
  * Move the Climber down very slowly until irt has moved 500 ticks from start
  * Designed for testing the current needed to move Climber
  */
-public class ClimbWithElvCmd extends Command {
+public class ClimberRetractCmd extends Command {
 
     private ClimberSys mSys;
 
-    public ClimbWithElvCmd() {
+    public ClimberRetractCmd() {
         mSys = ClimberSys.getInstance();
         requires(mSys);
     }

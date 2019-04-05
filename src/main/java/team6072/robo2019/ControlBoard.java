@@ -102,8 +102,10 @@ public class ControlBoard {
 
         // Drive Stick Commands --------------------------------------
 
-        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new LEDLightsOnCmd(.5), null);
-        MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new LEDKillCmd(), null);  // DEBUG
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new LEDLightsOnCmd(1), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new LEDKillCmd(), null); 
+        MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new LEDLightsOnCmd(.1), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_BOT, new LEDLightsOnCmd(.3), null);
 
 
         // Control Stick Commands ------------------------------------
