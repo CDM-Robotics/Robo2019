@@ -170,9 +170,16 @@ public class ClimberSys extends Subsystem {
      * When we get to HAB_LEVEL, stop moving the elvator but continue the climber
      * so that the robot tips forward.
      */
-    public void execClimb() {
-
+    public void extendClimber() {
+        mClimbTalon.set(ControlMode.PercentOutput, RobotConfig.CLIMBER_MAX_SPEED);
     }
+
+    
+    public void retractClimber() {
+        mClimbTalon.set(ControlMode.PercentOutput, -RobotConfig.CLIMBER_MAX_SPEED);
+    }
+
+
 
     
     /**
@@ -191,4 +198,9 @@ public class ClimberSys extends Subsystem {
 
     
 
+    // kill Command ---------------------------------------------------------------
+
+    public void killClimber(){
+        mClimbTalon.set(ControlMode.PercentOutput, 0);
+    }
 }

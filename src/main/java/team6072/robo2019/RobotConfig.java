@@ -64,6 +64,8 @@ public class RobotConfig {
     public static final int CLIMBER_SLAVE0 = 7; // 2019
     public static final double CLIMB_BASE_PERCENT_OUT = 0.2;
 
+    public static final double CLIMBER_MAX_SPEED = .4;
+
     // Power Distribution Panel - NOTE FRC says needs to be 0 for 2018 WPILib
     public static final int PDP_ID = 0;
 
