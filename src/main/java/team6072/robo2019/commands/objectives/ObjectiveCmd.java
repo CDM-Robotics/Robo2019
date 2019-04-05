@@ -8,6 +8,8 @@
 package team6072.robo2019.commands.objectives;
 
 import edu.wpi.first.wpilibj.command.Command;
+import team6072.robo2019.logging.LogWrapper;
+import team6072.robo2019.subsystems.ElevatorSys;
 
 
 
@@ -16,10 +18,16 @@ import edu.wpi.first.wpilibj.command.Command;
  */
 public class ObjectiveCmd extends Command {
 
+    private static final LogWrapper mLog = new LogWrapper(ObjectiveCmd.class.getName());
+
     Objective.ElvTarget mObjective;
     ObjectiveCmdGrp mGroup;
 
+    ElevatorSys mElvSys;
+
     public ObjectiveCmd(Objective.ElvTarget obj) {
+        mElvSys = ElevatorSys.getInstance();
+        requires(mElvSys);
         mObjective = obj;
     }
 
@@ -50,7 +58,9 @@ public class ObjectiveCmd extends Command {
     // subsystems is scheduled to run
     @Override
     protected void interrupted() {
+        mLog.debug("ObjCmd: interrupted obj: %s", mObjective.toString());
     }
+
 
 }
 

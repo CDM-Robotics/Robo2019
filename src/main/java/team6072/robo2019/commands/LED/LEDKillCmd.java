@@ -1,8 +1,7 @@
 package team6072.robo2019.commands.LED;
 
 import edu.wpi.first.wpilibj.command.Command;
-import team6072.robo2019.subsystems.ClimberSys;
-import team6072.robo2019.subsystems.LEDSys;;
+import team6072.robo2019.subsystems.LEDSys;
 
 /**
  * Move the Climber down very slowly until irt has moved 500 ticks from start

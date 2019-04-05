@@ -135,6 +135,10 @@ public class ElevatorSys extends Subsystem {
     private Notifier m_BotLimitWatcher;
     private boolean m_botLimitSwitchActive = false;
 
+    private enum ELV_STATE {
+        IDLE, MANUALUP, MANUALDOWN, HOLD, PIDMOVE, PIDHOLD
+    }
+
     public static ElevatorSys getInstance() {
         if (mInstance == null) {
             mInstance = new ElevatorSys();
@@ -497,13 +501,14 @@ public class ElevatorSys extends Subsystem {
         if (m_holdPID == null) {
             mLog.debug(printPosn("initHoldPosnPID:"));
             m_HoldPidOutTalon = new PIDOutTalon(mTalon, 0.1, -0.8, 0.8);
-            double kP = 0.005 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
+            double kP = 0.01 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0; //0.000001;
             double kD = 0.0;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_HoldPidOutTalon, periodInSecs);
             m_holdPID.setAbsoluteTolerance(0.5 * TICKS_PER_INCH); // allow +- 200 units (0.4 inches) on error
+            m_holdPID.setRamp(0.0, 0.0);        // no ramping on a hold
         } else {
             m_holdPID.reset();
         }
@@ -572,10 +577,9 @@ public class ElevatorSys extends Subsystem {
             double kD = 0.0;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-            m_movePID = new TTPIDController("PID.elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
+            m_movePID = new TTPIDController("elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
                     periodInSecs);
-            m_movePID.setAbsoluteTolerance(2*TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock
-                                                            // // in
+            m_movePID.setAbsoluteTolerance(2*TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock in
         } else {
             if (m_usingHoldPID) {
                 m_haveToStop = true;

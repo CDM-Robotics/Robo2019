@@ -12,9 +12,12 @@ import edu.wpi.first.wpilibj.command.Command;
 
 import team6072.robo2019.subsystems.ElevatorSys;
 import team6072.robo2019.commands.objectives.Objective;
+import team6072.robo2019.logging.LogWrapper;
 
 
 public class ElvPIDMoveToCmd extends Command {
+
+    private static final LogWrapper mLog = new LogWrapper(ElvPIDMoveToCmd.class.getName());
 
 
     private ElevatorSys mSys;
@@ -49,12 +52,14 @@ public class ElvPIDMoveToCmd extends Command {
     // Called once after isFinished returns true
     @Override
     protected void end() {
+        mLog.debug("ElvPIDMoveToCmd: endedza obj: %s", m_target.toString());
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     @Override
     protected void interrupted() {
+        mLog.debug("ElvPIDMoveToCmd: interrupted obj: %s", m_target.toString());
     }
 
 }
