@@ -1,6 +1,7 @@
 package team6072.robo2019.subsystems;
 
 import java.util.TimerTask;
+
 import java.util.Timer;
 
 import com.ctre.phoenix.motorcontrol.*;
@@ -48,8 +49,7 @@ public class WristSys extends Subsystem {
     private static final int MIN_TRAVEL = (int) ((EXTEND_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
 
     /*
-     * // --------------------------------------Rocket //
-     * Hatch----------------------------------------------
+     * // --------------Rocket ------------------------------------------
      * 
      * private static final int ROCKET_HATCH_LO_DEGS = FLAT_TO_TARGET; private
      * static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_DEGS *
@@ -180,7 +180,7 @@ public class WristSys extends Subsystem {
         mLog.info("WristSys ctor  ----------------------------------------------");
         try {
             mTalon = new WPI_TalonSRX(RobotConfig.WRIST_MASTER);
-            //mTalon.configFactoryDefault();
+            mTalon.configFactoryDefault();
             mTalon.setName(String.format("Wrist: %d", RobotConfig.WRIST_MASTER));
             // in case we are in magic motion or position hold mode
             mTalon.set(ControlMode.PercentOutput, 0);
@@ -201,6 +201,11 @@ public class WristSys extends Subsystem {
             // mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
             // mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
 
+            mTalon.configForwardLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen);
+            mTalon.configReverseLimitSwitchSource(LimitSwitchSource.FeedbackConnector, LimitSwitchNormal.NormallyOpen);
+            mLog.debug("WS.ctor: fwdLimSw: %b  revLimSw: %b", 
+                    mTalon.getSensorCollection().isFwdLimitSwitchClosed(), mTalon.getSensorCollection().isRevLimitSwitchClosed());
+
             mTalon.configOpenloopRamp(0.1, kTimeoutMs);
             mTalon.setNeutralMode(NeutralMode.Brake);
 
@@ -215,9 +220,9 @@ public class WristSys extends Subsystem {
             setSensorStartPosn();
 
             // // set the watch dog going
-            // mWatchDogTimer = new Timer("WristSys watchdog");
+            mWatchDogTimer = new Timer("WristSys watchdog");
             // // wait for 1 second before starting, then check every 50 milliseconds
-            // mWatchDogTimer.schedule(mWatchDog, 1000, 50);
+            mWatchDogTimer.schedule(mWatchDog, 1000, 50);
 
             mLog.info("WristSys ctor  complete -------------------------------------");
         } catch (Exception ex) {
@@ -259,13 +264,13 @@ public class WristSys extends Subsystem {
         public void run() {
             int curPosn = getWristPosition();
             double curOutput = mTalon.getMotorOutputPercent();
-            if (curPosn > MAX_TRAVEL && curOutput > 0) {
+            if (curOutput > 0 && (curPosn > MAX_TRAVEL || mTalon.getSensorCollection().isFwdLimitSwitchClosed()) ) {
                 // past the max boundry and going forward
                 mDontExtend = true;
                 mDontRetract = false;
                 mTalon.set(ControlMode.PercentOutput, 0);
                 mLog.severe("WristSys: talon exceeded forward boundry");
-            } else if (curPosn < MIN_TRAVEL && curOutput < 0) {
+            } else if (curOutput < 0 && (curPosn < MIN_TRAVEL || mTalon.getSensorCollection().isRevLimitSwitchClosed() ) ) {
                 mDontExtend = false;
                 mDontRetract = true;
                 // past the max boundry and going forward
@@ -449,7 +454,7 @@ public class WristSys extends Subsystem {
     }
 
     public void execRetract() {
-        if (mDontExtend) {
+        if (mDontRetract) {
             return;
         }
 
