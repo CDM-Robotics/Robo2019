@@ -59,7 +59,7 @@ public class IntakeSys extends Subsystem {
 
     public void intakeWheelsIn() {
         mLog.debug("intakeWheelsIn   ------------------------------------------------------");
-        mTalon.set(ControlMode.PercentOutput, -0.5);
+        mTalon.set(ControlMode.PercentOutput, -1);
     }
 
 

@@ -103,7 +103,7 @@ public class DriveSys extends Subsystem {
                 mRight_Slave1.setInverted(InvertType.FollowMaster); // follow tested 2-19
             }
 
-            mLeft_Master.configOpenloopRamp(0.1, 10);
+            mLeft_Master.configOpenloopRamp(.1, 10);
             mLeft_Master.setNeutralMode(NeutralMode.Brake);
             // nominal outputs can be selected to ensure that any non-zero requested motor
             // output gets promoted to a minimum output. For example, if the nominal forward
@@ -123,7 +123,7 @@ public class DriveSys extends Subsystem {
             mLeft_Master.configContinuousCurrentLimit(50, 10);
             mLeft_Master.enableCurrentLimit(true);
 
-            mRight_Master.configOpenloopRamp(0.1, 10);
+            mRight_Master.configOpenloopRamp(.1, 10);
             mRight_Master.setNeutralMode(NeutralMode.Brake);
 
             mRight_Master.configNominalOutputForward(0.0, 10);
@@ -301,9 +301,22 @@ public class DriveSys extends Subsystem {
      * @param mag - +ve for forward
      * @param yaw - +ve for right
      */
+    
+    private boolean mHalfSpeed = false;
+
     public void arcadeDrive(double mag, double yaw) {
+        if(mHalfSpeed){
+            mag = mag / 2;
+        }
         yaw = yaw * 0.8; // reduce sensitivity on turn
         mRoboDrive.arcadeDrive(mag, yaw, true);
+    }
+
+    public void startHalfSpeed(){
+        mHalfSpeed = true;
+    }
+    public void stopHalfSpeed(){
+        mHalfSpeed = false;
     }
 
     // ------ Drive a specified distance  ----------------------------

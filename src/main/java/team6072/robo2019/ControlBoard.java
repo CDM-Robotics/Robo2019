@@ -104,6 +104,8 @@ public class ControlBoard {
 
         // Drive Stick Commands --------------------------------------
 
+        MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new StartHalfSpeedCmd(), new StopHalfSpeedCmd());
+
         MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new LEDLightsOnCmd(1), null);
         MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new LEDKillCmd(), null); 
         MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new LEDSlowOnCmd(), null);
@@ -149,9 +151,9 @@ public class ControlBoard {
 
         // left panel -----------------------------------------------------
 
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.HatchPickUp), null);
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.CargoshipCargo), null);
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.CargoshipHatch), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new WristMoveToCmd(WristTarget.RetrieveBallPosition), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_2, new WristMoveToCmd(WristTarget.FlatHatchDeployPosition), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_3, new WristMoveToCmd(WristTarget.FlatCargoDeployPosition), null);
 
     }
 

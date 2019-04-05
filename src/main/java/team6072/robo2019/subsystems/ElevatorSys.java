@@ -128,7 +128,7 @@ public class ElevatorSys extends Subsystem {
 
     // specify the boundaries beyond which not allowed to have power
     private static int MAX_TRAVEL = 19500;
-    private static int MIN_TRAVEL = (int)(TICKS_PER_INCH * 10);
+    private static int MIN_TRAVEL = (int)(TICKS_PER_INCH * 9);
 
     private DigitalInput m_BottomLimit;
     private Counter m_BottomLimitCtr;
@@ -662,50 +662,50 @@ public class ElevatorSys extends Subsystem {
     // //----------------------------------------------------------------------
     // //----------------------------------------------------------------------
 
-    // private PIDController mClimbPidController;
-    // private PIDSourceNavXPitch mClimbPidSourceNavX;
-    // private PIDOutTalonWithoutRamping mClimbPidOutTalon;
+    private PIDController mClimbPidController;
+    private PIDSourceNavXPitch mClimbPidSourceNavX;
+    private PIDOutTalonWithoutRamping mClimbPidOutTalon;
     
-    // private final double mClimbKp = 0.01;
-    // private final double mClimbKi = 0.0;
-    // private final double mClimbKd = 0.0;
-    // private final double mClimbKf = 0.0;
+    private final double mClimbKp = 0.01;
+    private final double mClimbKi = 0.0;
+    private final double mClimbKd = 0.0;
+    private final double mClimbKf = 0.0;
      
-    // private final double ABSOLUTE_TOLERANCE = 5.0; // within 2 degrees of tilt
-    // private boolean m_climbPID = false;
+    private final double ABSOLUTE_TOLERANCE = 5.0; // within 2 degrees of tilt
+    private boolean m_climbPID = false;
 
-    // public void initNavXClimbPID(){
+    public void initNavXClimbPID(){
         
-    //     mClimbPidSourceNavX = new PIDSourceNavXPitch();
-    //     mClimbPidOutTalon = new PIDOutTalonWithoutRamping(mTalon);
-    //     mClimbPidController = new PIDController(mClimbKp, mClimbKi, mClimbKd, mClimbKf, mClimbPidSourceNavX, mClimbPidOutTalon);
+        mClimbPidSourceNavX = new PIDSourceNavXPitch();
+        mClimbPidOutTalon = new PIDOutTalonWithoutRamping(mTalon);
+        mClimbPidController = new PIDController(mClimbKp, mClimbKi, mClimbKd, mClimbKf, mClimbPidSourceNavX, mClimbPidOutTalon);
     
-    //     mClimbPidController.setAbsoluteTolerance(ABSOLUTE_TOLERANCE);
-    //     mClimbPidController.setInputRange(-180, 180);
-    //     mClimbPidController.setOutputRange(-.5, .5);
-    //     mClimbPidController.setSetpoint(0);
+        mClimbPidController.setAbsoluteTolerance(ABSOLUTE_TOLERANCE);
+        mClimbPidController.setInputRange(-180, 180);
+        mClimbPidController.setOutputRange(-.5, .5);
+        mClimbPidController.setSetpoint(0);
 
-    //     mClimbPidController.enable();
-    //     m_climbPID = true;
-    //     mLog.debug("ES.initNavXClimbPID");
-    // }
+        mClimbPidController.enable();
+        m_climbPID = true;
+        mLog.debug("ES.initNavXClimbPID");
+    }
 
-    // public void execNavXClimbPID(){
-    //     double elvPCOut = -mClimbPidOutTalon.getVal();  // polarize this variable based on which way pitch os calibrated
-    //     double pitchError = mClimbPidSourceNavX.pidGet();
-    //     mTalon.set(ControlMode.PercentOutput, elvPCOut);
-    //     mPLog.debug("ES.execNavXClimbPID   elvPCOut: %.3f  pitchError: %.3f", elvPCOut, pitchError);
+    public void execNavXClimbPID(){
+        double elvPCOut = -mClimbPidOutTalon.getVal();  // polarize this variable based on which way pitch os calibrated
+        double pitchError = mClimbPidSourceNavX.pidGet();
+        mTalon.set(ControlMode.PercentOutput, elvPCOut);
+        mPLog.debug("ES.execNavXClimbPID   elvPCOut: %.3f  pitchError: %.3f", elvPCOut, pitchError);
 
-    // }
+    }
 
-    // public boolean navXClimbPIDIsFinished(){
-    //     if(mTalon.getSelectedSensorPosition() < 500){
-    //         mClimbPidController.disable();
-    //         m_climbPID = false;
-    //         mLog.debug("ES.navXClimbPIDIsFinished");
-    //         return true;
-    //     }else{
-    //         return false;
-    //     }
-    // }
+    public boolean navXClimbPIDIsFinished(){
+        if(mTalon.getSelectedSensorPosition() < 500){
+            mClimbPidController.disable();
+            m_climbPID = false;
+            mLog.debug("ES.navXClimbPIDIsFinished");
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

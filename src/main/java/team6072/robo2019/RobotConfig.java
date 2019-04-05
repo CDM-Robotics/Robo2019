@@ -45,7 +45,7 @@ public class RobotConfig {
     public static final int WRIST_TICKS_PER_DEG = 20; // MEASURED 2019-04-04
     public static final boolean WRIST_SENSOR_PHASE = false;
     public static final boolean WRIST_INVERT = true;
-    public static final double WRIST_BASE_PERCENT_OUT = 0.2;
+    public static final double WRIST_BASE_PERCENT_OUT = 0.1;
 
     public static final int WRIST_MASTER = 11;
     public static final int LED_MASTER = 10; // only in 2019
