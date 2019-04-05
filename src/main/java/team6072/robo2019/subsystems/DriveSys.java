@@ -8,7 +8,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
-import team6072.robo2019.subsystems.PIDSourceNavX;
+import team6072.robo2019.subsystems.PIDSourceNavXYaw;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -503,7 +503,7 @@ public class DriveSys extends Subsystem {
     private NavXSys mNavX;
     private PIDController mTurnPIDController;
     private PIDOutReceiver mTurnPIDOut;
-    private PIDSourceNavX mTurnPIDSource;
+    private PIDSourceNavXYaw mTurnPIDSource;
 
     private static final int PIDOUT_SCALE = 100;
     private static final double MIN_TURNDRIVEPOWER = 0.2;
@@ -514,7 +514,7 @@ public class DriveSys extends Subsystem {
         mNavX.zeroYawHeading();
         mLog.info("DS.initYawPID:  CurrentYaw: " + mNavX.getYawHeading());
         mTurnPIDOut = new PIDOutReceiver();
-        mTurnPIDSource = new PIDSourceNavX();
+        mTurnPIDSource = new PIDSourceNavXYaw();
         mTurnPIDController = new PIDController(mKP_turn, mKI_turn, mKD_turn, mKF_turn, mTurnPIDSource, mTurnPIDOut);
         mTurnPIDController.setName("DS.TurnPID");
         mTurnPIDController.setInputRange(-180.0, 180.0);

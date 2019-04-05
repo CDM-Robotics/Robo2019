@@ -10,6 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import team6072.robo2019.RobotConfig;
 import team6072.robo2019.commands.objectives.Objective;
@@ -523,6 +524,9 @@ public class ElevatorSys extends Subsystem {
         if (m_holdPID == null) {
             initHoldPosnPID();
         }
+        if(mClimbPidController != null){
+            mClimbPidController.disable();
+        }
         m_holdPID.reset();
         mLog.debug("ES.enableHoldPosnPID: target: %d    ---------------------", targetPosn);
         mLog.debug(printPosn("enableHoldPosnPID"));
@@ -537,6 +541,9 @@ public class ElevatorSys extends Subsystem {
     public void disableHoldPosnPID() {
         if (m_holdPID != null) {
             m_holdPID.disable();
+        }
+        if(mClimbPidController != null){
+            mClimbPidController.disable();
         }
         mTalon.set(ControlMode.PercentOutput, 0.0);
         mLog.debug(printPosn("disableHoldPosnPID"));
@@ -554,6 +561,10 @@ public class ElevatorSys extends Subsystem {
     public void initMoveToTarget(Objective.ElvTarget targ) {
         m_targ = targ;
         initHoldPosnPID();
+        
+        if(mClimbPidController != null){
+            mClimbPidController.disable();
+        }
         if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, 0.3, -0.8, 0.8);
             double kP = 0.05 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
@@ -629,8 +640,67 @@ public class ElevatorSys extends Subsystem {
         if (m_holdPID != null) {
             m_holdPID.disable();
         }
+        if(mClimbPidController != null){
+            mClimbPidController.disable();
+        }
         mTalon.set(ControlMode.PercentOutput, 0.0);
         mLog.debug(printPosn("disableMoveToPID"));
     }
 
+
+    //----------------------------------------------------------------------
+    //----------------------------------------------------------------------
+    //----------------------------------------------------------------------
+    //----------------------- Climb with NavX ------------------------------
+    //----------------------------------------------------------------------
+    //----------------------------------------------------------------------
+    //----------------------------------------------------------------------
+
+    private PIDController mClimbPidController;
+    private PIDSourceNavXPitch mClimbPidSourceNavX;
+    private PIDOutTalonWithoutRamping mClimbPidOutTalon;
+    
+    private final double mClimbKp = 0.01;
+    private final double mClimbKi = 0.0;
+    private final double mClimbKd = 0.0;
+    private final double mClimbKf = 0.0;
+     
+    private final double ABSOLUTE_TOLERANCE = 2.0; // within 2 degrees of tilt
+    private boolean m_climbPID = false;
+
+    public void initNavXClimbPID(){
+        
+        mClimbPidSourceNavX = new PIDSourceNavXPitch();
+        mClimbPidOutTalon = new PIDOutTalonWithoutRamping(mTalon);
+        mClimbPidController = new PIDController(mClimbKp, mClimbKi, mClimbKd, mClimbKf, mClimbPidSourceNavX, mClimbPidOutTalon);
+    
+        mClimbPidController.setAbsoluteTolerance(ABSOLUTE_TOLERANCE);
+        mClimbPidController.setContinuous(true);
+        mClimbPidController.setInputRange(-180, 180);
+        mClimbPidController.setOutputRange(-.8, .8);
+        mClimbPidController.setSetpoint(0);
+
+        mClimbPidController.enable();
+        m_climbPID = true;
+        mLog.debug("ES.initNavXClimbPID");
+    }
+
+    public void execNavXClimbPID(){
+        double elvPCOut = mClimbPidOutTalon.getVal();  // polarize this variable based on which way pitch os calibrated
+        double pitchError = mClimbPidSourceNavX.pidGet();
+        mTalon.set(ControlMode.PercentOutput, elvPCOut);
+        mPLog.debug("ES.execNavXClimbPID   elvPCOut: %.3f  pitchError: %.3f", elvPCOut, pitchError);
+
+    }
+
+    public boolean navXClimbPIDIsFinished(){
+        if(mTalon.getSelectedSensorPosition() < 500){
+            mClimbPidController.disable();
+            m_climbPID = false;
+            mLog.debug("ES.navXClimbPIDIsFinished");
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

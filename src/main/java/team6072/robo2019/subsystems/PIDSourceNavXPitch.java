@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 
 
-public class PIDSourceNavX implements PIDSource {
+public class PIDSourceNavXPitch implements PIDSource {
 
     
     private NavXSys mNavXSys;
@@ -17,15 +17,14 @@ public class PIDSourceNavX implements PIDSource {
      * pass it an instance of the navXsystem
      * @param navXSys
      */
-    public PIDSourceNavX(){
+    public PIDSourceNavXPitch(){
         mNavXSys = NavXSys.getInstance();
     }
     public PIDSourceType getPIDSourceType(){
         return PIDSourceType.kDisplacement;
     }
     public double pidGet(){
-        
-        return mNavXSys.getYawHeading();
+        return (double)(mNavXSys.getPitch());
     }
     public void setPIDSourceType(PIDSourceType s){
     }
