@@ -289,17 +289,17 @@ public class WristSys extends Subsystem {
     // the relative sensor to match.
     // should only be called on robot.init
     public void setSensorStartPosn() {
-        mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
-        // mBasePosn = getWristPosition();
-        int absolutePosition = mBasePosn;
-        /* mask out overflows, keep bottom 12 bits */
-        absolutePosition &= 0xFFF;
-        if (TALON_SENSOR_PHASE)
-            absolutePosition *= -1;
-        if (TALON_INVERT)
-            absolutePosition *= -1;
-        /* set the quadrature (relative) sensor to match absolute */
-        mTalon.setSelectedSensorPosition(absolutePosition, 0, kTimeoutMs);
+        // mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
+        // // mBasePosn = getWristPosition();
+        // int absolutePosition = mBasePosn;
+        // /* mask out overflows, keep bottom 12 bits */
+        // absolutePosition &= 0xFFF;
+        // if (TALON_SENSOR_PHASE)
+        //     absolutePosition *= -1;
+        // if (TALON_INVERT)
+        //     absolutePosition *= -1;
+        // /* set the quadrature (relative) sensor to match absolute */
+        mTalon.setSelectedSensorPosition(0);
         mBasePosn = mTalon.getSelectedSensorPosition(0);
         mLog.debug(printPosn("setStart"));
     }

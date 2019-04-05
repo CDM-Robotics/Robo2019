@@ -53,6 +53,7 @@ public class ElevatorSys extends Subsystem {
     private TTPIDController m_holdPID;
     private PIDSourceTalonPW m_PidSourceTalonPW;
     private PIDOutTalon m_PidOutTalon;
+    private PIDOutTalon m_HoldPidOutTalon;
 
     private boolean m_usingHoldPID;
 
@@ -302,17 +303,18 @@ public class ElevatorSys extends Subsystem {
     // should only be called on robot.init
     public void setSensorStartPosn() {
 
-        mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
-        // mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        int absolutePosition = mBasePosn;
-        /* mask out overflows, keep bottom 12 bits */
-        absolutePosition &= 0xFFF;
-        if (TALON_SENSOR_PHASE)
-            absolutePosition *= -1;
-        if (TALON_INVERT)
-            absolutePosition *= -1;
-        /* set the quadrature (relative) sensor to match absolute */
-        mTalon.setSelectedSensorPosition(absolutePosition, 0, kTimeoutMs);
+        // mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
+        // // mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        // int absolutePosition = mBasePosn;
+        // /* mask out overflows, keep bottom 12 bits */
+        // absolutePosition &= 0xFFF;
+        // if (TALON_SENSOR_PHASE)
+        //     absolutePosition *= -1;
+        // if (TALON_INVERT)
+        //     absolutePosition *= -1;
+        // /* set the quadrature (relative) sensor to match absolute */
+        // mTalon.setSelectedSensorPosition(absolutePosition, 0, kTimeoutMs);
+        mTalon.setSelectedSensorPosition(0);
         mBasePosn = mTalon.getSelectedSensorPosition(0);
         mLog.debug(printPosn("setStart"));
     }
@@ -493,14 +495,14 @@ public class ElevatorSys extends Subsystem {
 
         if (m_holdPID == null) {
             mLog.debug(printPosn("initHoldPosnPID:"));
-            m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
+            m_HoldPidOutTalon = new PIDOutTalon(mTalon, 0.1, -0.8, 0.8);
             double kP = 0.005 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0; //0.000001;
-            double kD = 0.001;
+            double kD = 0.0;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-            m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon, periodInSecs);
-            m_holdPID.setAbsoluteTolerance(0.3 * TICKS_PER_INCH); // allow +- 200 units (0.4 inches) on error
+            m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_HoldPidOutTalon, periodInSecs);
+            m_holdPID.setAbsoluteTolerance(0.5 * TICKS_PER_INCH); // allow +- 200 units (0.4 inches) on error
         } else {
             m_holdPID.reset();
         }
@@ -542,6 +544,7 @@ public class ElevatorSys extends Subsystem {
 
     // move to target using PID ---------------------------------------------
 
+    private boolean m_haveToStop;
     /**
      * Target assumes that the elevator base position is zero Need to adjust for the
      * actual sensor start position
@@ -550,8 +553,9 @@ public class ElevatorSys extends Subsystem {
      */
     public void initMoveToTarget(Objective.ElvTarget targ) {
         m_targ = targ;
+        initHoldPosnPID();
         if (m_movePID == null) {
-            m_PidOutTalon = new PIDOutTalon(mTalon, 0.05, -0.8, 0.8);
+            m_PidOutTalon = new PIDOutTalon(mTalon, 0.3, -0.8, 0.8);
             double kP = 0.05 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
             double kD = 0.0;
@@ -559,9 +563,13 @@ public class ElevatorSys extends Subsystem {
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_movePID = new TTPIDController("PID.elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
                     periodInSecs);
-            m_movePID.setAbsoluteTolerance(TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock
+            m_movePID.setAbsoluteTolerance(2*TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock
                                                             // // in
         } else {
+            if (m_usingHoldPID) {
+                m_haveToStop = true;
+                m_holdPID.disable();
+            }
             m_movePID.reset();
         }
 
@@ -572,8 +580,8 @@ public class ElevatorSys extends Subsystem {
         mLog.debug(printPosn("initMoveToTarget"));
         m_usingHoldPID = false;
         m_movePID.setSetpoint(calcTarg);
-        m_movePID.setRamp(3 * TICKS_PER_INCH, 5 * TICKS_PER_INCH); // set ramps to 3 inches
-        m_movePID.setBasePower(BASE_PERCENT_OUT, 0.05);
+        m_movePID.setRamp(2 * TICKS_PER_INCH, 2 * TICKS_PER_INCH); // set ramps to 3 inches
+        m_movePID.setBasePower(0.3, 0.05);
         m_movePID.enable();
     }
 
@@ -583,6 +591,8 @@ public class ElevatorSys extends Subsystem {
      * to lock in
      */
     public void execMoveToTarget() {
+        mPLog.debug("ES.execMoveToTarg:  onTarg: %b  curPosn: %d  pidOut: %.3f  holdPidOut: %.3f", 
+            m_movePID.onTarget(), mTalon.getSelectedSensorPosition(), m_PidOutTalon.getVal(), m_HoldPidOutTalon.getVal());
         if (m_movePID.onTarget() && !m_usingHoldPID) {
             mLog.debug("ES.execMoveToTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
             mLog.debug(printPosn("ES.execMoveToTarget:"));
@@ -597,7 +607,17 @@ public class ElevatorSys extends Subsystem {
      */
     public boolean isMoveToTargetComplete() {
         if (m_usingHoldPID) {
+            if (m_holdPID.onTarget()) {
+                mPLog.debug("ES.isMoveToTargetComplete:   curPosn: %d  pidOut: %.3f  holdPidOut: %.3f", 
+                 mTalon.getSelectedSensorPosition(), m_PidOutTalon.getVal(), m_HoldPidOutTalon.getVal());
+     
+            }
             return m_holdPID.onTarget();
+        }
+        if (m_haveToStop) {
+            // nasty hack to ensure that previous command that did not complete with on target gets stopped
+            m_haveToStop = false;
+            return true;
         }
         return false;
     }

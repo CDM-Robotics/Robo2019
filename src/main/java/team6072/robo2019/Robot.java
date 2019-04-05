@@ -60,7 +60,7 @@ public class Robot extends TimedRobot {
             System.out.println("WARNING: Logging not configured (console output only)");
         }
         mLog = new LogWrapper(Robot.class.getName());
-        mLogPeriodic = new PeriodicLogger(mLog, 50);
+        mLogPeriodic = new PeriodicLogger(mLog, 300);
         try {
             if (RobotConfig.IS_ROBO_2019) {
                 mLog.info("robotInit: -----------------    2019    -----------------------     2019    2019    2019");
@@ -211,11 +211,11 @@ public class Robot extends TimedRobot {
             Scheduler.getInstance().run();
             // mLogPeriodic.debug("telPer: Hall Switch: %b Counter: %d period: %.3f ",
             // mHallSwitch.get(), mHallCtr.get(), mHallCtr.getPeriod());
-            // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
-            if (mElvSys != null) {
-               mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
-            }
             // // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
+            // if (mElvSys != null) {
+            //    mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
+            // }
+            // // // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
             // if (mWristSys != null) {
             //     mLogPeriodic.debug(mWristSys.printPosn("telPer:"));
             // }
