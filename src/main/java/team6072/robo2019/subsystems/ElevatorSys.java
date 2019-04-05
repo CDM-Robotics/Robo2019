@@ -128,7 +128,7 @@ public class ElevatorSys extends Subsystem {
 
     // specify the boundaries beyond which not allowed to have power
     private static int MAX_TRAVEL = 19500;
-    private static int MIN_TRAVEL = (int)(TICKS_PER_INCH * 10);
+    private static int MIN_TRAVEL = (int)(TICKS_PER_INCH * 9);
 
     private DigitalInput m_BottomLimit;
     private Counter m_BottomLimitCtr;
@@ -288,14 +288,14 @@ public class ElevatorSys extends Subsystem {
                 // past the max boundry and going forward
                 m_DontMoveDown = false;
                 m_DontMoveUp = true;
-                mTalon.set(ControlMode.PercentOutput, 0);
-                mLog.severe("ElvSys: talon exceeded forward boundry");
+                mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
+                mLog.severe("ElvSys: talon exceeded top boundry");
             } else if (curPosn < MIN_TRAVEL && curOutput < 0) {
                 // past the max boundry and going forward
                 m_DontMoveDown = true;
                 m_DontMoveUp = false;
-                mTalon.set(ControlMode.PercentOutput, 0);
-                mLog.severe("ElvSys: talon exceeded backward boundry");
+                mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
+                mLog.severe("ElvSys: talon exceeded bottom boundry");
             } else {
                 m_DontMoveDown = false;
                 m_DontMoveUp = false;
@@ -446,6 +446,9 @@ public class ElevatorSys extends Subsystem {
         if (m_movePID != null) {
             m_movePID.disable();
         }
+        if (m_DontMoveUp) {
+            return;
+        }
         mStartPosn = mTalon.getSelectedSensorPosition();
         mPercentOut = MANUAL_POWER_UP;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
@@ -473,6 +476,9 @@ public class ElevatorSys extends Subsystem {
         }
         if (m_movePID != null) {
             m_movePID.disable();
+        }
+        if (m_DontMoveDown) {
+            return;
         }
         mStartPosn = mTalon.getSelectedSensorPosition();
         mPercentOut = MANUAL_POWER_DOWN;
@@ -529,9 +535,9 @@ public class ElevatorSys extends Subsystem {
         if (m_holdPID == null) {
             initHoldPosnPID();
         }
-        if(mClimbPidController != null){
-            mClimbPidController.disable();
-        }
+        // if(mClimbPidController != null){
+        //     mClimbPidController.disable();
+        // }
         m_holdPID.reset();
         mLog.debug("ES.enableHoldPosnPID: target: %d    ---------------------", targetPosn);
         mLog.debug(printPosn("enableHoldPosnPID"));
@@ -547,9 +553,9 @@ public class ElevatorSys extends Subsystem {
         if (m_holdPID != null) {
             m_holdPID.disable();
         }
-        if(mClimbPidController != null){
-            mClimbPidController.disable();
-        }
+        // if(mClimbPidController != null){
+        //     mClimbPidController.disable();
+        // }
         mTalon.set(ControlMode.PercentOutput, 0.0);
         mLog.debug(printPosn("disableHoldPosnPID"));
     }
@@ -567,9 +573,9 @@ public class ElevatorSys extends Subsystem {
         m_targ = targ;
         initHoldPosnPID();
         
-        if(mClimbPidController != null){
-            mClimbPidController.disable();
-        }
+        // if(mClimbPidController != null){
+        //     mClimbPidController.disable();
+        // }
         if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, 0.3, -0.8, 0.8);
             double kP = 0.05 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
@@ -644,21 +650,21 @@ public class ElevatorSys extends Subsystem {
         if (m_holdPID != null) {
             m_holdPID.disable();
         }
-        if(mClimbPidController != null){
-            mClimbPidController.disable();
-        }
+        // if(mClimbPidController != null){
+        //     mClimbPidController.disable();
+        // }
         mTalon.set(ControlMode.PercentOutput, 0.0);
         mLog.debug(printPosn("disableMoveToPID"));
     }
 
 
-    //----------------------------------------------------------------------
-    //----------------------------------------------------------------------
-    //----------------------------------------------------------------------
-    //----------------------- Climb with NavX ------------------------------
-    //----------------------------------------------------------------------
-    //----------------------------------------------------------------------
-    //----------------------------------------------------------------------
+    // //----------------------------------------------------------------------
+    // //----------------------------------------------------------------------
+    // //----------------------------------------------------------------------
+    // //----------------------- Climb with NavX ------------------------------
+    // //----------------------------------------------------------------------
+    // //----------------------------------------------------------------------
+    // //----------------------------------------------------------------------
 
     private PIDController mClimbPidController;
     private PIDSourceNavXPitch mClimbPidSourceNavX;
@@ -669,7 +675,7 @@ public class ElevatorSys extends Subsystem {
     private final double mClimbKd = 0.0;
     private final double mClimbKf = 0.0;
      
-    private final double ABSOLUTE_TOLERANCE = 2.0; // within 2 degrees of tilt
+    private final double ABSOLUTE_TOLERANCE = 5.0; // within 2 degrees of tilt
     private boolean m_climbPID = false;
 
     public void initNavXClimbPID(){
@@ -679,9 +685,8 @@ public class ElevatorSys extends Subsystem {
         mClimbPidController = new PIDController(mClimbKp, mClimbKi, mClimbKd, mClimbKf, mClimbPidSourceNavX, mClimbPidOutTalon);
     
         mClimbPidController.setAbsoluteTolerance(ABSOLUTE_TOLERANCE);
-        mClimbPidController.setContinuous(true);
         mClimbPidController.setInputRange(-180, 180);
-        mClimbPidController.setOutputRange(-.8, .8);
+        mClimbPidController.setOutputRange(-.5, .5);
         mClimbPidController.setSetpoint(0);
 
         mClimbPidController.enable();
@@ -690,7 +695,7 @@ public class ElevatorSys extends Subsystem {
     }
 
     public void execNavXClimbPID(){
-        double elvPCOut = mClimbPidOutTalon.getVal();  // polarize this variable based on which way pitch os calibrated
+        double elvPCOut = -mClimbPidOutTalon.getVal();  // polarize this variable based on which way pitch os calibrated
         double pitchError = mClimbPidSourceNavX.pidGet();
         mTalon.set(ControlMode.PercentOutput, elvPCOut);
         mPLog.debug("ES.execNavXClimbPID   elvPCOut: %.3f  pitchError: %.3f", elvPCOut, pitchError);
