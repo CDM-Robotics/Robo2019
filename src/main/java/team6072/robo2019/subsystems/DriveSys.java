@@ -311,7 +311,7 @@ public class DriveSys extends Subsystem {
     public void arcadeDrive(double mag, double yaw) {
         if(mHalfSpeed){
             mag = mag / 2;
-            yaw = yaw / 2;
+            yaw = yaw * .7;
         }
         yaw = yaw * 0.8; // reduce sensitivity on turn
         mRoboDrive.arcadeDrive(mag, yaw, true);
