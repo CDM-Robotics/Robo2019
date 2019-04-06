@@ -210,7 +210,7 @@ public class DriveSys extends Subsystem {
 
     @Override
     public void initDefaultCommand() {
-        mLog.info("DriveSys: init default command empty");
+        mLog.info("DriveSys: init default command empty");  
     }
 
     /**
