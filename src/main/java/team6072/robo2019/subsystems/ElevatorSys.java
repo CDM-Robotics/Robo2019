@@ -139,7 +139,7 @@ public class ElevatorSys extends Subsystem {
         IDLE, MANUALUP, MANUALDOWN, HOLD, PIDMOVE, PIDHOLD
     }
 
-    private ELV_STATE m_elvState;
+    private ELV_STATE m_curState;
 
     public static ElevatorSys getInstance() {
         if (mInstance == null) {
@@ -221,6 +221,8 @@ public class ElevatorSys extends Subsystem {
             m_PidSourceTalonPW = new PIDSourceTalonPW(mTalon, 0);
 
             setSensorStartPosn();
+
+            m_curState = ELV_STATE.IDLE;
 
             // set the watch dog going
             mWatchDogTimer = new Timer("ElvSys watchdog");
@@ -353,8 +355,7 @@ public class ElevatorSys extends Subsystem {
 
     // MovSlowUpCmd --------------------------------------------------------
 
-    // move up very slowly unitl we have moved 2 inches. Idea is to find minimum
-    // power
+    // move up very slowly unitl we have moved 2 inches. Idea is to find minimum power
     // need to move the elevator up, because it is very negatively weighted
 
     private int mStartPosn = 0;
@@ -362,6 +363,10 @@ public class ElevatorSys extends Subsystem {
     private double mPercentOut;
 
     public void initMovSlowUp() {
+        if (m_curState != ELV_STATE.IDLE) {
+
+        }
+        m_curState = ELV_STATE.MANUALUP;
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = 0.0;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
