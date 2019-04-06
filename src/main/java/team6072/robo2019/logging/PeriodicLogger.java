@@ -25,6 +25,15 @@ public class PeriodicLogger {
         m_enabled = true;
     }
 
+
+    /**
+     * Set how many times to call log before output generated
+     */
+    public void setPeriod(int period) {
+        mPeriod = period;
+    }
+
+
     public void enable() {
         m_enabled = true;
     }
