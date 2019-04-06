@@ -137,6 +137,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
 
     public class PercentageTolerance implements Tolerance {
         private final double m_percentage;
+        public boolean onTargLogged = false;
 
         PercentageTolerance(double value) {
             m_percentage = value;
@@ -145,8 +146,11 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
         @Override
         public boolean onTarget() {
             boolean onTarg = Math.abs(getError()) < m_percentage / 100 * m_inputRange;
-            if (m_debugEnabled) {
-                mLog.debug("%s: on Target  ----------------", m_name);
+            if (m_debugEnabled && !onTargLogged) {
+                onTargLogged = true;
+                double targ = getSetpoint();
+                double cur = m_pidInput.pidGet();
+                mLog.debug("%s: on Target  cur: %.3f   targ: %.3f  ----------------", m_name, cur, targ);
             }
             return onTarg;
         }
@@ -155,6 +159,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
 
     public class AbsoluteTolerance implements Tolerance {
         private final double m_value;
+        public boolean onTargLogged = false;
 
         AbsoluteTolerance(double value) {
             m_value = value;
@@ -163,8 +168,11 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
         @Override
         public boolean onTarget() {
             boolean onTarg = Math.abs(getError()) < m_value;
-            if (m_debugEnabled) {
-                mLog.debug("%s: on Target  ----------------", m_name);
+            if (m_debugEnabled && !onTargLogged) {
+                onTargLogged = true;
+                double targ = getSetpoint();
+                double cur = m_pidInput.pidGet();
+                mLog.debug("%s: on Target  cur: %.3f   targ: %.3f  ----------------", m_name, cur, targ);
             }
             return onTarg;
         }
@@ -302,10 +310,10 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
             rampScaleFactor = 1.0; // default no ramping
             if (m_rampEnabled) {
                 // if we are ramping and this is the first time calcing, need to set up
+                m_dirnPositive = (m_setpoint >= input);
                 if (m_firstCalc) {
                     m_firstCalc = false;
                     m_startPoint = input;
-                    m_dirnPositive = (m_setpoint >= input);
                     m_rampEndofStart = input;
                     m_rampStartofEnd = m_setpoint;
                     if (m_dirnPositive) {

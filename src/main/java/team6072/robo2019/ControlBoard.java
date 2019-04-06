@@ -132,8 +132,8 @@ public class ControlBoard {
         MapCmdToPovBut(mControlStick, PovAngle.Deg_090, new FlowerWristExtendCmd(), null);
         MapCmdToPovBut(mControlStick, PovAngle.Deg_270, new FlowerWristRetractCmd(), null);
 
-        MapCmdToBut(mControlStick, EXTREME_BUT_7, new ElvKillWatchDogCmd(), null);
-        MapCmdToBut(mControlStick, EXTREME_BUT_8, new ElvReviveWatchDogCmd(), null);
+        // MapCmdToBut(mControlStick, EXTREME_BUT_7, new ElvKillWatchDogCmd(), null);
+        // MapCmdToBut(mControlStick, EXTREME_BUT_8, new ElvReviveWatchDogCmd(), null);
 
         // MapCmdToBut(mControlStick, EXTREME_BUT_9, new WristStopCmd(), null);
 
