@@ -26,6 +26,20 @@ public class WristSys extends Subsystem {
         Up, Down
     }
 
+    public enum WristState {
+        PID_HOLD, MANUAL_EXTEND, 
+        MANUAL_RETRACT, PID_MOVE_TO,
+        DISABLED, IDLE,
+        DONT_EXTEND, DONT_RETRACT;
+    }
+
+    private WristState mCurState;
+
+    public void setState(WristState wristState) {
+        mLog.debug("WS.setState  OldState: %s   New State: %s", mCurState.toString(), wristState.toString());
+        mCurState = wristState;
+    }
+
     // a motor output of BASE_POWER holds the motor in place when not disturbed
     private static final double BASE_PERCENT_OUT = RobotConfig.WRIST_BASE_PERCENT_OUT;
 
@@ -227,6 +241,7 @@ public class WristSys extends Subsystem {
             // mWatchDogTimer.schedule(mWatchDog, 1000, 50);
 
             mLog.info("WristSys ctor  complete -------------------------------------");
+            setState(WristState.IDLE);
         } catch (Exception ex) {
             mLog.severe(ex, "WristSys.ctor exception: " + ex.getMessage());
             throw ex;
@@ -239,6 +254,7 @@ public class WristSys extends Subsystem {
      */
     public void disable() {
         mLog.debug("WristSys DISABLED  <<<<<<<<<<<<<<<<<<<<");
+        setState(WristState.DISABLED);
         if (m_movePID != null) {
             m_movePID.disable();
         }
@@ -270,6 +286,7 @@ public class WristSys extends Subsystem {
                 // past the max boundry and going forward
                 mDontExtend = true;
                 mDontRetract = false;
+                setState(WristState.DONT_EXTEND);
                 mTalon.set(ControlMode.PercentOutput, 0);
                 mLog.severe("WristSys: talon exceeded forward boundry");
             } else if (curOutput < 0
@@ -278,6 +295,7 @@ public class WristSys extends Subsystem {
                 mDontRetract = true;
                 // past the max boundry and going forward
                 mTalon.set(ControlMode.PercentOutput, 0);
+                setState(WristState.DONT_RETRACT);
                 mLog.severe("WristSys: talon exceeded backward boundry");
             } else {
                 mDontExtend = false;
@@ -351,6 +369,7 @@ public class WristSys extends Subsystem {
     private double mPercentOut;
 
     public void initMovSlowUp() {
+        setState(WristState.MANUAL_EXTEND);
         mStartPosn = getWristPosition();
         mPercentOut = 0.0;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
@@ -379,12 +398,14 @@ public class WristSys extends Subsystem {
     // -----------------------------------------------------
 
     public void testExtend() {
+        setState(WristState.MANUAL_EXTEND);
         mTalon.set(ControlMode.PercentOutput, .2);
         // mPLog.debug(printPosn("execExtend"));
 
     }
 
     public void testRetract() {
+        setState(WristState.MANUAL_RETRACT);
         mTalon.set(ControlMode.PercentOutput, -.2);
         // mPLog.debug(printPosn("execRetract"));
 
@@ -404,6 +425,7 @@ public class WristSys extends Subsystem {
         if (m_movePID != null) {
             m_movePID.disable();
         }
+        setState(WristState.MANUAL_EXTEND);
         mMoveStopped = false;
         mStartPosn = getWristPosition();
         mPercentOut = BASE_PERCENT_OUT;
@@ -449,6 +471,7 @@ public class WristSys extends Subsystem {
         if (m_movePID != null) {
             m_movePID.disable();
         }
+        setState(WristState.MANUAL_RETRACT);
         mMoveStopped = false;
         mStartPosn = getWristPosition();
         mPercentOut = BASE_PERCENT_OUT;
@@ -482,6 +505,7 @@ public class WristSys extends Subsystem {
     }
 
     public void stop() {
+        setState(WristState.IDLE);
         mLog.debug("Killing Wrist");
         if (m_holdPID != null) {
             m_holdPID.disable();
@@ -509,6 +533,7 @@ public class WristSys extends Subsystem {
     public void initHoldPosnPID() {
 
         if (m_holdPID == null) {
+            setState(WristState.PID_HOLD);
             mLog.debug(printPosn("initHoldPosnPID:"));
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.8, 0.8);
             double kP = 0.05 / (10 * TICKS_PER_DEG); // want 20% power when hit tolerance band of 10 degrees
@@ -593,7 +618,7 @@ public class WristSys extends Subsystem {
         } else {
             m_movePID.reset();
         }
-
+        setState(WristState.PID_MOVE_TO);
         int curPosn = mTalon.getSelectedSensorPosition(0);
         int calcTarg = targ.getTicks();
         mLog.debug("WS.initMoveToTarget: curPos: %d    targ: %s(%d)  calcTarg: %d  ---------------------", curPosn,
@@ -642,4 +667,10 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("disableMoveToPID"));
     }
 
+    public void disableWrist(){
+        mTalon.set(ControlMode.PercentOutput, 0);
+        m_movePID.disable();
+        m_holdPID.disable();
+        setState(WristState.DISABLED);
+    }
 }
