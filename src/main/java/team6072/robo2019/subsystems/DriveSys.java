@@ -216,13 +216,6 @@ public class DriveSys extends Subsystem {
         }
     }
 
-<<<<<<< HEAD
-    @Override
-    public void initDefaultCommand() {
-        mLog.info("DriveSys: init default command empty");  
-    }
-=======
->>>>>>> 0f2eddc82ccde31decd3b0b6c18a3c1b1bb320e1
 
     /**
      * Utility method to sleep for a period if we need to
