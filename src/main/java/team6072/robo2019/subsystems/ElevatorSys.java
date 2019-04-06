@@ -139,6 +139,8 @@ public class ElevatorSys extends Subsystem {
         IDLE, MANUALUP, MANUALDOWN, HOLD, PIDMOVE, PIDHOLD
     }
 
+    private ELV_STATE m_elvState;
+
     public static ElevatorSys getInstance() {
         if (mInstance == null) {
             mInstance = new ElevatorSys();
