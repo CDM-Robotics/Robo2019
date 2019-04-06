@@ -136,7 +136,7 @@ public class ElevatorSys extends Subsystem {
     private boolean m_botLimitSwitchActive = false;
 
     private enum ELV_STATE {
-        IDLE, MANUALUP, MANUALDOWN, HOLD, PIDMOVE, PIDHOLD
+        IDLE, MANUALUP, MANUALDOWN, HOLD, MOVEUPSLOW, MOVETO, PIDMOVE, PIDHOLD, DISABLED, WD_NOUP, WD_NODOWN
     }
 
     private ELV_STATE m_curState;
@@ -235,6 +235,35 @@ public class ElevatorSys extends Subsystem {
             throw ex;
         }
     }
+
+
+    /**
+     * Safely transition from one stae to another
+     * @param newState
+     */
+    private void setState(ELV_STATE newState) {
+
+        mLog.debug("ES.setState:  cur: %s   new: %s", m_curState.toString(), newState.toString());
+        if (m_curState == ELV_STATE.IDLE 
+                || m_curState == ELV_STATE.MANUALUP
+                || m_curState == ELV_STATE.MANUALDOWN
+                || m_curState == ELV_STATE.HOLD
+                || m_curState == ELV_STATE.MOVEUPSLOW
+                || m_curState == ELV_STATE.MOVETO
+                || m_curState == ELV_STATE.DISABLED) {
+            // always safe to move to new state
+            m_curState = newState;
+            return;
+        }
+        if (m_curState == ELV_STATE.PIDMOVE) {
+
+        }
+        else if (m_curState == ELV_STATE.PIDHOLD) {
+
+        }
+    }
+
+
     // ---------- WatchDog  -----------------------------
 
     public void killWatchDog() {
@@ -248,24 +277,6 @@ public class ElevatorSys extends Subsystem {
         MAX_TRAVEL -= 20000;
         MIN_TRAVEL += 20000;
         mLog.debug("Reviving Watch Dog");
-    }
-
-    /**
-     * Disable the elevator system - make sure all talons and PID loops are not
-     * driving anything
-     */
-    public void disable() {
-        mLog.debug("ElvSys DISABLED  <<<<<<<<<<<<<<<<<<<<");
-        if (m_movePID != null) {
-            m_movePID.disable();
-        }
-        if (m_holdPID != null) {
-            m_holdPID.disable();
-        }
-        if (m_BotLimitWatcher != null) {
-            m_BotLimitWatcher.stop();
-        }
-        mTalon.set(ControlMode.PercentOutput, 0);
     }
 
     /**
@@ -293,12 +304,14 @@ public class ElevatorSys extends Subsystem {
                 m_DontMoveDown = false;
                 m_DontMoveUp = true;
                 mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
+                setState(ELV_STATE.WD_NOUP);
                 mLog.severe("ElvSys: talon exceeded top boundry");
             } else if (curPosn < MIN_TRAVEL && curOutput < 0) {
                 // past the max boundry and going forward
                 m_DontMoveDown = true;
                 m_DontMoveUp = false;
                 mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
+                setState(ELV_STATE.WD_NODOWN);
                 mLog.severe("ElvSys: talon exceeded bottom boundry");
             } else {
                 m_DontMoveDown = false;
@@ -306,6 +319,28 @@ public class ElevatorSys extends Subsystem {
             }
         }
     };
+
+
+    /**
+     * Disable the elevator system - make sure all talons and PID loops are not
+     * driving anything
+     */
+    public void disable() {
+        mLog.debug("ElvSys DISABLED  <<<<<<<<<<<<<<<<<<<<");
+        setState(ELV_STATE.DISABLED);
+        if (m_movePID != null) {
+            m_movePID.disable();
+        }
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
+        if (m_BotLimitWatcher != null) {
+            m_BotLimitWatcher.stop();
+        }
+        mTalon.set(ControlMode.PercentOutput, 0);
+    }
+
+    //-----------------------------------------------------
 
     // grab the 360 degree position of the MagEncoder's absolute position, and set
     // the relative sensor to match.
@@ -328,8 +363,6 @@ public class ElevatorSys extends Subsystem {
         mLog.debug(printPosn("setStart"));
     }
 
-    private double mLastSensPosn;
-    private double mLastQuadPosn;
 
     public String printPosn(String caller) {
         int sensPosn = mTalon.getSelectedSensorPosition(0);
@@ -340,22 +373,22 @@ public class ElevatorSys extends Subsystem {
             // absSensPosn is negative if moving down
             sensPosnSign = "(-)";
         }
-        int selSensPosn = mTalon.getSelectedSensorPosition(0);
+        int curSensPosn = mTalon.getSelectedSensorPosition(0);
         double vel = mTalon.getSensorCollection().getQuadratureVelocity();
         double mout = mTalon.getMotorOutputPercent();
         double voltOut = mTalon.getMotorOutputVoltage();
         double curOut = mTalon.getOutputCurrent();
-        mLastSensPosn = absSensPosn;
 
         return String.format(
-                "ES.%s  AtBase: %b LimCnt: %d   base: %d  selPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f",
-                caller, m_botLimitSwitchActive, m_BottomLimitCtr.get(), mBasePosn, selSensPosn, vel, mout, voltOut,
+                "ES.%s  AtBase: %b LimCnt: %d   base: %d  curPosn: %d  vel: %.3f  pcOut: %.3f  volts: %.3f  cur: %.3f",
+                caller, m_botLimitSwitchActive, m_BottomLimitCtr.get(), mBasePosn, curSensPosn, vel, mout, voltOut,
                 curOut);
     }
 
+
     // MovSlowUpCmd --------------------------------------------------------
 
-    // move up very slowly unitl we have moved 2 inches. Idea is to find minimum power
+    // move up very slowly until we have moved 2 inches. Idea is to find minimum power
     // need to move the elevator up, because it is very negatively weighted
 
     private int mStartPosn = 0;
@@ -363,9 +396,7 @@ public class ElevatorSys extends Subsystem {
     private double mPercentOut;
 
     public void initMovSlowUp() {
-        if (m_curState != ELV_STATE.IDLE) {
-
-        }
+        setState(ELV_STATE.MOVEUPSLOW);
         m_curState = ELV_STATE.MANUALUP;
         mStartPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         mPercentOut = 0.0;
@@ -391,21 +422,28 @@ public class ElevatorSys extends Subsystem {
         return isFin;
     }
 
-    // ------------------------- basic hold -------------------------------------
 
+    // ---- basic hold called from ElvHoldCmd-------------------------------------
+
+    /**
+     * Hold the elevator at current position using just set power
+     */
     public void holdPosnPower() {
+        setState(ELV_STATE.HOLD);
         mLog.debug(printPosn("holdPosnPower") + "\n------------------------------------------------------");
         mLog.debug("Holding at output %.3f", BASE_PERCENT_OUT);
         mPercentOut = BASE_PERCENT_OUT;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
     }
 
-    // -----------Move To w/ PID -----------------------------------------
+
+    // -----------Move To without PID -----------------------------------------
 
     private final double AUTO_SPEED = 0.3;
     private boolean ElvMoveUpPolarity;
 
     public void initMoveToWithoutPID(Objective.ElvTarget target) {
+        setState(ELV_STATE.MOVETO);
         int curPosition = mTalon.getSelectedSensorPosition();
         int targetPosition = target.getTicks();
         if ((targetPosition - curPosition) > 0) {
@@ -447,6 +485,7 @@ public class ElevatorSys extends Subsystem {
      * Move up at 0.3 power more than hold
      */
     public void initMoveUp() {
+        setState(ELV_STATE.MANUALUP);
         if (m_holdPID != null) {
             m_holdPID.disable();
         }
@@ -478,6 +517,7 @@ public class ElevatorSys extends Subsystem {
      * Move down at -0.1 power
      */
     public void initMoveDown() {
+        setState(ELV_STATE.MANUALDOWN);
         if (m_holdPID != null) {
             m_holdPID.disable();
         }
@@ -510,7 +550,6 @@ public class ElevatorSys extends Subsystem {
      * inches
      */
     public void initHoldPosnPID() {
-
         if (m_holdPID == null) {
             mLog.debug(printPosn("initHoldPosnPID:"));
             m_HoldPidOutTalon = new PIDOutTalon(mTalon, 0.1, -0.8, 0.8);
@@ -521,7 +560,8 @@ public class ElevatorSys extends Subsystem {
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_HoldPidOutTalon, periodInSecs);
             m_holdPID.setAbsoluteTolerance(0.5 * TICKS_PER_INCH); // allow +- 200 units (0.4 inches) on error
-            m_holdPID.setRamp(0.0, 0.0);        // no ramping on a hold
+            m_holdPID.setRamp(0.0, 0.0); // no ramping on a hold
+            m_holdPID.setDebugEnabled(true, 10);
         } else {
             m_holdPID.reset();
         }
@@ -539,6 +579,7 @@ public class ElevatorSys extends Subsystem {
      * Do a PID hold at the specified sensor position
      */
     public void enableHoldPosnPID(int targetPosn) {
+        setState(ELV_STATE.PIDHOLD);
         if (m_holdPID == null) {
             initHoldPosnPID();
         }
@@ -549,6 +590,7 @@ public class ElevatorSys extends Subsystem {
         mLog.debug("ES.enableHoldPosnPID: target: %d    ---------------------", targetPosn);
         mLog.debug(printPosn("enableHoldPosnPID"));
         m_holdPID.setSetpoint(targetPosn);
+        m_holdPID.setDebugEnabled(true, 10);
         m_holdPID.enable();
     }
 
@@ -577,6 +619,7 @@ public class ElevatorSys extends Subsystem {
      * @param targ
      */
     public void initMoveToTarget(Objective.ElvTarget targ) {
+        setState(ELV_STATE.PIDMOVE);
         m_targ = targ;
         initHoldPosnPID();
         
@@ -592,7 +635,8 @@ public class ElevatorSys extends Subsystem {
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_movePID = new TTPIDController("elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
                     periodInSecs);
-            m_movePID.setAbsoluteTolerance(2*TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock in
+            m_movePID.setAbsoluteTolerance(2 * TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock in
+            m_movePID.setDebugEnabled(true, 10);
         } else {
             if (m_usingHoldPID) {
                 m_haveToStop = true;
@@ -636,9 +680,9 @@ public class ElevatorSys extends Subsystem {
     public boolean isMoveToTargetComplete() {
         if (m_usingHoldPID) {
             if (m_holdPID.onTarget()) {
-                mPLog.debug("ES.isMoveToTargetComplete:   curPosn: %d  pidOut: %.3f  holdPidOut: %.3f", 
-                 mTalon.getSelectedSensorPosition(), m_PidOutTalon.getVal(), m_HoldPidOutTalon.getVal());
-     
+                mPLog.debug("ES.isMoveToTargetComplete:   curPosn: %d  pidOut: %.3f  holdPidOut: %.3f",
+                        mTalon.getSelectedSensorPosition(), m_PidOutTalon.getVal(), m_HoldPidOutTalon.getVal());
+
             }
             return m_holdPID.onTarget();
         }
@@ -650,6 +694,7 @@ public class ElevatorSys extends Subsystem {
         return false;
     }
 
+    
     public void disableMoveToPID() {
         if (m_movePID != null) {
             m_movePID.disable();
