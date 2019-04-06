@@ -246,8 +246,6 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
     }
 
 
-
-
     /**
      * Read the input, calculate the output accordingly, and write to the output.
      * This should only be called by the PIDTask and is created during initialization.
@@ -298,9 +296,11 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
                     m_firstCalc = false;
                     m_startPoint = input;
                     m_dirnPositive = (m_setpoint >= input);
+                    m_rampEndofStart = input;
+                    m_rampStartofEnd = m_setpoint;
                     if (m_dirnPositive) {
-                        m_rampEndofStart = input + m_rampStartUnits;
-                        m_rampStartofEnd = m_setpoint - m_rampEndUnits;
+                            m_rampEndofStart = input + m_rampStartUnits;
+                            m_rampStartofEnd = m_setpoint - m_rampEndUnits;
                     } else {
                         m_rampEndofStart = input - m_rampStartUnits;
                         m_rampStartofEnd = m_setpoint + m_rampEndUnits;
@@ -354,8 +354,8 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
             }
             result = P * error + I * totalError + D * (error - prevError) + feedForward;
         }
-        // mLogPeriodic.debug("%s.exec.calc: set: %.3f  inp: %.3f  err: %.3f  totErr: %.3f  ff: %.3f   res: %.3f   scale: %.3f", m_name,
-        //        m_setpoint, input, error, totalError, feedForward, result, rampScaleFactor);
+        mLogPeriodic.debug("%s.exec.calc: set: %.3f  inp: %.3f  err: %.3f  totErr: %.3f  ff: %.3f   res: %.3f   scale: %.3f", m_name,
+               m_setpoint, input, error, totalError, feedForward, result, rampScaleFactor);
         result = result * rampScaleFactor;
         result = clamp(result, minimumOutput, maximumOutput);
 

@@ -14,9 +14,10 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PIDController;
-
+import team6072.robo2019.ControlBoard;
 import team6072.robo2019.RobotConfig;
 import team6072.robo2019.logging.*;
+import team6072.robo2019.commands.drive.ArcadeDriveCmd;
 import team6072.robo2019.commands.objectives.Objective;
 
 /**
@@ -60,6 +61,13 @@ public class DriveSys extends Subsystem {
         }
         return mInstance;
     }
+
+
+    @Override
+    public void initDefaultCommand() {
+        setDefaultCommand(new ArcadeDriveCmd(ControlBoard.getInstance().mDriveStick));
+    }
+
 
     /**
      * When configuring talon, the configXXX() methods have a timeout param.
@@ -208,10 +216,6 @@ public class DriveSys extends Subsystem {
         }
     }
 
-    @Override
-    public void initDefaultCommand() {
-        mLog.info("DriveSys: init default command empty");
-    }
 
     /**
      * Utility method to sleep for a period if we need to
