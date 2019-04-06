@@ -33,7 +33,7 @@ public class WristSys extends Subsystem {
         DONT_EXTEND, DONT_RETRACT;
     }
 
-    private WristState mCurState;
+    private WristState mCurState = WristState.IDLE;
 
     public void setState(WristState wristState) {
         mLog.debug("WS.setState  OldState: %s   New State: %s", mCurState.toString(), wristState.toString());

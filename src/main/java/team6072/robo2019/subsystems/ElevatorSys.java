@@ -626,7 +626,7 @@ public class ElevatorSys extends Subsystem {
         // if(mClimbPidController != null){
         //     mClimbPidController.disable();
         // }
-        if (m_movePID == null) {
+        // if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, 0.3, -0.8, 0.8);
             double kP = 0.05 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
@@ -637,13 +637,13 @@ public class ElevatorSys extends Subsystem {
                     periodInSecs);
             m_movePID.setAbsoluteTolerance(2 * TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock in
             m_movePID.setDebugEnabled(true, 10);
-        } else {
+        // } else {
             if (m_usingHoldPID) {
                 m_haveToStop = true;
                 m_holdPID.disable();
             }
-            m_movePID.reset();
-        }
+            // m_movePID.reset();
+        // }
 
         int curPosn = mTalon.getSelectedSensorPosition(0);
         int calcTarg = targ.getTicks();
@@ -652,7 +652,7 @@ public class ElevatorSys extends Subsystem {
         mLog.debug(printPosn("initMoveToTarget"));
         m_usingHoldPID = false;
         m_movePID.setSetpoint(calcTarg);
-        m_movePID.setRamp(2 * TICKS_PER_INCH, 2 * TICKS_PER_INCH); // set ramps to 3 inches
+        //m_movePID.setRamp(2 * TICKS_PER_INCH, 2 * TICKS_PER_INCH); // set ramps to 3 inches
         m_movePID.setBasePower(0.3, 0.05);
         m_movePID.enable();
     }
