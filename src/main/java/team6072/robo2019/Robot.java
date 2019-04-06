@@ -147,7 +147,7 @@ public class Robot extends TimedRobot {
             NavXSys.getInstance().zeroYawHeading();
             Scheduler.getInstance().removeAll();
             mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.mDriveStick);
-            Scheduler.getInstance().add(new FlowerOpenCmd());
+            // Scheduler.getInstance().add(new FlowerOpenCmd());
             Scheduler.getInstance().add(mArcadeDriveCmd);
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.autoInit:  exception: " + ex.toString());
