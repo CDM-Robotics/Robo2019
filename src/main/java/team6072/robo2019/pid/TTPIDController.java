@@ -42,11 +42,12 @@ public class TTPIDController extends PIDBase implements Controller {
      * @param periodSecs the loop time for doing calculations in seconds. This
      *               particularly affects calculations of the integral and
      *               differential terms. The default is 0.05 (50ms).
+     * @param execOnTarg method implementing IPIDExecOnTarget to be called when PID is in targ
      */
     @SuppressWarnings("ParameterName")
     public TTPIDController(String name, double Kp, double Ki, double Kd, double Kf, IPIDSource source, IPIDOutput output,
-            double periodSecs) {
-        super(name, Kp, Ki, Kd, Kf, source, output);
+            double periodSecs, IPIDExecOnTarget execOnTarg) {
+        super(name, Kp, Ki, Kd, Kf, source, output, execOnTarg);
         m_controlLoop.startPeriodic(periodSecs);
     }
 
@@ -65,7 +66,7 @@ public class TTPIDController extends PIDBase implements Controller {
      */
     @SuppressWarnings("ParameterName")
     public TTPIDController(String name, double Kp, double Ki, double Kd, IPIDSource source, IPIDOutput output, double periodSecs) {
-        this(name, Kp, Ki, Kd, 0.0, source, output, periodSecs);
+        this(name, Kp, Ki, Kd, 0.0, source, output, periodSecs, null);
     }
 
 
@@ -96,7 +97,7 @@ public class TTPIDController extends PIDBase implements Controller {
      */
     @SuppressWarnings("ParameterName")
     public TTPIDController(String name, double Kp, double Ki, double Kd, double Kf, IPIDSource source, IPIDOutput output) {
-        this(name, Kp, Ki, Kd, Kf, source, output, kDefaultPeriod);
+        this(name, Kp, Ki, Kd, Kf, source, output, kDefaultPeriod, null);
     }
 
 

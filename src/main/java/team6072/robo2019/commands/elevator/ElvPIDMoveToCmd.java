@@ -34,19 +34,21 @@ public class ElvPIDMoveToCmd extends Command {
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
-        mSys.initMoveToTarget(m_target);
+        mSys.initPIDMoveToTarget(m_target);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mSys.execMoveToTarget();
+        // not needed because using PIDExecOnTarget
+        //mSys.execMoveToTarget();
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished() {
-        return mSys.isMoveToTargetComplete();
+        return true;        // command completes immediately because PID controller is responsible for moving to hold
+        //return mSys.isMoveToTargetComplete();
     }
 
     // Called once after isFinished returns true

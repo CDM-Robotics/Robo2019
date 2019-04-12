@@ -15,12 +15,13 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import team6072.robo2019.RobotConfig;
 import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.logging.*;
+import team6072.robo2019.pid.IPIDExecOnTarget;
 import team6072.robo2019.pid.TTPIDController;
 
 /**
  * Add your docs here.
  */
-public class ElevatorSys extends Subsystem {
+public class ElevatorSys extends Subsystem implements IPIDExecOnTarget  {
 
     private static final LogWrapper mLog = new LogWrapper(ElevatorSys.class.getName());
     private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 50);
@@ -558,7 +559,7 @@ public class ElevatorSys extends Subsystem {
             double kD = 0.0;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-            m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_HoldPidOutTalon, periodInSecs);
+            m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_HoldPidOutTalon, periodInSecs, null);
             m_holdPID.setAbsoluteTolerance(0.5 * TICKS_PER_INCH); // allow +- 200 units (0.4 inches) on error
             m_holdPID.setRamp(0.0, 0.0); // no ramping on a hold
             m_holdPID.setDebugEnabled(true, 10);
@@ -618,7 +619,7 @@ public class ElevatorSys extends Subsystem {
      * 
      * @param targ
      */
-    public void initMoveToTarget(Objective.ElvTarget targ) {
+    public void initPIDMoveToTarget(Objective.ElvTarget targ) {
         setState(ELV_STATE.PIDMOVE);
         m_targ = targ;
         initHoldPosnPID();
@@ -632,9 +633,9 @@ public class ElevatorSys extends Subsystem {
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;
-            double periodInSecs = 0.05; // for hold, check every 50 mS is fine
+            double periodInSecs = 0.05; // run PID calc every 50 mS
             m_movePID = new TTPIDController("elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
-                    periodInSecs);
+                    periodInSecs, this);
             m_movePID.setAbsoluteTolerance(2 * TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock in
             m_movePID.setDebugEnabled(true, 10);
         // } else {
@@ -662,17 +663,31 @@ public class ElevatorSys extends Subsystem {
      * Talon What we want to do is wait until the PID is close, then use the holdPID
      * to lock in
      */
-    public void execMoveToTarget() {
-        mPLog.debug("ES.execMoveToTarg:  onTarg: %b  curPosn: %d  pidOut: %.3f  holdPidOut: %.3f", 
-            m_movePID.onTarget(), mTalon.getSelectedSensorPosition(), m_PidOutTalon.getVal(), m_HoldPidOutTalon.getVal());
-        if (m_movePID.onTarget() && !m_usingHoldPID) {
-            mLog.debug("ES.execMoveToTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-            mLog.debug(printPosn("ES.execMoveToTarget:"));
-            enableHoldPosnPID(m_targ.getTicks());
-            m_movePID.disable();
-            m_usingHoldPID = true;
-        }
+    // public void execMoveToTarget() {
+    //     mPLog.debug("ES.execMoveToTarg:  onTarg: %b  curPosn: %d  pidOut: %.3f  holdPidOut: %.3f", m_movePID.onTarget(),
+    //             mTalon.getSelectedSensorPosition(), m_PidOutTalon.getVal(), m_HoldPidOutTalon.getVal());
+    //     if (m_movePID.onTarget() && !m_usingHoldPID) {
+    //         mLog.debug("ES.execMoveToTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+    //         mLog.debug(printPosn("ES.execMoveToTarget:"));
+    //         enableHoldPosnPID(m_targ.getTicks());
+    //         m_movePID.disable();
+    //         m_usingHoldPID = true;
+    //     }
+    // }
+
+
+    /**
+     * This is passed to the movePID controller, which will call it when it hits target
+     * The method returns true if we want to PID controller to disable itself
+     */
+    public boolean PID_ExecOnTarget() {
+        mLog.debug("ES.pidExecOnTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        mLog.debug(printPosn("ES.pidExecOnTarget:"));
+        enableHoldPosnPID(m_targ.getTicks());
+        m_usingHoldPID = true;
+        return true;    // force movePID to disable
     }
+
 
     /**
      * Only return true once we have moved to using holdPID and it is on target
