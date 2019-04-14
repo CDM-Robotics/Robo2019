@@ -29,6 +29,8 @@ public class PneumaticSys extends Subsystem {
 
     private DoubleSolenoid mIntakeSolenoid;
 
+    private DoubleSolenoid mIntakeLockSolenoid;
+
     
 
     private static PneumaticSys mInstance;
@@ -57,6 +59,8 @@ public class PneumaticSys extends Subsystem {
                     RobotConfig.PCM_HATCH_RETRACT);
             mIntakeSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_INTAKE_OPEN,
                     RobotConfig.PCM_INTAKE_CLOSED);
+            mIntakeLockSolenoid = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.PCM_INTAKELOCK_OPEN,
+                    RobotConfig.PCM_INTAKELOCK_CLOSED);
         }
         mLog.debug("PneumaticSys.ctor: exit    ---------------------");
     }
@@ -94,6 +98,17 @@ public class PneumaticSys extends Subsystem {
     public void setFlowerClose() {
         mLog.debug("PneumaticSys.setIntakeOpen  >>>>>");
         mIntakeSolenoid.set(DoubleSolenoid.Value.kReverse);
+    }
+
+
+    public void setIntakeLockOpen() {
+        mLog.debug("PneumaticSys.setIntakeLockClosed  <<<<<");
+        mIntakeLockSolenoid.set(DoubleSolenoid.Value.kForward);
+    }
+
+    public void setIntakeLockClose() {
+        mLog.debug("PneumaticSys.setIntakLockeOpen  >>>>>");
+        mIntakeLockSolenoid.set(DoubleSolenoid.Value.kReverse);
     }
 
 
