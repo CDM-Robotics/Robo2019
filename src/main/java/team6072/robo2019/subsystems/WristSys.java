@@ -639,12 +639,12 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
      * 
      * @param targ
      */
-    public void initMoveToTarget(WristTarget targ) {
+    public void initPIDMoveToTarget(WristTarget targ) {
         m_targ = targ;
-        // if (m_holdPID != null) {
-        //     m_holdPID.disable();
-        // }
-        // if (m_movePID == null) {
+        if (m_holdPID != null) {
+            m_holdPID.disable();
+        }
+        if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.5, 0.5);
             double kP = 0.005 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
@@ -654,9 +654,9 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
             m_movePID = new TTPIDController("wristM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
                     periodInSecs, this);
             m_movePID.setAbsoluteTolerance(10 * TICKS_PER_DEG); // allow +- one inch - then hand over to posn hold
-        // } else {
-        //     m_movePID.reset();
-        // }
+        } else {
+            m_movePID.reset();
+        }
         setState(WristState.PID_MOVE_TO);
         int curPosn = mTalon.getSelectedSensorPosition(0);
         int calcTarg = targ.getTicks();

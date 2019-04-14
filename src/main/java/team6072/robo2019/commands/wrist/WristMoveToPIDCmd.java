@@ -21,7 +21,7 @@ public class WristMoveToPIDCmd extends Command {
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
-        mSys.initMoveToTarget(m_target);
+        mSys.initPIDMoveToTarget(m_target);
     }
 
     // Called repeatedly when this Command is scheduled to run
