@@ -87,7 +87,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
     private double m_totalError;
 
     // The tolerance object used to check if on target
-    private Tolerance m_tolerance;
+    private ITolerance m_tolerance;
 
     private double m_setpoint;
     private double m_prevSetpoint;
@@ -107,6 +107,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
     protected IPIDSource m_pidInput;
     protected IPIDOutput m_pidOutput;
     protected WPITimer m_setpointTimer;
+    protected IPIDExecOnTarget m_execOnTarget;
 
 
 
@@ -119,7 +120,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
      * The various implementations of this class such as PercentageTolerance and
      * AbsoluteTolerance specify types of tolerance specifications to use.
      */
-    public interface Tolerance {
+    public interface ITolerance {
         boolean onTarget();
     }
 
@@ -127,7 +128,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
     /**
      * Used internally for when Tolerance hasn't been set.
      */
-    public static class NullTolerance implements Tolerance {
+    public static class NullTolerance implements ITolerance {
         @Override
         public boolean onTarget() {
             throw new IllegalStateException("No tolerance value set when calling onTarget().");
@@ -135,7 +136,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
     }
 
 
-    public class PercentageTolerance implements Tolerance {
+    public class PercentageTolerance implements ITolerance {
         private final double m_percentage;
         public boolean onTargLogged = false;
 
@@ -145,12 +146,45 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
 
         @Override
         public boolean onTarget() {
+
             boolean onTarg = Math.abs(getError()) < m_percentage / 100 * m_inputRange;
-            
+
             boolean disable = false;
             if (onTarg) {
-                if (mExecOnTarget != null) {
-                    disable = mExecOnTarget.PID_ExecOnTarget();
+                if (m_execOnTarget != null) {
+                    disable = m_execOnTarget.PID_ExecOnTarget();
+                    if (disable) {
+                        m_enabled = false;
+                    }
+                }
+                if (m_debugEnabled && !onTargLogged) {
+                    onTargLogged = true;
+                    double targ = getSetpoint();
+                    double cur = m_pidInput.pidGet();
+                    mLog.debug("%s: on Target  cur: %.3f   targ: %.3f  disabled: %b  ----------------", m_name, cur, targ, disable);
+                }
+            }
+            return onTarg;
+        }
+    }
+
+
+    public class AbsoluteTolerance implements ITolerance {
+        private final double m_value;
+        public boolean onTargLogged = false;
+
+        AbsoluteTolerance(double value) {
+            m_value = value;
+        }
+
+        @Override
+        public boolean onTarget() {
+            boolean onTarg = Math.abs(getError()) < m_value;
+
+            boolean disable = false;
+            if (onTarg) {
+                if (m_execOnTarget != null) {
+                    disable = m_execOnTarget.PID_ExecOnTarget();
                     if (disable) {
                         m_enabled = false;
                     }
@@ -162,28 +196,6 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
                     mLog.debug("%s: on Target  cur: %.3f   targ: %.3f  disabled: %b  ----------------", m_name, cur,
                             targ, disable);
                 }
-            }
-            return onTarg;
-        }
-    }
-
-
-    public class AbsoluteTolerance implements Tolerance {
-        private final double m_value;
-        public boolean onTargLogged = false;
-
-        AbsoluteTolerance(double value) {
-            m_value = value;
-        }
-
-        @Override
-        public boolean onTarget() {
-            boolean onTarg = Math.abs(getError()) < m_value;
-            if (m_debugEnabled && !onTargLogged) {
-                onTargLogged = true;
-                double targ = getSetpoint();
-                double cur = m_pidInput.pidGet();
-                mLog.debug("%s: on Target  cur: %.3f   targ: %.3f  ----------------", m_name, cur, targ);
             }
             return onTarg;
         }
@@ -226,10 +238,10 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
      * @param output The IPIDOutput object that is set to the output percentage
      */
     @SuppressWarnings("ParameterName")
-    public PIDBase(String name, double Kp, double Ki, double Kd, double Kf, IPIDSource source, IPIDOutput output, IPIDExecOnTarget execOnTarget) {
+    public PIDBase(String name, double Kp, double Ki, double Kd, double Kf, IPIDSource source, IPIDOutput output, IPIDExecOnTarget execOnTarg) {
         super(false);
         m_name = name;
-        mExecOnTarget = execOnTarget;
+        m_execOnTarget = execOnTarg;
         requireNonNull(source, "Null IPIDSource was given");
         requireNonNull(output, "Null IPIDOutput was given");
 
@@ -272,8 +284,8 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
      * @param output the IPIDOutput object that is set to the output percentage
      */
     @SuppressWarnings("ParameterName")
-    public PIDBase(String name, double Kp, double Ki, double Kd, IPIDSource source, IPIDOutput output, IPIDExecOnTarget execOnTarget) {
-        this(name, Kp, Ki, Kd, 0.0, source, output, execOnTarget);
+    public PIDBase(String name, double Kp, double Ki, double Kd, IPIDSource source, IPIDOutput output) {
+        this(name, Kp, Ki, Kd, 0.0, source, output, null);
     }
 
 
@@ -890,7 +902,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
      *                  or AbsoluteTolerance
      */
     @Deprecated
-    public void setTolerance(Tolerance tolerance) {
+    public void setTolerance(ITolerance tolerance) {
         m_tolerance = tolerance;
     }
 
