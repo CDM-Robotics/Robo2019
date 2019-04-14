@@ -573,7 +573,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_holdPID = new TTPIDController("wristHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
-                    periodInSecs);
+                    periodInSecs, null);
             m_holdPID.setAbsoluteTolerance(10 * TICKS_PER_DEG); // allow +- 200 units (0.4 inches) on error
         } else {
             m_holdPID.reset();
