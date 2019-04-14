@@ -152,9 +152,9 @@ public class ControlBoard {
 
         // left panel -----------------------------------------------------
 
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new WristMoveToCmd(WristTarget.RetrieveBallPosition), null);
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_2, new WristMoveToCmd(WristTarget.FlatHatchDeployPosition), null);
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_3, new WristMoveToCmd(WristTarget.FlatCargoDeployPosition), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new WristMoveToPIDCmd(WristTarget.RetrieveBallPosition), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_2, new WristMoveToPIDCmd(WristTarget.FlatHatchDeployPosition), null);
+        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_3, new WristMoveToPIDCmd(WristTarget.FlatCargoDeployPosition), null);
 
     }
 

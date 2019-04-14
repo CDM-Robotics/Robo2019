@@ -180,7 +180,6 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
         @Override
         public boolean onTarget() {
             boolean onTarg = Math.abs(getError()) < m_value;
-
             boolean disable = false;
             if (onTarg) {
                 if (m_execOnTarget != null) {

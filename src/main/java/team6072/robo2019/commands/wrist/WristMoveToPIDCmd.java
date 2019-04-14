@@ -6,13 +6,13 @@ import team6072.robo2019.subsystems.WristSys;
 
 
 
-public class WristMoveToCmd extends Command {
+public class WristMoveToPIDCmd extends Command {
 
     private WristSys mSys;
 
     private WristSys.WristTarget m_target;
 
-    public WristMoveToCmd(WristSys.WristTarget target) {
+    public WristMoveToPIDCmd(WristSys.WristTarget target) {
         mSys = WristSys.getInstance();
         requires(mSys);
         m_target = target;

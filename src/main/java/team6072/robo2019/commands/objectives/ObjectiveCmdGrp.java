@@ -10,7 +10,7 @@ package team6072.robo2019.commands.objectives;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
 import team6072.robo2019.commands.elevator.*;
-import team6072.robo2019.commands.wrist.WristMoveToCmd;
+import team6072.robo2019.commands.wrist.WristMoveToPIDCmd;
 import team6072.robo2019.subsystems.WristSys;
 
 public class ObjectiveCmdGrp extends CommandGroup {

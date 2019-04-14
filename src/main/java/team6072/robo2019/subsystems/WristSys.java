@@ -446,8 +446,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
         *   This function treats the percent out as a proportional output
         *       to the amount the wrist has traveled
         */
-        double ratio = MAX_WRIST_SPEED / MAX_TRAVEL;
-        double pcOut = ratio * getWristPosition();
+        double pcOut = (MAX_WRIST_SPEED / MAX_TRAVEL) * (MAX_TRAVEL - getWristPosition());
         
         mPercentOut = BASE_PERCENT_OUT + pcOut;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
@@ -504,10 +503,9 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
         *   This function treats the percent out as a proportional output
         *       to the amount the wrist has traveled
         */
-        double ratio = -MAX_WRIST_SPEED / MAX_TRAVEL;
-        double pcOut = ratio * getWristPosition();
+        double pcOut = -(MAX_WRIST_SPEED / MAX_TRAVEL) * (getWristPosition());
         
-        mPercentOut = BASE_PERCENT_OUT + pcOut;
+        mPercentOut = -BASE_PERCENT_OUT + pcOut;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execRetract"));
 
@@ -629,7 +627,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
         mLog.debug("WS.pidExecOnTarget: Wrist on Target  --------------------------------------------");
         enableHoldPosnPID(m_targ.getTicks());
         m_usingHoldPID = true;
-        mCurState = WristState.PID_HOLD;
+        setState(WristState.PID_HOLD);
         return true;
     }
 
