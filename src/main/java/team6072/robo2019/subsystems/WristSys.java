@@ -672,20 +672,20 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
         m_movePID.enable();
     }
 
-    /**
-     * Dont need to actually do anything here, because the PID if writing to the
-     * Talon What we want to do is wait until the PID is close, then use the holdPID
-     * to lock in
-     */
-    public void execMoveToTarget() {
-        if (m_movePID.onTarget() && !m_usingHoldPID) {
-            mLog.debug("ES.execMoveToTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-            mLog.debug(printPosn("ES.execMoveToTarget:"));
-            m_movePID.disable();
-            enableHoldPosnPID(m_targ.getTicks());
-            m_usingHoldPID = true;
-        }
-    }
+    // /**
+    //  * Dont need to actually do anything here, because the PID if writing to the
+    //  * Talon What we want to do is wait until the PID is close, then use the holdPID
+    //  * to lock in
+    //  */
+    // public void execMoveToTarget() {
+    //     if (m_movePID.onTarget() && !m_usingHoldPID) {
+    //         mLog.debug("ES.execMoveToTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+    //         mLog.debug(printPosn("ES.execMoveToTarget:"));
+    //         m_movePID.disable();
+    //         enableHoldPosnPID(m_targ.getTicks());
+    //         m_usingHoldPID = true;
+    //     }
+    // }
 
     /**
      * Only return true once we have moved to using holdPID and it is on target
