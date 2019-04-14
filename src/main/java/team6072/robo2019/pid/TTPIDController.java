@@ -45,8 +45,8 @@ public class TTPIDController extends PIDBase implements Controller {
      */
     @SuppressWarnings("ParameterName")
     public TTPIDController(String name, double Kp, double Ki, double Kd, double Kf, IPIDSource source, IPIDOutput output,
-            double periodSecs) {
-        super(name, Kp, Ki, Kd, Kf, source, output);
+            double periodSecs, IPIDExecOnTarget execOnTarget) {
+        super(name, Kp, Ki, Kd, Kf, source, output, execOnTarget);
         m_controlLoop.startPeriodic(periodSecs);
     }
 

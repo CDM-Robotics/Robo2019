@@ -146,11 +146,22 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
         @Override
         public boolean onTarget() {
             boolean onTarg = Math.abs(getError()) < m_percentage / 100 * m_inputRange;
-            if (m_debugEnabled && !onTargLogged) {
-                onTargLogged = true;
-                double targ = getSetpoint();
-                double cur = m_pidInput.pidGet();
-                mLog.debug("%s: on Target  cur: %.3f   targ: %.3f  ----------------", m_name, cur, targ);
+            
+            boolean disable = false;
+            if (onTarg) {
+                if (mExecOnTarget != null) {
+                    disable = mExecOnTarget.PID_ExecOnTarget();
+                    if (disable) {
+                        m_enabled = false;
+                    }
+                }
+                if (m_debugEnabled && !onTargLogged) {
+                    onTargLogged = true;
+                    double targ = getSetpoint();
+                    double cur = m_pidInput.pidGet();
+                    mLog.debug("%s: on Target  cur: %.3f   targ: %.3f  disabled: %b  ----------------", m_name, cur,
+                            targ, disable);
+                }
             }
             return onTarg;
         }
@@ -202,6 +213,7 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
 
     private boolean m_debugEnabled = false;
 
+    private IPIDExecOnTarget mExecOnTarget;
 
     /**
      * Allocate a PID object with the given constants for P, I, D, and F.
@@ -214,9 +226,10 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
      * @param output The IPIDOutput object that is set to the output percentage
      */
     @SuppressWarnings("ParameterName")
-    public PIDBase(String name, double Kp, double Ki, double Kd, double Kf, IPIDSource source, IPIDOutput output) {
+    public PIDBase(String name, double Kp, double Ki, double Kd, double Kf, IPIDSource source, IPIDOutput output, IPIDExecOnTarget execOnTarget) {
         super(false);
         m_name = name;
+        mExecOnTarget = execOnTarget;
         requireNonNull(source, "Null IPIDSource was given");
         requireNonNull(output, "Null IPIDOutput was given");
 
@@ -259,8 +272,8 @@ public class PIDBase extends SendableBase implements IPID, IPIDOutput {
      * @param output the IPIDOutput object that is set to the output percentage
      */
     @SuppressWarnings("ParameterName")
-    public PIDBase(String name, double Kp, double Ki, double Kd, IPIDSource source, IPIDOutput output) {
-        this(name, Kp, Ki, Kd, 0.0, source, output);
+    public PIDBase(String name, double Kp, double Ki, double Kd, IPIDSource source, IPIDOutput output, IPIDExecOnTarget execOnTarget) {
+        this(name, Kp, Ki, Kd, 0.0, source, output, execOnTarget);
     }
 
 

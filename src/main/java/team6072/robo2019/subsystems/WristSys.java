@@ -10,12 +10,13 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import team6072.robo2019.RobotConfig;
 import team6072.robo2019.logging.*;
+import team6072.robo2019.pid.IPIDExecOnTarget;
 import team6072.robo2019.pid.TTPIDController;
 
 /**
  * Add your docs here.
  */
-public class WristSys extends Subsystem {
+public class WristSys extends Subsystem implements IPIDExecOnTarget{
 
     private static final LogWrapper mLog = new LogWrapper(WristSys.class.getName());
     private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 10);
@@ -59,9 +60,9 @@ public class WristSys extends Subsystem {
 
     // specify the boundaries beyond which not allowed to have power
     private static final double RETRACT_STOP_ANGLE = 37.0;
-    private static final int MAX_TRAVEL = (int) ((RETRACT_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
+    private static final int MIN_TRAVEL = (int) ((RETRACT_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
     private static final double EXTEND_STOP_ANGLE = 250.0;
-    private static final int MIN_TRAVEL = (int) ((EXTEND_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
+    private static final int MAX_TRAVEL = (int) ((EXTEND_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
 
     /*
      * // --------------Rocket ------------------------------------------
@@ -437,26 +438,42 @@ public class WristSys extends Subsystem {
     public static final int TICKS_AT_90 = (int) ((90 - STARTING_ANGLE) * TICKS_PER_DEG);
     public static final double MAX_WRIST_SPEED = 0.6;
 
-    public void execExtend() {
+    public void execExtend() {        
         if (mDontExtend) {
             return;
         }
-        double reqPCOut = MAX_WRIST_SPEED;
-        int currentPosition = getWristPosition();
-        double displacement = currentPosition - TICKS_AT_90;
-        double displacementAngle = (displacement / TICKS_PER_DEG) / 180 * Math.PI;
-        double sinAng = Math.sin(displacementAngle);
-        double realOut = mTalon.getMotorOutputPercent();
-        double curVel = mTalon.getSelectedSensorVelocity();
-        if (curVel > 0) {
-            reqPCOut = -MAX_WRIST_SPEED * sinAng;
-        }
-        mPercentOut = BASE_PERCENT_OUT + reqPCOut;
-        mLog.debug("WS.execExt: curPos: %d  disp: %.3f  dispAng: %.3f  reqPCOut: %.3f  realOut: %.3f  curVel: %.3f",
-                currentPosition, displacement, displacementAngle, reqPCOut, realOut, curVel);
+        /**
+        *   This function treats the percent out as a proportional output
+        *       to the amount the wrist has traveled
+        */
+        double ratio = MAX_WRIST_SPEED / MAX_TRAVEL;
+        double pcOut = ratio * getWristPosition();
+        
+        mPercentOut = BASE_PERCENT_OUT + pcOut;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
-        // mLog.debug(printPosn("execExtend: " + String.format("mPCOut %.3f",
-        // mPercentOut)));
+        mPLog.debug(printPosn("execExtend"));
+
+
+        // mLog.debug("WS.execExt: curPos: %d  disp: %.3f  dispAng: %.3f  reqPCOut: %.3f  realOut: %.3f  curVel: %.3f",
+        //         currentPosition, displacement, displacementAngle, pcOut, realOut, curVel);
+
+        // if (mDontExtend) {
+        //     return;
+        // }
+        // double reqPCOut = MAX_WRIST_SPEED;
+        // int currentPosition = getWristPosition();
+        // double displacement = currentPosition - TICKS_AT_90;
+        // double displacementAngle = (displacement / TICKS_PER_DEG) / 180 * Math.PI;
+        // double sinAng = Math.sin(displacementAngle);
+        // double realOut = mTalon.getMotorOutputPercent();
+        // double curVel = mTalon.getSelectedSensorVelocity();
+        // if (curVel > 0) {
+        //     reqPCOut = -MAX_WRIST_SPEED * sinAng;
+        // }
+        // mPercentOut = BASE_PERCENT_OUT + reqPCOut;
+        // mLog.debug("WS.execExt: curPos: %d  disp: %.3f  dispAng: %.3f  reqPCOut: %.3f  realOut: %.3f  curVel: %.3f",
+        //         currentPosition, displacement, displacementAngle, reqPCOut, realOut, curVel);
+        // mTalon.set(ControlMode.PercentOutput, mPercentOut);
     }
 
     // ----------- Move Retract -----------------------------------------------
@@ -480,20 +497,34 @@ public class WristSys extends Subsystem {
     }
 
     public void execRetract() {
-        if (mDontRetract) {
+        if (mDontExtend) {
             return;
         }
-
-        double speed = -MAX_WRIST_SPEED;
-        if (mTalon.getSelectedSensorVelocity() < 0) {
-            int currentPosition = getWristPosition();
-            double displacement = TICKS_AT_90 - currentPosition;
-            double displacementAngle = (displacement / TICKS_PER_DEG) / 180 * Math.PI;
-            speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
-        }
-        mPercentOut = -BASE_PERCENT_OUT + speed;
+        /**
+        *   This function treats the percent out as a proportional output
+        *       to the amount the wrist has traveled
+        */
+        double ratio = -MAX_WRIST_SPEED / MAX_TRAVEL;
+        double pcOut = ratio * getWristPosition();
+        
+        mPercentOut = BASE_PERCENT_OUT + pcOut;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execRetract"));
+
+        // if (mDontRetract) {
+        //     return;
+        // }
+
+        // double speed = -MAX_WRIST_SPEED;
+        // if (mTalon.getSelectedSensorVelocity() < 0) {
+        //     int currentPosition = getWristPosition();
+        //     double displacement = TICKS_AT_90 - currentPosition;
+        //     double displacementAngle = (displacement / TICKS_PER_DEG) / 180 * Math.PI;
+        //     speed = MAX_WRIST_SPEED * Math.sin(displacementAngle);
+        // }
+        // mPercentOut = -BASE_PERCENT_OUT + speed;
+        // mTalon.set(ControlMode.PercentOutput, mPercentOut);
+        // mPLog.debug(printPosn("execRetract"));
     }
 
     // ---------------- Wrist Stop Cmd---------------------------
@@ -592,6 +623,15 @@ public class WristSys extends Subsystem {
         mLog.debug(printPosn("disableHoldPosnPID"));
     }
 
+
+    public boolean PID_ExecOnTarget(){
+        mLog.debug("WS.pidExecOnTarget: Wrist on Target  --------------------------------------------");
+        enableHoldPosnPID(m_targ.getTicks());
+        m_usingHoldPID = true;
+        mCurState = WristState.PID_HOLD;
+        return true;
+    }
+
     // move to target using PID ---------------------------------------------
 
     /**
@@ -602,10 +642,10 @@ public class WristSys extends Subsystem {
      */
     public void initMoveToTarget(WristTarget targ) {
         m_targ = targ;
-        if (m_holdPID != null) {
-            m_holdPID.disable();
-        }
-        if (m_movePID == null) {
+        // if (m_holdPID != null) {
+        //     m_holdPID.disable();
+        // }
+        // if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, BASE_PERCENT_OUT, -0.5, 0.5);
             double kP = 0.005 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
@@ -613,11 +653,11 @@ public class WristSys extends Subsystem {
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
             m_movePID = new TTPIDController("wristM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
-                    periodInSecs);
+                    periodInSecs, this);
             m_movePID.setAbsoluteTolerance(10 * TICKS_PER_DEG); // allow +- one inch - then hand over to posn hold
-        } else {
-            m_movePID.reset();
-        }
+        // } else {
+        //     m_movePID.reset();
+        // }
         setState(WristState.PID_MOVE_TO);
         int curPosn = mTalon.getSelectedSensorPosition(0);
         int calcTarg = targ.getTicks();
