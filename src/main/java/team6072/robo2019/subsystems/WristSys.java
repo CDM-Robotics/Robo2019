@@ -49,7 +49,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
 
     private static final int BASE = 0;
 
-    public static final double STARTING_ANGLE = 38.0;
+    public static final double STARTING_ANGLE = 35.0;
     private static final double TILT_TO_TOP_CARGO_ROCKET = 165; // ESTIMATE
     private static final double FLAT_TO_TARGET = 180; // ESTIMATE
     private static final double TILT_TO_GROUND = 142; // Estimate
@@ -400,14 +400,14 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
 
     public void testExtend() {
         setState(WristState.MANUAL_EXTEND);
-        mTalon.set(ControlMode.PercentOutput, .2);
+        mTalon.set(ControlMode.PercentOutput, .4);
         // mPLog.debug(printPosn("execExtend"));
 
     }
 
     public void testRetract() {
         setState(WristState.MANUAL_RETRACT);
-        mTalon.set(ControlMode.PercentOutput, -.2);
+        mTalon.set(ControlMode.PercentOutput, -.4);
         // mPLog.debug(printPosn("execRetract"));
 
     }
@@ -436,7 +436,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
     }
 
     public static final int TICKS_AT_90 = (int) ((90 - STARTING_ANGLE) * TICKS_PER_DEG);
-    public static final double MAX_WRIST_SPEED = 0.6;
+    public static final double MAX_WRIST_SPEED = 0.2;
 
     public void execExtend() {        
         if (mDontExtend) {
@@ -447,7 +447,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
         *       to the amount the wrist has traveled
         */
         double pcOut = (MAX_WRIST_SPEED / MAX_TRAVEL) * (MAX_TRAVEL - getWristPosition());
-        
+        mLog.debug("WS.execExtend curPosition: %d  curPCout: %.3f", getWristPosition(), pcOut);
         mPercentOut = BASE_PERCENT_OUT + pcOut;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execExtend"));
@@ -504,7 +504,8 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
         *       to the amount the wrist has traveled
         */
         double pcOut = -(MAX_WRIST_SPEED / MAX_TRAVEL) * (getWristPosition());
-        
+        mLog.debug("WS.execRetract curPosition: %d  curPCout: %.3f", getWristPosition(), pcOut);
+
         mPercentOut = -BASE_PERCENT_OUT + pcOut;
         mTalon.set(ControlMode.PercentOutput, mPercentOut);
         mPLog.debug(printPosn("execRetract"));
