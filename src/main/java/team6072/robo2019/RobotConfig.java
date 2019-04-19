@@ -79,4 +79,8 @@ public class RobotConfig {
     public static final int PCM_DRIVE_HIGH = 4;
     public static final int PCM_DRIVE_LOW = 5;
 
+    public static final int PCM_INTAKELOCK_OPEN = 2;
+    public static final int PCM_INTAKELOCK_CLOSED = 3;
+
+
 }
