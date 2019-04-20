@@ -61,7 +61,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
     // specify the boundaries beyond which not allowed to have power
     private static final double RETRACT_STOP_ANGLE = 37.0;
     private static final int MIN_TRAVEL = (int) ((RETRACT_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
-    private static final double EXTEND_STOP_ANGLE = 250.0;
+    private static final double EXTEND_STOP_ANGLE = 200.0;
     private static final int MAX_TRAVEL = (int) ((EXTEND_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
 
     /*
@@ -400,7 +400,11 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
 
     public void testExtend() {
         setState(WristState.MANUAL_EXTEND);
+        mLog.debug("WS.testExtend curPosition: %d ", getWristPosition());
+
         mTalon.set(ControlMode.PercentOutput, .4);
+        mLog.debug("WS.testRetract curPosition: %d ", getWristPosition());
+
         // mPLog.debug(printPosn("execExtend"));
 
     }
@@ -436,7 +440,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
     }
 
     public static final int TICKS_AT_90 = (int) ((90 - STARTING_ANGLE) * TICKS_PER_DEG);
-    public static final double MAX_WRIST_SPEED = 0.2;
+    public static final double MAX_WRIST_SPEED = 0.4;
 
     public void execExtend() {        
         if (mDontExtend) {
