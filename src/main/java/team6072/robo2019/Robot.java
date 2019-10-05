@@ -17,7 +17,7 @@ import team6072.robo2019.commands.drive.ArcadeDriveCmd;
 import team6072.robo2019.commands.drive.DriveDistCmd;
 import team6072.robo2019.commands.elevator.ElvMoveUpSlow;
 import team6072.robo2019.commands.pneumatics.FlowerCloseCmd;
-import team6072.robo2019.commands.pneumatics.FlowerOpenCmd;
+import team6072.robo2019.commands.pneumatics.IntakeLockOpenCmd;
 import team6072.robo2019.device.DistanceSensor;
 import team6072.robo2019.subsystems.*;
 
@@ -216,9 +216,9 @@ public class Robot extends TimedRobot {
             //    mLogPeriodic.debug(mElvSys.printPosn("telPer:"));
             // }
             // // // mLogPeriodic.debug(mDriveSys.logMotor()); //mDriveSys.logSensors());
-            // if (mWristSys != null) {
-            //     mLogPeriodic.debug(mWristSys.printPosn("telPer:"));
-            // }
+            if (mWristSys != null) {
+                mLogPeriodic.debug(mWristSys.printPosn("telPer:"));
+            }
         } catch (Exception ex) {
             mLog.severe(ex, "Robot.teleopPeriodic:  exception: " + ex.getMessage());
         }

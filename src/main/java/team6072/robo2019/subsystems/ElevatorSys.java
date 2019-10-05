@@ -15,12 +15,13 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import team6072.robo2019.RobotConfig;
 import team6072.robo2019.commands.objectives.Objective;
 import team6072.robo2019.logging.*;
+import team6072.robo2019.pid.IPIDExecOnTarget;
 import team6072.robo2019.pid.TTPIDController;
 
 /**
  * Add your docs here.
  */
-public class ElevatorSys extends Subsystem {
+public class ElevatorSys extends Subsystem implements IPIDExecOnTarget  {
 
     private static final LogWrapper mLog = new LogWrapper(ElevatorSys.class.getName());
     private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 50);
@@ -49,7 +50,7 @@ public class ElevatorSys extends Subsystem {
                                                               // for ball center
     
 
-    private Objective.ElvTarget m_targ;
+    private ElevatorSys.ElvTarget m_targ;
     private TTPIDController m_movePID;
     private TTPIDController m_holdPID;
     private PIDSourceTalonPW m_PidSourceTalonPW;
@@ -120,6 +121,55 @@ public class ElevatorSys extends Subsystem {
      */
     private double mTarget;
 
+    // ---------------Rocket Hatch---------
+
+    private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
+    private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    private static final double ROCKET_HATCH_MID_INCHES = (ROCKET_HATCH_LO_INCHES + 24 + 4);
+    private static final int ROCKET_HATCH_MID = (int) (ROCKET_HATCH_MID_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
+    private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    // ---------------Rocket Cargo-------------
+
+    private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
+    private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    private static final double ROCKET_CARGO_MID_INCHES = (ROCKET_CARGO_LO_INCHES + 24 + 4);
+    private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
+    private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    // -----------------Cargoship Hatch--------
+
+    private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
+    private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    // ----------------CARGOSHIP CARGO---------
+
+    private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
+    // extra 2 inches for safety^^^
+    private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    public enum ElvTarget {
+        RocketHatchHi(ROCKET_HATCH_HI), RocketHatchMid(ROCKET_HATCH_MID), RocketHatchLo(ROCKET_HATCH_LO),
+        RocketCargoHi(ROCKET_CARGO_HI), RocketCargoMid(ROCKET_CARGO_MID), RocketCargoLo(ROCKET_CARGO_LO),
+        CargoshipHatch(CARGOSHIP_HATCH), CargoshipCargo(CARGOSHIP_CARGO), HatchPickUp(CARGOSHIP_HATCH);
+
+        private int mTicks;
+
+        ElvTarget(int ticks) {
+            mTicks = ticks;
+        }
+
+        public int getTicks() {
+            return mTicks;
+        }
+    }
+
     /**
      * Log the sensor position at power up - use this as the base reference for
      * positioning.
@@ -127,8 +177,8 @@ public class ElevatorSys extends Subsystem {
     private int mBasePosn;
 
     // specify the boundaries beyond which not allowed to have power
-    private static int MAX_TRAVEL = 19500;
-    private static int MIN_TRAVEL = (int)(TICKS_PER_INCH * 9);
+    public static int MAX_TRAVEL = 19500;
+    public static int MIN_TRAVEL = (int)(TICKS_PER_INCH * 9);
 
     private DigitalInput m_BottomLimit;
     private Counter m_BottomLimitCtr;
@@ -503,11 +553,15 @@ public class ElevatorSys extends Subsystem {
     }
 
     public void execMoveUp() {
+        execMoveUp(MANUAL_POWER_UP);
+    }
+    
+    public void execMoveUp(double pcOut) {
         if (m_DontMoveUp) {
             return;
         }
-        mPercentOut = MANUAL_POWER_UP;
-        mTalon.set(ControlMode.PercentOutput, mPercentOut);
+        // mPercentOut = MANUAL_POWER_UP;
+        mTalon.set(ControlMode.PercentOutput, pcOut);
         mPLog.debug(printPosn("execMoveUp"));
     }
 
@@ -534,11 +588,14 @@ public class ElevatorSys extends Subsystem {
     }
 
     public void execMoveDown() {
+        execMoveDown(MANUAL_POWER_DOWN);
+    }
+    
+    public void execMoveDown(double pcOut) {
         if (m_DontMoveDown) {
             return;
         }
-        mPercentOut = MANUAL_POWER_DOWN;
-        mTalon.set(ControlMode.PercentOutput, mPercentOut);
+        mTalon.set(ControlMode.PercentOutput, pcOut);
         mPLog.debug(printPosn("execMoveDown"));
     }
 
@@ -558,7 +615,7 @@ public class ElevatorSys extends Subsystem {
             double kD = 0.0;
             double kF = 0.0;
             double periodInSecs = 0.05; // for hold, check every 50 mS is fine
-            m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_HoldPidOutTalon, periodInSecs);
+            m_holdPID = new TTPIDController("elvHold", kP, kI, kD, kF, m_PidSourceTalonPW, m_HoldPidOutTalon, periodInSecs, null);
             m_holdPID.setAbsoluteTolerance(0.5 * TICKS_PER_INCH); // allow +- 200 units (0.4 inches) on error
             m_holdPID.setRamp(0.0, 0.0); // no ramping on a hold
             m_holdPID.setDebugEnabled(true, 10);
@@ -618,32 +675,32 @@ public class ElevatorSys extends Subsystem {
      * 
      * @param targ
      */
-    public void initMoveToTarget(Objective.ElvTarget targ) {
+    public void initPIDMoveToTarget(ElevatorSys.ElvTarget targ) {
         setState(ELV_STATE.PIDMOVE);
         m_targ = targ;
         initHoldPosnPID();
-        
+
         // if(mClimbPidController != null){
         //     mClimbPidController.disable();
         // }
-        // if (m_movePID == null) {
+        if (m_usingHoldPID) {
+            m_haveToStop = true;
+            m_holdPID.disable();
+        }
+        if (m_movePID == null) {
             m_PidOutTalon = new PIDOutTalon(mTalon, 0.3, -0.8, 0.8);
             double kP = 0.05 / 500; // want 20% power when hit tolerance band of 500 units (was 0.001)
             double kI = 0.0;
             double kD = 0.0;
             double kF = 0.0;
-            double periodInSecs = 0.05; // for hold, check every 50 mS is fine
+            double periodInSecs = 0.05; // run PID calc every 50 mS
             m_movePID = new TTPIDController("elvM2Targ", kP, kI, kD, kF, m_PidSourceTalonPW, m_PidOutTalon,
-                    periodInSecs);
+                    periodInSecs, this);
             m_movePID.setAbsoluteTolerance(2 * TICKS_PER_INCH); // allow +- one inch - then hand over to posn hold to lock in
             m_movePID.setDebugEnabled(true, 10);
-        // } else {
-            if (m_usingHoldPID) {
-                m_haveToStop = true;
-                m_holdPID.disable();
-            }
-            // m_movePID.reset();
-        // }
+        } else {
+            m_movePID.reset();
+        }
 
         int curPosn = mTalon.getSelectedSensorPosition(0);
         int calcTarg = targ.getTicks();
@@ -662,17 +719,31 @@ public class ElevatorSys extends Subsystem {
      * Talon What we want to do is wait until the PID is close, then use the holdPID
      * to lock in
      */
-    public void execMoveToTarget() {
-        mPLog.debug("ES.execMoveToTarg:  onTarg: %b  curPosn: %d  pidOut: %.3f  holdPidOut: %.3f", 
-            m_movePID.onTarget(), mTalon.getSelectedSensorPosition(), m_PidOutTalon.getVal(), m_HoldPidOutTalon.getVal());
-        if (m_movePID.onTarget() && !m_usingHoldPID) {
-            mLog.debug("ES.execMoveToTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-            mLog.debug(printPosn("ES.execMoveToTarget:"));
-            enableHoldPosnPID(m_targ.getTicks());
-            m_movePID.disable();
-            m_usingHoldPID = true;
-        }
+    // public void execMoveToTarget() {
+    //     mPLog.debug("ES.execMoveToTarg:  onTarg: %b  curPosn: %d  pidOut: %.3f  holdPidOut: %.3f", m_movePID.onTarget(),
+    //             mTalon.getSelectedSensorPosition(), m_PidOutTalon.getVal(), m_HoldPidOutTalon.getVal());
+    //     if (m_movePID.onTarget() && !m_usingHoldPID) {
+    //         mLog.debug("ES.execMoveToTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+    //         mLog.debug(printPosn("ES.execMoveToTarget:"));
+    //         enableHoldPosnPID(m_targ.getTicks());
+    //         m_movePID.disable();
+    //         m_usingHoldPID = true;
+    //     }
+    // }
+
+
+    /**
+     * This is passed to the movePID controller, which will call it when it hits target
+     * The method returns true if we want to PID controller to disable itself
+     */
+    public boolean PID_ExecOnTarget() {
+        mLog.debug("ES.pidExecOnTarget: on target  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        mLog.debug(printPosn("ES.pidExecOnTarget:"));
+        enableHoldPosnPID(m_targ.getTicks());
+        m_usingHoldPID = true;
+        return true;    // force movePID to disable
     }
+
 
     /**
      * Only return true once we have moved to using holdPID and it is on target
@@ -710,58 +781,8 @@ public class ElevatorSys extends Subsystem {
     }
 
 
-    // //----------------------------------------------------------------------
-    // //----------------------------------------------------------------------
-    // //----------------------------------------------------------------------
-    // //----------------------- Climb with NavX ------------------------------
-    // //----------------------------------------------------------------------
-    // //----------------------------------------------------------------------
-    // //----------------------------------------------------------------------
-
-    private PIDController mClimbPidController;
-    private PIDSourceNavXPitch mClimbPidSourceNavX;
-    private PIDOutTalonWithoutRamping mClimbPidOutTalon;
-    
-    private final double mClimbKp = 0.01;
-    private final double mClimbKi = 0.0;
-    private final double mClimbKd = 0.0;
-    private final double mClimbKf = 0.0;
-     
-    private final double ABSOLUTE_TOLERANCE = 5.0; // within 2 degrees of tilt
-    private boolean m_climbPID = false;
-
-    public void initNavXClimbPID(){
-        
-        mClimbPidSourceNavX = new PIDSourceNavXPitch();
-        mClimbPidOutTalon = new PIDOutTalonWithoutRamping(mTalon);
-        mClimbPidController = new PIDController(mClimbKp, mClimbKi, mClimbKd, mClimbKf, mClimbPidSourceNavX, mClimbPidOutTalon);
-    
-        mClimbPidController.setAbsoluteTolerance(ABSOLUTE_TOLERANCE);
-        mClimbPidController.setInputRange(-180, 180);
-        mClimbPidController.setOutputRange(-.5, .5);
-        mClimbPidController.setSetpoint(0);
-
-        mClimbPidController.enable();
-        m_climbPID = true;
-        mLog.debug("ES.initNavXClimbPID");
+    public WPI_TalonSRX getTalon() {
+        return mTalon;
     }
 
-    public void execNavXClimbPID(){
-        double elvPCOut = -mClimbPidOutTalon.getVal();  // polarize this variable based on which way pitch os calibrated
-        double pitchError = mClimbPidSourceNavX.pidGet();
-        mTalon.set(ControlMode.PercentOutput, elvPCOut);
-        mPLog.debug("ES.execNavXClimbPID   elvPCOut: %.3f  pitchError: %.3f", elvPCOut, pitchError);
-
-    }
-
-    public boolean navXClimbPIDIsFinished(){
-        if(mTalon.getSelectedSensorPosition() < 500){
-            mClimbPidController.disable();
-            m_climbPID = false;
-            mLog.debug("ES.navXClimbPIDIsFinished");
-            return true;
-        }else{
-            return false;
-        }
-    }
 }

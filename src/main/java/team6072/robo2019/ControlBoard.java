@@ -11,9 +11,11 @@ import team6072.robo2019.commands.drive.*;
 import team6072.robo2019.commands.elevator.*;
 import team6072.robo2019.commands.wrist.*;
 import team6072.robo2019.commands.intake.*;
+import team6072.robo2019.subsystems.ElevatorSys.ElvTarget;
 import team6072.robo2019.commands.objectives.ObjectiveCmd;
 import team6072.robo2019.commands.pneumatics.*;
 import team6072.robo2019.commands.objectives.Objective;
+import team6072.robo2019.subsystems.ElevatorSys;
 import team6072.robo2019.subsystems.WristSys.WristTarget;
 import team6072.robo2019.commands.LED.LEDKillCmd;
 import team6072.robo2019.commands.LED.LEDLightsOnCmd;
@@ -106,11 +108,15 @@ public class ControlBoard {
 
         MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new StartHalfSpeedCmd(), new StopHalfSpeedCmd());
 
-        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new LEDLightsOnCmd(1), null);
-        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new LEDKillCmd(), null);
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new ClimberExtendCmd(), new ClimberHoldCmd());
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new ClimberRetractCmd(), new ClimberHoldCmd());
+
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_12, new ElvClimbWithPitchCmd(), null);
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new LEDLightsOnCmd(1), null);
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new LEDKillCmd(), null);
         
-        MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new LEDSlowOnCmd(), null);
-        MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_BOT, new LEDSlowOffCmd(), null);
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_TOP, new LEDSlowOnCmd(), null);
+        // MapCmdToBut(mDriveStick, EXTREME_BUT_RIGHT_BOT, new LEDSlowOffCmd(), null);
 
 
         // Control Stick Commands ------------------------------------
@@ -120,8 +126,8 @@ public class ControlBoard {
         MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_TOP, new ElvMoveUpCmd(), new ElvHoldCmd()); //new ElvHoldPIDCmd()
         MapCmdToBut(mControlStick, EXTREME_BUT_LEFT_BOT, new ElvMoveDownCmd(), new ElvHoldCmd()); //new ElvHoldPIDCmd()
 
-        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristExtendCmd(), new WristHoldPIDCmd());  // new WristHoldPIDCmd());
-        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristRetractCmd(), new WristHoldPIDCmd()); // new WristHoldPIDCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_TOP, new WristExtendCmd(), new WristHoldCmd());  // new WristHoldPIDCmd());
+        MapCmdToBut(mControlStick, EXTREME_BUT_RIGHT_BOT, new WristRetractCmd(), new WristHoldCmd()); // new WristHoldPIDCmd());
 
         MapCmdToBut(mControlStick, EXTREME_BUT_TRIGGER, new IntakeWheelsInCmd(), new IntakeWheelsStopCmd());
         MapCmdToBut(mControlStick, EXTREME_BUT_THUMB, new IntakeWheelsOutCmd(), new IntakeWheelsStopCmd());
@@ -131,6 +137,9 @@ public class ControlBoard {
 
         MapCmdToPovBut(mControlStick, PovAngle.Deg_090, new FlowerWristExtendCmd(), null);
         MapCmdToPovBut(mControlStick, PovAngle.Deg_270, new FlowerWristRetractCmd(), null);
+
+        MapCmdToBut(mControlStick, EXTREME_BUT_12, new IntakeLockOpenCmd(), null);
+        MapCmdToBut(mControlStick, EXTREME_BUT_11, new IntakeLockCloseCmd(), null);
 
         // MapCmdToBut(mControlStick, EXTREME_BUT_7, new ElvKillWatchDogCmd(), null);
         // MapCmdToBut(mControlStick, EXTREME_BUT_8, new ElvReviveWatchDogCmd(), null);
@@ -143,19 +152,18 @@ public class ControlBoard {
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new AlignmentTurnCmd(Objective.TargetYaw.LEFT_BALL), null);
 
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ObjectiveCmd(Objective.ElvTarget.RocketCargoHi), null);
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ObjectiveCmd(Objective.ElvTarget.RocketCargoMid), null);
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ObjectiveCmd(Objective.ElvTarget.RocketCargoLo), null);
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ObjectiveCmd(Objective.ElvTarget.RocketHatchHi), null);
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ObjectiveCmd(Objective.ElvTarget.RocketHatchMid), null);
-        MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ObjectiveCmd(Objective.ElvTarget.RocketHatchLo), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_1, new ElvPIDMoveToCmd(ElvTarget.RocketCargoHi), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_2, new ElvPIDMoveToCmd(ElvTarget.RocketCargoMid), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_3, new ElvPIDMoveToCmd(ElvTarget.RocketCargoLo), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_4, new ElvPIDMoveToCmd(ElvTarget.RocketHatchHi), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_5, new ElvPIDMoveToCmd(ElvTarget.RocketHatchMid), null);
+        // MapCmdToBut(mRightPanel, RIGHT_PANEL_BUT_6, new ElvPIDMoveToCmd(ElvTarget.RocketHatchLo), null);
 
         // left panel -----------------------------------------------------
 
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_1, new WristMoveToCmd(WristTarget.RetrieveBallPosition), null);
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_2, new WristMoveToCmd(WristTarget.FlatHatchDeployPosition), null);
-        MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_3, new WristMoveToCmd(WristTarget.FlatCargoDeployPosition), null);
+        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_4, new WristMoveToPIDCmd(WristTarget.FlatCargoDeployPosition), null);
 
+        // MapCmdToBut(mLeftPanel, LEFTPANEL_BUT_3, new ClimberKillCmd(), null);
     }
 
     /**

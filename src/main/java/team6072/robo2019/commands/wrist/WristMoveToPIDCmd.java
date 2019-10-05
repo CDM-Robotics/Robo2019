@@ -6,13 +6,13 @@ import team6072.robo2019.subsystems.WristSys;
 
 
 
-public class WristMoveToCmd extends Command {
+public class WristMoveToPIDCmd extends Command {
 
     private WristSys mSys;
 
     private WristSys.WristTarget m_target;
 
-    public WristMoveToCmd(WristSys.WristTarget target) {
+    public WristMoveToPIDCmd(WristSys.WristTarget target) {
         mSys = WristSys.getInstance();
         requires(mSys);
         m_target = target;
@@ -21,19 +21,18 @@ public class WristMoveToCmd extends Command {
     // Called just before this Command runs the first time
     @Override
     protected void initialize() {
-        mSys.initMoveToTarget(m_target);
+        mSys.initPIDMoveToTarget(m_target);
     }
 
     // Called repeatedly when this Command is scheduled to run
     @Override
     protected void execute() {
-        mSys.execMoveToTarget();
     }
 
     // Make this return true when this Command no longer needs to run execute()
     @Override
     protected boolean isFinished() {
-        return mSys.isMoveToTargetComplete();
+        return true;
     }
 
     // Called once after isFinished returns true

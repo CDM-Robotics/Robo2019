@@ -42,10 +42,10 @@ public class RobotConfig {
     public static final int ELEVATOR_SWITCH_BOT = 0;
 
     // WRIST
-    public static final int WRIST_TICKS_PER_DEG = 20; // MEASURED 2019-04-04
+    public static final int WRIST_TICKS_PER_DEG = 15; // MEASURED 2019-19-04
     public static final boolean WRIST_SENSOR_PHASE = false;
     public static final boolean WRIST_INVERT = true;
-    public static final double WRIST_BASE_PERCENT_OUT = 0.1;
+    public static final double WRIST_BASE_PERCENT_OUT = 0.0;
 
     public static final int WRIST_MASTER = 11;
     public static final int LED_MASTER = 10; // only in 2019
@@ -62,9 +62,9 @@ public class RobotConfig {
     // CLIMBER
     public static final int CLIMBER_MASTER = 6; // 2019
     public static final int CLIMBER_SLAVE0 = 7; // 2019
-    public static final double CLIMB_BASE_PERCENT_OUT = 0.2;
+    public static final double CLIMB_BASE_PERCENT_OUT = 0.07;
 
-    public static final double CLIMBER_MAX_SPEED = .4;
+    public static final double CLIMBER_MAX_SPEED = .5;
 
     // Power Distribution Panel - NOTE FRC says needs to be 0 for 2018 WPILib
     public static final int PDP_ID = 0;
@@ -78,5 +78,9 @@ public class RobotConfig {
     public static final int PCM_INTAKE_CLOSED = 3;
     public static final int PCM_DRIVE_HIGH = 4;
     public static final int PCM_DRIVE_LOW = 5;
+
+    public static final int PCM_INTAKELOCK_OPEN = 6;
+    public static final int PCM_INTAKELOCK_CLOSED = 7;
+
 
 }
