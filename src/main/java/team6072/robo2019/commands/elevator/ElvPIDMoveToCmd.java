@@ -22,10 +22,10 @@ public class ElvPIDMoveToCmd extends Command {
 
     private ElevatorSys mSys;
 
-    private Objective.ElvTarget m_target;
+    private ElevatorSys.ElvTarget m_target;
 
 
-    public ElvPIDMoveToCmd(Objective.ElvTarget target) {
+    public ElvPIDMoveToCmd(ElevatorSys.ElvTarget target) {
         mSys = ElevatorSys.getInstance();
         requires(mSys);
         m_target = target;

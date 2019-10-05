@@ -23,10 +23,10 @@ public class ClimberSys extends Subsystem {
     private static ClimberSys mInstance;
 
     public static ClimberSys getInstance() {
-        // if (mInstance == null) {
-        // mInstance = new ClimberSys();
-        // }
-        return null;
+        if (mInstance == null) {
+        mInstance = new ClimberSys();
+        }
+        return mInstance;
     }
 
     private NavXSys mNavX;

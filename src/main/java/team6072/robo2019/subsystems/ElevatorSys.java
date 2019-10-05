@@ -50,7 +50,7 @@ public class ElevatorSys extends Subsystem implements IPIDExecOnTarget  {
                                                               // for ball center
     
 
-    private Objective.ElvTarget m_targ;
+    private ElevatorSys.ElvTarget m_targ;
     private TTPIDController m_movePID;
     private TTPIDController m_holdPID;
     private PIDSourceTalonPW m_PidSourceTalonPW;
@@ -120,6 +120,55 @@ public class ElevatorSys extends Subsystem implements IPIDExecOnTarget  {
      * some other way of specifying desired state
      */
     private double mTarget;
+
+    // ---------------Rocket Hatch---------
+
+    private static final double ROCKET_HATCH_LO_INCHES = ((12 + 7) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
+    private static final int ROCKET_HATCH_LO = (int) (ROCKET_HATCH_LO_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    private static final double ROCKET_HATCH_MID_INCHES = (ROCKET_HATCH_LO_INCHES + 24 + 4);
+    private static final int ROCKET_HATCH_MID = (int) (ROCKET_HATCH_MID_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    private static final double ROCKET_HATCH_HI_INCHES = (ROCKET_HATCH_MID_INCHES + 24 + 4);
+    private static final int ROCKET_HATCH_HI = (int) (ROCKET_HATCH_HI_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    // ---------------Rocket Cargo-------------
+
+    private static final double ROCKET_CARGO_LO_INCHES = ((24 + 3.5) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
+    private static final int ROCKET_CARGO_LO = (int) (ROCKET_CARGO_LO_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    private static final double ROCKET_CARGO_MID_INCHES = (ROCKET_CARGO_LO_INCHES + 24 + 4);
+    private static final int ROCKET_CARGO_MID = (int) (ROCKET_CARGO_MID_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    private static final double ROCKET_CARGO_HI_INCHES = (ROCKET_CARGO_MID_INCHES + 24 + 4);
+    private static final int ROCKET_CARGO_HI = (int) (ROCKET_CARGO_HI_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    // -----------------Cargoship Hatch--------
+
+    private static final double CARGOSHIP_HATCH_INCHES = ((12 + 7) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
+    private static final int CARGOSHIP_HATCH = (int) (CARGOSHIP_HATCH_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    // ----------------CARGOSHIP CARGO---------
+
+    private static final double CARGOSHIP_CARGO_INCHES = ((24 + 7.5 + 6.5 + 2) - ElevatorSys.ELEVATOR_FLOOR_INCHES);
+    // extra 2 inches for safety^^^
+    private static final int CARGOSHIP_CARGO = (int) (CARGOSHIP_CARGO_INCHES * ElevatorSys.TICKS_PER_INCH);
+
+    public enum ElvTarget {
+        RocketHatchHi(ROCKET_HATCH_HI), RocketHatchMid(ROCKET_HATCH_MID), RocketHatchLo(ROCKET_HATCH_LO),
+        RocketCargoHi(ROCKET_CARGO_HI), RocketCargoMid(ROCKET_CARGO_MID), RocketCargoLo(ROCKET_CARGO_LO),
+        CargoshipHatch(CARGOSHIP_HATCH), CargoshipCargo(CARGOSHIP_CARGO), HatchPickUp(CARGOSHIP_HATCH);
+
+        private int mTicks;
+
+        ElvTarget(int ticks) {
+            mTicks = ticks;
+        }
+
+        public int getTicks() {
+            return mTicks;
+        }
+    }
 
     /**
      * Log the sensor position at power up - use this as the base reference for
@@ -626,7 +675,7 @@ public class ElevatorSys extends Subsystem implements IPIDExecOnTarget  {
      * 
      * @param targ
      */
-    public void initPIDMoveToTarget(Objective.ElvTarget targ) {
+    public void initPIDMoveToTarget(ElevatorSys.ElvTarget targ) {
         setState(ELV_STATE.PIDMOVE);
         m_targ = targ;
         initHoldPosnPID();

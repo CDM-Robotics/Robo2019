@@ -402,7 +402,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
         setState(WristState.MANUAL_EXTEND);
         mLog.debug("WS.testExtend curPosition: %d ", getWristPosition());
 
-        mTalon.set(ControlMode.PercentOutput, .4);
+        mTalon.set(ControlMode.PercentOutput, .3);
         mLog.debug("WS.testRetract curPosition: %d ", getWristPosition());
 
         // mPLog.debug(printPosn("execExtend"));
@@ -411,7 +411,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
 
     public void testRetract() {
         setState(WristState.MANUAL_RETRACT);
-        mTalon.set(ControlMode.PercentOutput, -.4);
+        mTalon.set(ControlMode.PercentOutput, -.3);
         // mPLog.debug(printPosn("execRetract"));
 
     }
