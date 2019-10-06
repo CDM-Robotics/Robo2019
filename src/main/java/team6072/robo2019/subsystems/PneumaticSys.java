@@ -104,11 +104,13 @@ public class PneumaticSys extends Subsystem {
     public void setIntakeLockOpen() {
         mLog.debug("PneumaticSys.setIntakeLockClosed  <<<<<");
         mIntakeLockSolenoid.set(DoubleSolenoid.Value.kForward);
+        WristSys.getInstance().mIntakeLockExtend = true;
     }
 
     public void setIntakeLockClose() {
         mLog.debug("PneumaticSys.setIntakLockeOpen  >>>>>");
         mIntakeLockSolenoid.set(DoubleSolenoid.Value.kReverse);
+        WristSys.getInstance().mIntakeLockExtend = false;
     }
 
 

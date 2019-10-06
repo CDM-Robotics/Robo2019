@@ -108,8 +108,8 @@ public class ControlBoard {
 
         MapCmdToBut(mDriveStick, EXTREME_BUT_TRIGGER, new StartHalfSpeedCmd(), new StopHalfSpeedCmd());
 
-        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new ClimberExtendCmd(), new ClimberHoldCmd());
-        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new ClimberRetractCmd(), new ClimberHoldCmd());
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new ClimberExtendCmd(), new ClimberKillCmd());
+        MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_BOT, new ClimberRetractCmd(), new ClimberKillCmd());
 
         // MapCmdToBut(mDriveStick, EXTREME_BUT_12, new ElvClimbWithPitchCmd(), null);
         // MapCmdToBut(mDriveStick, EXTREME_BUT_LEFT_TOP, new LEDLightsOnCmd(1), null);
@@ -141,8 +141,8 @@ public class ControlBoard {
         MapCmdToBut(mControlStick, EXTREME_BUT_12, new IntakeLockOpenCmd(), null);
         MapCmdToBut(mControlStick, EXTREME_BUT_11, new IntakeLockCloseCmd(), null);
 
-        // MapCmdToBut(mControlStick, EXTREME_BUT_7, new ElvKillWatchDogCmd(), null);
-        // MapCmdToBut(mControlStick, EXTREME_BUT_8, new ElvReviveWatchDogCmd(), null);
+        MapCmdToBut(mControlStick, EXTREME_BUT_7, new ElvKillWatchDogCmd(), null);
+        MapCmdToBut(mControlStick, EXTREME_BUT_8, new ElvReviveWatchDogCmd(), null);
 
         // MapCmdToBut(mControlStick, EXTREME_BUT_9, new WristStopCmd(), null);
 

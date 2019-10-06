@@ -21,6 +21,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
     private static final LogWrapper mLog = new LogWrapper(WristSys.class.getName());
     private static final PeriodicLogger mPLog = new PeriodicLogger(mLog, 10);
 
+    public boolean mIntakeLockExtend = false;
     private static WristSys mInstance;
 
     public static enum Direction {
@@ -61,7 +62,7 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
     // specify the boundaries beyond which not allowed to have power
     private static final double RETRACT_STOP_ANGLE = 37.0;
     private static final int MIN_TRAVEL = (int) ((RETRACT_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
-    private static final double EXTEND_STOP_ANGLE = 200.0;
+    private static final double EXTEND_STOP_ANGLE = 210.0;
     private static final int MAX_TRAVEL = (int) ((EXTEND_STOP_ANGLE - STARTING_ANGLE) * TICKS_PER_DEG);
 
     /*
@@ -446,6 +447,9 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
         if (mDontExtend) {
             return;
         }
+        if (mIntakeLockExtend){
+            return;
+        }
         /**
         *   This function treats the percent out as a proportional output
         *       to the amount the wrist has traveled
@@ -501,6 +505,9 @@ public class WristSys extends Subsystem implements IPIDExecOnTarget{
 
     public void execRetract() {
         if (mDontExtend) {
+            return;
+        }
+        if (mIntakeLockExtend){
             return;
         }
         /**

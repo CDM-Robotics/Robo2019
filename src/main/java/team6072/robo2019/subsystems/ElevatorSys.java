@@ -178,7 +178,7 @@ public class ElevatorSys extends Subsystem implements IPIDExecOnTarget  {
 
     // specify the boundaries beyond which not allowed to have power
     public static int MAX_TRAVEL = 17000;
-    public static int MIN_TRAVEL = (int)(TICKS_PER_INCH * 9);
+    public static int MIN_TRAVEL = (int)(TICKS_PER_INCH * 2);
 
     private DigitalInput m_BottomLimit;
     private Counter m_BottomLimitCtr;
@@ -363,13 +363,13 @@ public class ElevatorSys extends Subsystem implements IPIDExecOnTarget  {
                 mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
                 setState(ELV_STATE.WD_NOUP);
                 mLog.severe("ElvSys: talon exceeded top boundry");
-            } else if (curPosn < MIN_TRAVEL && curOutput < 0) {
-                // past the max boundry and going forward
-                m_DontMoveDown = true;
-                m_DontMoveUp = false;
-                mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
-                setState(ELV_STATE.WD_NODOWN);
-                mLog.severe("ElvSys: talon exceeded bottom boundry");
+            // } else if (curPosn < MIN_TRAVEL && curOutput < 0) {
+            //     // past the max boundry and going forward
+            //     m_DontMoveDown = true;
+            //     m_DontMoveUp = false;
+            //     mTalon.set(ControlMode.PercentOutput, BASE_PERCENT_OUT);
+            //     setState(ELV_STATE.WD_NODOWN);
+            //     mLog.severe("ElvSys: talon exceeded bottom boundry");
             } else {
                 m_DontMoveDown = false;
                 m_DontMoveUp = false;
