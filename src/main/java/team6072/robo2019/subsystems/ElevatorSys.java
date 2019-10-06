@@ -37,7 +37,7 @@ public class ElevatorSys extends Subsystem implements IPIDExecOnTarget  {
     // a motor output of BASE_POWER holds the motor in place when not disturbed
     public static final double BASE_PERCENT_OUT = RobotConfig.ELV_BASE_PERCENT_OUT;
 
-    public static final double MANUAL_POWER_UP = BASE_PERCENT_OUT + 0.8;
+    public static final double MANUAL_POWER_UP = BASE_PERCENT_OUT + 0.6;
 
     public static final double MANUAL_POWER_DOWN = -0.4;
 
@@ -177,7 +177,7 @@ public class ElevatorSys extends Subsystem implements IPIDExecOnTarget  {
     private int mBasePosn;
 
     // specify the boundaries beyond which not allowed to have power
-    public static int MAX_TRAVEL = 19500;
+    public static int MAX_TRAVEL = 17000;
     public static int MIN_TRAVEL = (int)(TICKS_PER_INCH * 9);
 
     private DigitalInput m_BottomLimit;
@@ -349,7 +349,14 @@ public class ElevatorSys extends Subsystem implements IPIDExecOnTarget  {
         public void run() {
             int curPosn = mTalon.getSelectedSensorPosition();
             double curOutput = mTalon.getMotorOutputPercent();
-            if (curPosn > MAX_TRAVEL && curOutput > 0) {
+            if (curPosn > (MAX_TRAVEL + 100)) {
+                // past the max boundry and going forward
+                m_DontMoveDown = false;
+                m_DontMoveUp = true;
+                mTalon.set(ControlMode.PercentOutput, 0);
+                setState(ELV_STATE.WD_NOUP);
+                mLog.severe("ElvSys: talon exceeded top top boundry \n Killing Elv Current");
+            }else if (curPosn > (MAX_TRAVEL) && curOutput > 0) {
                 // past the max boundry and going forward
                 m_DontMoveDown = false;
                 m_DontMoveUp = true;
